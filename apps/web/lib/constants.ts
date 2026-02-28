@@ -18,6 +18,10 @@ export const FOOTER_LEGAL_LINKS = [
   { href: "/privacy#cookies", label: "Cookie Policy" },
 ] as const;
 
-/** Optional: set in env or override for footer contact column. If unset, footer shows Request Demo CTA. */
-export const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "";
+/** Footer contact column. Default email shown when env unset. */
+export const CONTACT_EMAIL =
+  process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "contact@columbusai.tech";
 export const CONTACT_PHONE = process.env.NEXT_PUBLIC_CONTACT_PHONE ?? "";
+
+/** Tailwind class for capping helper/description text width (e.g. under form fields). */
+export const HELPER_TEXT_MAX_W = "max-w-[280px]";

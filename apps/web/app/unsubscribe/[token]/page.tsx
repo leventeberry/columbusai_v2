@@ -19,7 +19,7 @@ export default async function UnsubscribePage({ params }: Props) {
   await notifyUnsubscribeWebhook(token);
 
   return (
-    <Section as="article" className="bg-background px-4 py-12 md:py-16">
+    <Section as="article" variant="default">
       <Container maxWidth="xl" className="text-center space-y-6">
         <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
           You are now unsubscribed!

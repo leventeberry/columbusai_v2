@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+/** Page content width: use maxWidth per page (e.g. 2xl contact/CTA, xl unsubscribe, 3xl terms/privacy, 5xl sections). */
 const MAX_WIDTH_CLASS: Record<MaxWidth, string> = {
   "5xl": "max-w-5xl",
   "6xl": "max-w-6xl",

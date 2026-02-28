@@ -12,7 +12,7 @@ const BULLETS = [
 
 export default function CtaSection() {
   return (
-    <Section id="cta" className="bg-background px-4 py-12 md:py-16">
+    <Section id="cta" variant="default">
       <Container
         maxWidth="2xl"
         className="space-y-6 rounded-xl border border-border bg-card px-6 py-10 text-center shadow-sm md:px-10 md:py-12"

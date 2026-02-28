@@ -29,10 +29,16 @@ import {
   TIMELINE_OPTIONS,
 } from "@/lib/validations/request-demo";
 import { submitContact } from "@/lib/api/submitContact";
+import { HELPER_TEXT_MAX_W } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 
-export default function RequestDemoBtn() {
+type RequestDemoBtnProps = {
+  /** Custom trigger element (e.g. link-styled button). When provided, used instead of the default button. */
+  trigger?: ReactNode;
+};
+
+export default function RequestDemoBtn({ trigger }: RequestDemoBtnProps) {
   const [open, setOpen] = useState(false);
   const [success, setSuccess] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -147,9 +153,13 @@ export default function RequestDemoBtn() {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger className="min-h-10 shrink-0 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
-        Request a Demo
-      </DialogTrigger>
+      {trigger ? (
+        <DialogTrigger asChild>{trigger}</DialogTrigger>
+      ) : (
+        <DialogTrigger className="min-h-10 shrink-0 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+          Request a Demo
+        </DialogTrigger>
+      )}
       <DialogContent className="w-full max-w-md p-6">
         <DialogClose />
         {success ? (
@@ -469,7 +479,7 @@ export default function RequestDemoBtn() {
           )}
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <p className="text-muted-foreground text-xs max-w-[280px]">
+            <p className={cn(HELPER_TEXT_MAX_W, "text-muted-foreground text-xs")}>
               By clicking &quot;Submit&quot; you agree to receive email marketing
               and other communications from Columbus AI Automation Solutions. You
               can unsubscribe at any time.

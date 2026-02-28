@@ -36,7 +36,7 @@ export default function FaqSection() {
   return (
     <Section
       id="faq"
-      className="bg-muted px-4 py-12 md:py-16"
+      variant="muted"
       ariaLabelledby="faq-title"
     >
       <Container>

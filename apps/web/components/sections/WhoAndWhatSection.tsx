@@ -1,5 +1,6 @@
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
+import { getGridClass } from "@/components/layout/grid";
 import { SectionCard } from "@/components/blocks/SectionCard";
 
 const WHO_ITEMS = [
@@ -54,9 +55,9 @@ const WHAT_CHANGES_ITEMS = [
 
 export default function WhoAndWhatSection() {
   return (
-    <Section className="bg-background px-4 pb-12 pt-10" ariaLabelledby="who-title">
+    <Section variant="default" ariaLabelledby="who-title">
       <Container>
-        <div className="grid gap-10 lg:grid-cols-2 lg:gap-12">
+        <div className={getGridClass("twoCol")}>
           <SectionCard title="Who This Is Built For" id="who-title">
             <ul className="list-none space-y-6 pl-0">
               {WHO_ITEMS.map((item) => (

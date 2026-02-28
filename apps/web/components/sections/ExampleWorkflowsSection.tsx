@@ -1,5 +1,6 @@
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
+import { getGridClass } from "@/components/layout/grid";
 import { TitleDescCard } from "@/components/blocks/TitleDescCard";
 
 const WORKFLOWS = [
@@ -33,7 +34,8 @@ export default function ExampleWorkflowsSection() {
   return (
     <Section
       id="workflows"
-      className="scroll-mt-20 bg-muted px-4 py-12 md:py-16"
+      variant="muted"
+      className="scroll-mt-20"
       ariaLabelledby="workflows-title"
     >
       <Container>
@@ -43,7 +45,7 @@ export default function ExampleWorkflowsSection() {
         >
           Example workflows
         </h2>
-        <ul className="my-4 grid gap-4">
+        <ul className={getGridClass("list", "my-4")}>
           {WORKFLOWS.map((w) => (
             <li key={w.title}>
               <TitleDescCard title={w.title}>

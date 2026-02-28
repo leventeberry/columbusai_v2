@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Container } from "@/components/layout/Container";
+import { getGridClass } from "@/components/layout/grid";
 import {
   SITE_NAME,
   FOOTER_PRODUCT_LINKS,
@@ -20,12 +21,10 @@ const linkClass =
   "text-sm text-muted-foreground hover:text-foreground transition-colors underline-offset-4 hover:underline";
 
 export default function Footer() {
-  const hasContact = CONTACT_EMAIL || CONTACT_PHONE;
-
   return (
     <footer className="bg-muted text-foreground">
       <Container variant="footer">
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className={getGridClass("footer")}>
           {/* Column 1: Company */}
           <div className="space-y-3">
             <Link
@@ -60,33 +59,20 @@ export default function Footer() {
             <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground">
               Contact
             </h3>
-            {hasContact ? (
-              <ul className="list-none space-y-1 pl-0 text-sm text-muted-foreground">
-                {CONTACT_EMAIL ? (
-                  <li>
-                    <a
-                      href={`mailto:${CONTACT_EMAIL}`}
-                      className={linkClass}
-                    >
-                      {CONTACT_EMAIL}
-                    </a>
-                  </li>
-                ) : null}
-                {CONTACT_PHONE ? (
-                  <li>
-                    <a href={`tel:${CONTACT_PHONE}`} className={linkClass}>
-                      {CONTACT_PHONE}
-                    </a>
-                  </li>
-                ) : null}
-              </ul>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                <Link href="/#cta" className={linkClass}>
-                  Request Demo
+            <ul className="list-none space-y-1 pl-0 text-sm text-muted-foreground">
+              <li>
+                <Link href="/contact" className={linkClass}>
+                  {CONTACT_EMAIL}
                 </Link>
-              </p>
-            )}
+              </li>
+              {CONTACT_PHONE ? (
+                <li>
+                  <a href={`tel:${CONTACT_PHONE}`} className={linkClass}>
+                    {CONTACT_PHONE}
+                  </a>
+                </li>
+              ) : null}
+            </ul>
           </div>
 
           {/* Column 4: Legal */}

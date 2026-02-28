@@ -1,6 +1,7 @@
 import { Zap, Link2, Share2, BarChart3 } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
+import { getGridClass } from "@/components/layout/grid";
 import FeatureCard from "./FeatureCard";
 
 const ITEMS = [
@@ -34,7 +35,7 @@ export default function WhatWeDoSection() {
   return (
     <Section
       id="what-we-do"
-      className="bg-muted px-4 py-12 md:py-16"
+      variant="muted"
       ariaLabelledby="what-we-do-title"
     >
       <Container>
@@ -47,7 +48,7 @@ export default function WhatWeDoSection() {
         <p className="mb-6 mt-2 text-foreground">
           Reasons we&apos;re the best choice to automate your operations:
         </p>
-        <ul className="my-4 grid gap-4 md:grid-cols-2 md:grid-rows-[1fr_1fr]">
+        <ul className={getGridClass("twoColRows", "my-4")}>
           {ITEMS.map((item) => (
             <li key={item.title} className="min-h-0">
               <FeatureCard

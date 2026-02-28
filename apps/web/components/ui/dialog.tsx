@@ -143,22 +143,33 @@ function Dialog({
 export type DialogTriggerProps = {
   children: React.ReactNode;
   className?: string;
+  asChild?: boolean;
 };
 
-function DialogTrigger({ children, className }: DialogTriggerProps) {
+function DialogTrigger({ children, className, asChild }: DialogTriggerProps) {
   const context = useContext(DialogContext);
   if (!context) throw new Error('DialogTrigger must be used within Dialog');
 
+  const triggerClassName = cn(
+    'inline-flex items-center justify-center rounded-md text-sm font-medium',
+    'transition-colors focus-visible:ring-2 focus-visible:outline-hidden',
+    'focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+    className
+  );
+
+  if (asChild && React.isValidElement(children)) {
+    const child = children as React.ReactElement<{ onClick?: (e: React.MouseEvent<unknown>) => void; className?: string }>;
+    return React.cloneElement(child, {
+      onClick: (e: React.MouseEvent<unknown>) => {
+        child.props?.onClick?.(e);
+        context.handleTrigger();
+      },
+      className: cn(child.props?.className, triggerClassName),
+    });
+  }
+
   return (
-    <button
-      onClick={context.handleTrigger}
-      className={cn(
-        'inline-flex items-center justify-center rounded-md text-sm font-medium',
-        'transition-colors focus-visible:ring-2 focus-visible:outline-hidden',
-        'focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
-        className
-      )}
-    >
+    <button onClick={context.handleTrigger} className={triggerClassName}>
       {children}
     </button>
   );

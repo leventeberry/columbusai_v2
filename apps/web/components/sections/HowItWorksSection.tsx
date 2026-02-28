@@ -5,7 +5,7 @@ export default function HowItWorksSection() {
   return (
     <Section
       id="how-it-works"
-      className="bg-background px-4 py-12 md:py-16"
+      variant="default"
       ariaLabelledby="how-title"
     >
       <Container>

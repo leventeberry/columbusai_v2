@@ -2,15 +2,7 @@ export type ContactPayload = {
   fname: string;
   lname: string;
   email: string;
-  phone: string;
-  company: string;
-  role: string;
-  industry: string;
-  team_size: string;
-  website: string;
-  what_automate: string;
-  budget: string;
-  timeline: string;
+  message: string;
 };
 
 export type ContactResponse = {

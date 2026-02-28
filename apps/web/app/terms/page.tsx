@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <Section as="article" className="bg-background px-4 py-12 md:py-16">
+    <Section as="article" variant="default">
       <Container maxWidth="3xl" className="space-y-8">
         <header className="space-y-2">
           <h1 className="text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
