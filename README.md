@@ -54,12 +54,11 @@ Phase 1 adds Postgres, Prisma (chat schema), message persistence endpoints, and 
 
 **Prereq:** Postgres (run locally or via Docker Compose).
 
+**Development flows (DATABASE_URL):** You do not need to set `DATABASE_URL` manually in either flow. (1) **Host:** Run `npm run dev` in `apps/web` with Postgres on the host (e.g. `docker compose -f infra/docker/compose.dev.yml up -d postgres postgres-vectors`). If `DATABASE_URL` is unset, it defaults to `postgresql://columbus:columbus@localhost:5432/columbus`. (2) **Docker:** Run `docker compose -f infra/docker/compose.dev.yml up`; the web service uses the dev image and Compose injects `DATABASE_URL` (and `VECTOR_DATABASE_URL`, `REDIS_URL`), so no need to set them in `.env` for the app.
+
 ### Phase 1: Run locally
 
-1. Copy `apps/web/.env.example` to `apps/web/.env` and set `DATABASE_URL` for local Postgres, e.g.:
-   ```bash
-   DATABASE_URL="postgresql://columbus:columbus@localhost:5432/columbus"
-   ```
+1. Copy `apps/web/.env.example` to `apps/web/.env`. In development, `DATABASE_URL` is optional (it defaults to localhost:5432 when unset). To override, set e.g. `DATABASE_URL="postgresql://columbus:columbus@localhost:5432/columbus"`.
    For RAG (Phase 3): set `VECTOR_DATABASE_URL="postgresql://columbus:columbus@localhost:5433/columbus_vectors"` and start both Postgres services: `docker compose -f infra/docker/compose.dev.yml up -d postgres postgres-vectors`.
 2. Ensure Postgres is running (e.g. start only chat: `docker compose -f infra/docker/compose.dev.yml up -d postgres`, or both: `postgres postgres-vectors`).
 3. Run migrations (chat DB only):
@@ -76,6 +75,7 @@ Phase 1 adds Postgres, Prisma (chat schema), message persistence endpoints, and 
    ```bash
    docker compose -f infra/docker/compose.dev.yml up -d --build
    ```
+   The web service is built with the Dockerfile `dev` stage and runs `next dev`; Compose injects `DATABASE_URL`, `VECTOR_DATABASE_URL`, and `REDIS_URL`.
 2. Run migrations (chat DB only; web container has `DATABASE_URL` → `postgres`, `VECTOR_DATABASE_URL` → `postgres-vectors`):
    ```bash
    docker compose -f infra/docker/compose.dev.yml exec web npm run db:migrate

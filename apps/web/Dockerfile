@@ -38,3 +38,13 @@ RUN ln -sf /app/node_modules/@prisma/client /app/node_modules/@prisma/client-680
 EXPOSE 3000
 
 CMD ["npm", "run", "start"]
+
+# --- dev (for docker compose dev: target=dev; runs next dev, env from Compose) ---
+FROM node:20-alpine AS dev
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY apps/web ./
+ENV NEXT_TELEMETRY_DISABLED=1
+RUN npx prisma generate
+EXPOSE 3000
+CMD ["npm", "run", "dev"]

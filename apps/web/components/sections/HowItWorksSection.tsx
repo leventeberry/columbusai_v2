@@ -1,11 +1,14 @@
+import { Container } from "@/components/layout/Container";
+import { Section } from "@/components/layout/Section";
+
 export default function HowItWorksSection() {
   return (
-    <section
+    <Section
       id="how-it-works"
       className="bg-background px-4 py-12 md:py-16"
-      aria-labelledby="how-title"
+      ariaLabelledby="how-title"
     >
-      <div className="mx-auto max-w-5xl">
+      <Container>
         <h2
           id="how-title"
           className="mb-2 mt-6 text-2xl font-semibold text-foreground"
@@ -28,7 +31,7 @@ export default function HowItWorksSection() {
             tune, and extend so your systems keep working as you grow.
           </li>
         </ol>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }

@@ -1,4 +1,6 @@
 import { Workflow, Zap, Link2 } from "lucide-react";
+import { Container } from "@/components/layout/Container";
+import { Section } from "@/components/layout/Section";
 import FeatureCard from "./FeatureCard";
 
 const FEATURES = [
@@ -24,8 +26,8 @@ const FEATURES = [
 
 export default function FeatureSection() {
   return (
-    <section className="px-4 py-12 md:py-16">
-      <div className="mx-auto max-w-5xl">
+    <Section className="px-4 py-12 md:py-16">
+      <Container>
         <h2 className="mb-8 text-center text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
           What we offer
         </h2>
@@ -40,7 +42,7 @@ export default function FeatureSection() {
             </li>
           ))}
         </ul>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }

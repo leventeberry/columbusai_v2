@@ -1,6 +1,7 @@
 // Copied from /columbus-ai:components/Footer.tsx (Phase 0 UI shell only)
 
 import Link from "next/link";
+import { Container } from "@/components/layout/Container";
 import {
   SITE_NAME,
   FOOTER_PRODUCT_LINKS,
@@ -16,31 +17,31 @@ const BOTTOM_TAGLINE =
 const year = new Date().getFullYear();
 
 const linkClass =
-  "text-sm text-gray-300 hover:text-white transition-colors underline-offset-4 hover:underline";
+  "text-sm text-muted-foreground hover:text-foreground transition-colors underline-offset-4 hover:underline";
 
 export default function Footer() {
   const hasContact = CONTACT_EMAIL || CONTACT_PHONE;
 
   return (
-    <footer className="bg-[#1E1E28] text-white">
-      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+    <footer className="bg-muted text-foreground">
+      <Container variant="footer">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {/* Column 1: Company */}
           <div className="space-y-3">
             <Link
               href="/"
-              className="text-lg font-bold text-white no-underline hover:text-white"
+              className="text-lg font-bold text-foreground no-underline hover:text-foreground"
             >
               {SITE_NAME}
             </Link>
-            <p className="text-sm text-gray-300 max-w-xs">
+            <p className="text-sm text-muted-foreground max-w-xs">
               {FOOTER_TAGLINE}
             </p>
           </div>
 
           {/* Column 2: Product */}
           <div className="space-y-3">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-white">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground">
               Product
             </h3>
             <ul className="list-none space-y-2 pl-0">
@@ -56,11 +57,11 @@ export default function Footer() {
 
           {/* Column 3: Contact */}
           <div className="space-y-3">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-white">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground">
               Contact
             </h3>
             {hasContact ? (
-              <ul className="list-none space-y-1 pl-0 text-sm text-gray-300">
+              <ul className="list-none space-y-1 pl-0 text-sm text-muted-foreground">
                 {CONTACT_EMAIL ? (
                   <li>
                     <a
@@ -80,7 +81,7 @@ export default function Footer() {
                 ) : null}
               </ul>
             ) : (
-              <p className="text-sm text-gray-300">
+              <p className="text-sm text-muted-foreground">
                 <Link href="/#cta" className={linkClass}>
                   Request Demo
                 </Link>
@@ -90,7 +91,7 @@ export default function Footer() {
 
           {/* Column 4: Legal */}
           <div className="space-y-3">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-white">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground">
               Legal
             </h3>
             <ul className="list-none space-y-2 pl-0">
@@ -106,12 +107,12 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-12 border-t border-gray-700 pt-8">
-          <p className="text-center text-sm text-gray-400">
+        <div className="mt-12 border-t border-border pt-8">
+          <p className="text-center text-sm text-muted-foreground">
             © {year} {SITE_NAME}. All rights reserved. {BOTTOM_TAGLINE}
           </p>
         </div>
-      </div>
+      </Container>
     </footer>
   );
 }

@@ -55,9 +55,9 @@ const FALLBACK_ERROR_MESSAGE =
 const HISTORY_CACHE_KEY = "chatbot-history";
 const CONVERSATION_ID_KEY = "chatbot-conversation-id";
 const DEFAULT_WIDGET_TITLE =
-  process.env.NEXT_PUBLIC_CHAT_TITLE || "Chat";
+  process.env.NEXT_PUBLIC_CHAT_TITLE || "Chexi AI";
 const DEFAULT_WELCOME_MESSAGE =
-  process.env.NEXT_PUBLIC_CHAT_WELCOME || "I am here to help answer your questions. Ask me anything!";
+  process.env.NEXT_PUBLIC_CHAT_WELCOME || "I'm Chexi, your Columbus AI assistant. Ask me anything!";
 const GLOBAL_ASSISTANT_AVATAR_URL =
   process.env.NEXT_PUBLIC_CHEXI_AVATAR_URL || "";
 
@@ -353,6 +353,8 @@ export function ChatWidget({ origin }: ChatWidgetProps) {
                 <>
                   {messages.map((msg, index) => {
                     const isAi = msg.role === "assistant" || msg.role === "system";
+                    // Don't render empty assistant placeholder while typing indicator is shown
+                    if (isAi && msg.content === "" && isSending) return null;
                     return (
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}

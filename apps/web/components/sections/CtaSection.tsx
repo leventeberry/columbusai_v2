@@ -1,5 +1,7 @@
 import { Check } from "lucide-react";
 import RequestDemoBtn from "@/components/RequestDemoBtn";
+import { Container } from "@/components/layout/Container";
+import { Section } from "@/components/layout/Section";
 
 const BULLETS = [
   "Fast turnaround",
@@ -10,8 +12,11 @@ const BULLETS = [
 
 export default function CtaSection() {
   return (
-    <section id="cta" className="bg-background px-4 py-12 md:py-16">
-      <div className="mx-auto max-w-2xl space-y-6 rounded-xl border border-border bg-card px-6 py-10 text-center shadow-sm md:px-10 md:py-12">
+    <Section id="cta" className="bg-background px-4 py-12 md:py-16">
+      <Container
+        maxWidth="2xl"
+        className="space-y-6 rounded-xl border border-border bg-card px-6 py-10 text-center shadow-sm md:px-10 md:py-12"
+      >
         <h2 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
           Request A Demo
         </h2>
@@ -30,7 +35,7 @@ export default function CtaSection() {
         <div className="flex justify-center pt-2">
           <RequestDemoBtn />
         </div>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Container } from "@/components/layout/Container";
+import { Section } from "@/components/layout/Section";
 import { notifyUnsubscribeWebhook } from "@/lib/unsubscribe/notifyUnsubscribeWebhook";
 
 export const metadata: Metadata = {
@@ -17,8 +19,8 @@ export default async function UnsubscribePage({ params }: Props) {
   await notifyUnsubscribeWebhook(token);
 
   return (
-    <article className="bg-background px-4 py-12 md:py-16">
-      <div className="mx-auto max-w-xl text-center space-y-6">
+    <Section as="article" className="bg-background px-4 py-12 md:py-16">
+      <Container maxWidth="xl" className="text-center space-y-6">
         <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
           You are now unsubscribed!
         </h1>
@@ -34,7 +36,7 @@ export default async function UnsubscribePage({ params }: Props) {
             ← Back to home
           </Link>
         </p>
-      </div>
-    </article>
+      </Container>
+    </Section>
   );
 }

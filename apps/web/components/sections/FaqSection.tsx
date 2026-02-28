@@ -1,3 +1,6 @@
+import { Container } from "@/components/layout/Container";
+import { Section } from "@/components/layout/Section";
+
 const FAQ_ITEMS = [
   {
     q: "What tools do you use?",
@@ -31,12 +34,12 @@ const FAQ_ITEMS = [
 
 export default function FaqSection() {
   return (
-    <section
+    <Section
       id="faq"
       className="bg-muted px-4 py-12 md:py-16"
-      aria-labelledby="faq-title"
+      ariaLabelledby="faq-title"
     >
-      <div className="mx-auto max-w-5xl">
+      <Container>
         <h2
           id="faq-title"
           className="mb-2 mt-6 text-2xl font-semibold text-foreground"
@@ -53,7 +56,7 @@ export default function FaqSection() {
             </div>
           ))}
         </dl>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }

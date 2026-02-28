@@ -1,4 +1,6 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Container } from "@/components/layout/Container";
+import { Section } from "@/components/layout/Section";
+import { TitleDescCard } from "@/components/blocks/TitleDescCard";
 
 const WORKFLOWS = [
   {
@@ -29,12 +31,12 @@ const WORKFLOWS = [
 
 export default function ExampleWorkflowsSection() {
   return (
-    <section
+    <Section
       id="workflows"
       className="scroll-mt-20 bg-muted px-4 py-12 md:py-16"
-      aria-labelledby="workflows-title"
+      ariaLabelledby="workflows-title"
     >
-      <div className="mx-auto max-w-5xl">
+      <Container>
         <h2
           id="workflows-title"
           className="mb-2 mt-6 text-2xl font-semibold text-foreground"
@@ -44,18 +46,13 @@ export default function ExampleWorkflowsSection() {
         <ul className="my-4 grid gap-4">
           {WORKFLOWS.map((w) => (
             <li key={w.title}>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">{w.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="mb-0 text-muted-foreground">{w.desc}</p>
-                </CardContent>
-              </Card>
+              <TitleDescCard title={w.title}>
+                <p className="mb-0 text-muted-foreground">{w.desc}</p>
+              </TitleDescCard>
             </li>
           ))}
         </ul>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }

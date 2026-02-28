@@ -9,7 +9,6 @@ export const FOOTER_LINKS = [
 export const FOOTER_PRODUCT_LINKS = [
   { href: "/#what-we-do", label: "What We Do" },
   { href: "/#how-it-works", label: "How It Works" },
-  { href: "/#cta", label: "Request Demo" },
   { href: "/#faq", label: "FAQ" },
 ] as const;
 

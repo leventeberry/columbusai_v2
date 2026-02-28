@@ -1,4 +1,6 @@
 import { Zap, Link2, Share2, BarChart3 } from "lucide-react";
+import { Container } from "@/components/layout/Container";
+import { Section } from "@/components/layout/Section";
 import FeatureCard from "./FeatureCard";
 
 const ITEMS = [
@@ -30,12 +32,12 @@ const ITEMS = [
 
 export default function WhatWeDoSection() {
   return (
-    <section
+    <Section
       id="what-we-do"
       className="bg-muted px-4 py-12 md:py-16"
-      aria-labelledby="what-we-do-title"
+      ariaLabelledby="what-we-do-title"
     >
-      <div className="mx-auto max-w-5xl">
+      <Container>
         <h2
           id="what-we-do-title"
           className="mb-2 mt-6 text-3xl font-semibold text-foreground"
@@ -56,7 +58,7 @@ export default function WhatWeDoSection() {
             </li>
           ))}
         </ul>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }

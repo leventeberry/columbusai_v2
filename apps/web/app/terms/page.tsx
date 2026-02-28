@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Container } from "@/components/layout/Container";
+import { Section } from "@/components/layout/Section";
 import { SITE_NAME } from "@/lib/constants";
 
 export const metadata: Metadata = {
@@ -9,8 +11,8 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <article className="bg-background px-4 py-12 md:py-16">
-      <div className="mx-auto max-w-3xl space-y-8">
+    <Section as="article" className="bg-background px-4 py-12 md:py-16">
+      <Container maxWidth="3xl" className="space-y-8">
         <header className="space-y-2">
           <h1 className="text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
             Terms of Service
@@ -32,7 +34,7 @@ export default function TermsPage() {
             ← Back to home
           </Link>
         </p>
-      </div>
-    </article>
+      </Container>
+    </Section>
   );
 }

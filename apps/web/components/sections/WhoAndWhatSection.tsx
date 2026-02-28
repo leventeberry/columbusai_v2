@@ -1,4 +1,6 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Container } from "@/components/layout/Container";
+import { Section } from "@/components/layout/Section";
+import { SectionCard } from "@/components/blocks/SectionCard";
 
 const WHO_ITEMS = [
   {
@@ -52,55 +54,41 @@ const WHAT_CHANGES_ITEMS = [
 
 export default function WhoAndWhatSection() {
   return (
-    <section className="bg-background px-4 pb-12 pt-10" aria-labelledby="who-title">
-      <div className="mx-auto max-w-5xl">
+    <Section className="bg-background px-4 pb-12 pt-10" ariaLabelledby="who-title">
+      <Container>
         <div className="grid gap-10 lg:grid-cols-2 lg:gap-12">
-          <Card>
-            <CardHeader>
-              <CardTitle id="who-title" className="text-2xl">
-                Who This Is Built For
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <ul className="list-none space-y-6 pl-0">
-                {WHO_ITEMS.map((item) => (
-                  <li key={item.strong}>
-                    <strong className="text-foreground">{item.strong}</strong>
-                    <p className="mb-0 mt-1 text-foreground">{item.p}</p>
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-6 text-foreground">
-                Our approach works across industries because nearly every company
-                shares the same challenge: too many manual steps and not enough
-                operational cohesion.
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-2xl">
-                What Changes After We Build Your Systems
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-6">
-                {WHAT_CHANGES_ITEMS.map((item) => (
-                  <div key={item.strong}>
-                    <p className="mb-1 font-bold text-foreground">{item.strong}</p>
-                    <p className="mt-0 text-foreground">{item.p}</p>
-                  </div>
-                ))}
-              </div>
-              <p className="mt-6 text-foreground">
-                <strong className="text-foreground">Automation isn&apos;t about replacing people.</strong> It&apos;s
-                about removing friction so your business can operate at its
-                intended level.
-              </p>
-            </CardContent>
-          </Card>
+          <SectionCard title="Who This Is Built For" id="who-title">
+            <ul className="list-none space-y-6 pl-0">
+              {WHO_ITEMS.map((item) => (
+                <li key={item.strong}>
+                  <strong className="text-foreground">{item.strong}</strong>
+                  <p className="mb-0 mt-1 text-foreground">{item.p}</p>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-6 text-foreground">
+              Our approach works across industries because nearly every company
+              shares the same challenge: too many manual steps and not enough
+              operational cohesion.
+            </p>
+          </SectionCard>
+          <SectionCard title="What Changes After We Build Your Systems">
+            <div className="space-y-6">
+              {WHAT_CHANGES_ITEMS.map((item) => (
+                <div key={item.strong}>
+                  <p className="mb-1 font-bold text-foreground">{item.strong}</p>
+                  <p className="mt-0 text-foreground">{item.p}</p>
+                </div>
+              ))}
+            </div>
+            <p className="mt-6 text-foreground">
+              <strong className="text-foreground">Automation isn&apos;t about replacing people.</strong> It&apos;s
+              about removing friction so your business can operate at its
+              intended level.
+            </p>
+          </SectionCard>
         </div>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }

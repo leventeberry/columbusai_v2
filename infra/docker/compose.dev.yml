@@ -57,6 +57,7 @@ services:
     build:
       context: ../..
       dockerfile: apps/web/Dockerfile
+      target: dev
     ports:
       - "3000:3000"
     # No volume mount: use built image so Prisma/client resolves. For live reload, use an override that mounts ../../apps/web:/app.
