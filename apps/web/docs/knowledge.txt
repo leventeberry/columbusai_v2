@@ -1,0 +1,290 @@
+# Columbus AI Automation Solutions LLC — Internal Knowledge Base (MOCK DATA)
+Version: 2026-02-27
+Owner: Operations
+Primary Domain: columbusai.tech
+Headquarters: Columbus, Ohio (remote-first)
+
+==================================================
+1) COMPANY OVERVIEW
+==================================================
+Columbus AI Automation Solutions LLC (“Columbus AI”) builds practical automations for small and mid-sized businesses. Focus areas include lead intake, appointment booking, follow-up sequences, CRM hygiene, document workflows, and lightweight AI assistants. Typical tooling: n8n, Notion, Google Workspace, Postgres, Redis, and OpenAI models for summarization/classification.
+
+Core promise:
+- Reduce manual busywork
+- Increase lead response speed
+- Standardize repeatable processes
+- Make business operations measurable (SLA, pipeline stage aging, response times)
+
+Primary service delivery model:
+- Discovery → Process Mapping → Build → Test → Launch → Optimization (30 days)
+
+==================================================
+2) TARGET CUSTOMERS + IDEAL FIT
+==================================================
+Ideal customers:
+- Local services: HVAC, roofing, cleaning, landscaping
+- Professional services: consulting, marketing agencies, legal admin support (non-legal advice), bookkeeping
+- Small e-commerce operators
+- Founder-led teams (2–50 employees)
+
+Signs a business is a great fit:
+- Leads arrive from multiple sources (site forms, email, Facebook, phone)
+- Missed follow-ups or inconsistent tracking
+- They already use Google Workspace, Calendly/Cal.com, Notion, HubSpot, or a spreadsheet “CRM”
+- High repeatability: onboarding steps, proposals, invoices, reminders
+
+Not a great fit:
+- Teams needing complex, highly regulated systems without compliance scope (e.g., HIPAA-heavy workflows) unless requirements are defined and approved
+- Businesses unwilling to change a broken process or adopt basic data hygiene
+
+==================================================
+3) OFFERINGS (PACKAGES)
+==================================================
+Package A — “Starter Automation”
+Price range: $1,000–$2,500
+Timeline: 3–10 days
+Includes:
+- 1 primary workflow (ex: lead intake → CRM record → notifications)
+- 1 integration source (ex: website form OR Google Sheet OR email parsing)
+- Basic logging + error alerts (email/Slack)
+- Handoff documentation (1–2 pages)
+Typical outcomes:
+- Lead response time reduced from hours/days to minutes
+- No more lost inquiries
+
+Package B — “Growth Ops System”
+Price range: $3,500–$7,500
+Timeline: 2–4 weeks
+Includes:
+- Multi-step pipeline automation (stages + tasks)
+- CRM build-out (Notion/HubSpot lightweight)
+- Appointment booking routing (Cal.com/Calendly)
+- AI summaries + classification (intent, urgency, category)
+- Weekly optimization checkpoints for 30 days post-launch
+
+Package C — “Custom / Retainer”
+Price range: $1,250–$4,000/mo
+Timeline: ongoing
+Includes:
+- Continuous iteration
+- Monitoring dashboards
+- New workflows monthly
+- Priority support + incident response windows
+
+==================================================
+4) TECH STACK (REFERENCE)
+==================================================
+Automation Orchestration:
+- n8n (self-hosted)
+
+Data:
+- Postgres (one DB for app data; optional separate DB for vector embeddings)
+- Redis (rate limiting, caching, queues, ephemeral sessions)
+
+App:
+- Next.js website + API routes
+- Optional backend API service
+
+AI:
+- OpenAI models used for:
+  - Lead summarization
+  - Category tagging (service type)
+  - Intent + urgency scoring
+  - FAQ answering from internal KB (RAG)
+
+Security basics:
+- Least-privilege API keys
+- Secrets stored in env/secret manager
+- Audit logging for workflow runs
+- PII minimization: store only what’s needed
+
+==================================================
+5) LEAD INTAKE WORKFLOW (CANONICAL)
+==================================================
+Name: Demo Request → Stage Engine → Task Queue
+
+Input channels:
+- Website “Request a Demo” form (preferred)
+- Email forwarding alias (fallback)
+- Manual entry (admin)
+
+Canonical lead object fields:
+- first_name, last_name
+- email, phone
+- company, role, industry
+- what_to_automate (free text)
+- source (Website Form / Referral / Cold Outreach / Other)
+- status (New Lead / Contacted / Discovery Scheduled / Proposal Sent / Closed Won / Closed Lost)
+- created_at, last_contact_at, last_submission_at
+- meeting_link
+
+Core rules:
+- If email exists: update last_submission_at and merge new details
+- If new: create record + notify owner
+- After status changes: generate task templates (follow-up, discovery prep, proposal prep)
+
+==================================================
+6) STAGE DEFINITIONS (PIPELINE)
+==================================================
+Stage: New Lead
+Entry criteria:
+- A lead record exists with status = New Lead
+Exit criteria:
+- Status updated to Contacted or Discovery Scheduled
+Automation notes:
+- Send internal notification + schedule a follow-up task if no response in 6 hours
+
+Stage: Contacted
+Entry criteria:
+- First outreach sent
+Exit criteria:
+- Meeting booked OR marked unresponsive
+Automation notes:
+- Re-send booking link after 48 hours if no booking
+
+Stage: Discovery Scheduled
+Entry criteria:
+- Meeting link exists + calendar event detected
+Exit criteria:
+- Discovery complete OR no-show
+Automation notes:
+- AI summarizes lead details into discovery brief
+
+Stage: Proposal Sent
+Entry criteria:
+- Proposal delivered
+Exit criteria:
+- Closed Won/Lost
+Automation notes:
+- Reminders at 3 and 7 days; auto-create “proposal follow-up” tasks
+
+Stage: Closed Won
+Entry criteria:
+- Agreement signed OR invoice paid
+Exit criteria:
+- (n/a)
+Automation notes:
+- Kick off onboarding checklist + welcome email
+
+Stage: Closed Lost
+Entry criteria:
+- Explicit decline OR no response after 21 days
+Automation notes:
+- Tag reason if known; archive and log notes
+
+==================================================
+7) TASK TEMPLATE LIBRARY (EXAMPLES)
+==================================================
+Task Types (select):
+- Follow-up
+- Discovery Prep
+- Proposal Prep
+- Invoice
+- Fulfillment
+- Support
+- Admin
+- Data Fix
+- Other
+
+Task template fields:
+- task_name
+- task_type
+- required (true/false)
+- trigger_stage
+- offset_type (Immediately / After Stage Change / Before Meeting / Recurring)
+- offset_value
+- offset_unit (Minutes / Hours / Days)
+- assigned_to_role (Owner / Ops / Sales)
+- notes
+
+Examples:
+1) "Send booking link follow-up"
+- type: Follow-up
+- trigger_stage: Contacted
+- offset: 48 Hours after stage change
+- required: true
+
+2) "Discovery call prep brief"
+- type: Discovery Prep
+- trigger_stage: Discovery Scheduled
+- offset: 2 Hours before meeting
+- required: true
+
+3) "Proposal draft outline"
+- type: Proposal Prep
+- trigger_stage: Discovery Scheduled
+- offset: 1 Day after meeting
+- required: true
+
+==================================================
+8) INTERNAL FAQ (RAG-FRIENDLY)
+==================================================
+Q: What does Columbus AI Automation Solutions LLC do?
+A: Builds automations using tools like n8n, Notion, and Google Workspace to reduce manual work and speed up lead handling. Also adds AI for summarization and routing when useful.
+
+Q: What’s the typical implementation timeline?
+A: Starter projects can be launched in 3–10 days. More complete systems typically take 2–4 weeks plus 30 days optimization.
+
+Q: Do you host workflows for clients?
+A: Yes, options include self-hosting on client infrastructure or managed hosting. Managed hosting includes monitoring and regular updates.
+
+Q: What integrations are common?
+A: Google Sheets, Gmail, Google Calendar, Notion, HubSpot, Cal.com/Calendly, Slack/Discord, webhooks, and Postgres.
+
+Q: How do you handle data security?
+A: Use least-privilege keys, minimize stored PII, secure secrets, and maintain workflow execution logs.
+
+==================================================
+9) SAMPLE CLIENT PROFILES (MOCK)
+==================================================
+Client: NorthBridge Consulting
+Industry: Consulting
+Pain: leads slipping through after web form submissions
+Solution: lead intake → Notion CRM → automated email + Slack notification → follow-up tasks
+Result: response time improved from ~18 hours to <15 minutes
+
+Client: BrightPath Marketing
+Industry: Marketing agency
+Pain: inconsistent onboarding + proposal follow-ups
+Solution: stage engine with tasks + AI discovery summary + scheduled follow-ups
+Result: fewer missed follow-ups; consistent delivery pipeline
+
+Client: Summit Roofing Co.
+Industry: Roofing
+Pain: calls + texts + form leads scattered; manual quoting delays
+Solution: unify leads, auto-tag service type, auto-book inspection slots
+Result: faster scheduling and fewer duplicate leads
+
+==================================================
+10) BRAND VOICE + MESSAGING
+==================================================
+Tone:
+- Clear, practical, “show the workflow”
+- Value-first: “You gain X” instead of “We do Y”
+Key phrases:
+- “Remove repetitive work”
+- “Respond faster to leads”
+- “Track every lead and follow-up”
+- “Automations that don’t break silently”
+
+==================================================
+11) CONTACT + OPERATIONS (MOCK)
+==================================================
+Public contact:
+- Email: hello@columbusai.tech
+- Booking: columbusai.tech/book
+Internal ops:
+- Primary owner role: “Owner”
+- Slack channel (internal): #ops-automation (mock)
+Support hours:
+- Mon–Fri, 9am–5pm ET (mock)
+
+==================================================
+12) TEST QUERIES YOU CAN USE FOR RAG
+==================================================
+- "What is the Starter Automation package price range and what does it include?"
+- "What are the pipeline stages and what triggers Discovery Scheduled?"
+- "List the task types available and give examples of templates."
+- "How does Columbus AI handle security and secrets?"
+- "What tools are used for orchestration and data storage?"
+- "What happens when a lead is Contacted but doesn’t book in 48 hours?"
