@@ -1,0 +1,92 @@
+# Phase 1 dev compose — web + two Postgres + Redis (Phase 4 rate limiting).
+# postgres: chat history only (Prisma). postgres-vectors: RAG only (pgvector, no Prisma).
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - columbus_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - columbus-dev
+
+  postgres:
+    # pgvector image so migrations that drop vector schema can run (chat DB does not use vector in app).
+    image: pgvector/pgvector:pg16
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: columbus
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-columbus}
+      POSTGRES_DB: columbus
+    volumes:
+      - columbus_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U columbus"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - columbus-dev
+
+  postgres-vectors:
+    image: pgvector/pgvector:pg16
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: columbus
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-columbus}
+      POSTGRES_DB: columbus_vectors
+    volumes:
+      - columbus_vectors_pgdata:/var/lib/postgresql/data
+      - ./init-vector-extension.sh:/docker-entrypoint-initdb.d/01-init-vector-extension.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U columbus -d columbus_vectors"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - columbus-dev
+
+  web:
+    build:
+      context: ../..
+      dockerfile: apps/web/Dockerfile
+    ports:
+      - "3000:3000"
+    # No volume mount: use built image so Prisma/client resolves. For live reload, use an override that mounts ../../apps/web:/app.
+    env_file:
+      - ../../apps/web/.env
+    environment:
+      DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres:5432/columbus
+      VECTOR_DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres-vectors:5432/columbus_vectors
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      postgres-vectors:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    networks:
+      - columbus-dev
+
+networks:
+  columbus-dev:
+    name: columbus-dev
+
+volumes:
+  columbus_pgdata:
+  columbus_vectors_pgdata:
+  columbus_redis_data:

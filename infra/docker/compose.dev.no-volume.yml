@@ -1,0 +1,6 @@
+# Override for dev compose: run web without mounting apps/web into /app.
+# Use for integration testing so the container uses the built image (no Prisma/client mismatch).
+# Example: docker compose -f infra/docker/compose.dev.yml -f infra/docker/compose.dev.no-volume.yml up -d
+services:
+  web:
+    volumes: []
