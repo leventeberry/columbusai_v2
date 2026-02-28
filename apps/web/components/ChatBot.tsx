@@ -283,7 +283,7 @@ export function ChatWidget({ origin }: ChatWidgetProps) {
             className="fixed inset-0 w-full h-full bg-background border border-border/50 shadow-2xl flex flex-col overflow-hidden md:static md:w-[380px] md:h-[600px] md:max-h-[80vh] md:rounded-2xl"
           >
             <div
-              className="bg-gradient-to-r from-primary to-purple-600 p-4 flex items-center justify-between shrink-0"
+              className="bg-primary p-4 flex items-center justify-between shrink-0"
               style={resolveHeaderStyle(widgetTheme)}
             >
               <div className="flex items-center gap-3 text-primary-foreground">
