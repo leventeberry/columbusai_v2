@@ -1,0 +1,8 @@
+{
+  "name": "columbusai",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ]
+}

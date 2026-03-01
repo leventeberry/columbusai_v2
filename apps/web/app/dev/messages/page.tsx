@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Container } from "@/components/layout/Container";
 import { parseJsonOrThrow } from "@/lib/errors";
+import { API_BASE } from "@/lib/constants";
 
 const STORAGE_KEY = "dev_messages_conversation_id";
 
@@ -31,7 +32,7 @@ export default function DevMessagesPage() {
   const fetchMessages = useCallback(
     async (convId: string) => {
       const res = await fetch(
-        `/api/messages?conversationId=${encodeURIComponent(convId)}`
+        `${API_BASE}/api/messages?conversationId=${encodeURIComponent(convId)}`
       );
       const data = (await parseJsonOrThrow(res)) as { error?: string; messages?: Message[] };
       if (!res.ok) {
@@ -60,7 +61,7 @@ export default function DevMessagesPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/chat", {
+      const res = await fetch(`${API_BASE}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

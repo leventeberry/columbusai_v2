@@ -1,0 +1,20 @@
+{
+  "name": "@columbusai/db",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "generate": "prisma generate",
+    "postinstall": "prisma generate"
+  },
+  "dependencies": {
+    "@prisma/client": "^6"
+  },
+  "devDependencies": {
+    "prisma": "^6"
+  },
+  "prisma": {
+    "schema": "prisma/schema.prisma"
+  }
+}

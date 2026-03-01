@@ -1,0 +1,203 @@
+# Prod stack for compose-from-root (e.g. Hostinger VPS Docker manager).
+# Same stack as infra/docker/compose.prod.yml with paths adjusted for running
+# Docker Compose from the repo root. Run: docker compose up -d (or use your host's UI).
+#
+# Required env (set in .env or environment):
+#   DOMAIN=example.com                    # Traefik routing (app.$DOMAIN, api.$DOMAIN)
+#   ACME_EMAIL=you@example.com            # Let's Encrypt / Traefik ACME (for TLS)
+#   POSTGRES_PASSWORD=...                 # Optional; default columbus
+#   NEXT_PUBLIC_API_URL=...               # Optional; for chatbot (e.g. https://api.example.com)
+#
+# Verification:
+#   docker compose up -d
+#   curl -H "Host: app.${DOMAIN}" http://<server-ip>   # -> web (or redirect to HTTPS)
+#   curl -vk https://app.${DOMAIN}                    # -> web (TLS via Traefik ACME)
+#
+# --- How to run (compose from repo root) ---
+# 1. Set .env: DOMAIN, ACME_EMAIL, POSTGRES_PASSWORD.
+# 2. Bring up stack:  docker compose up -d
+# 3. Traefik obtains and renews Let's Encrypt certs automatically (HTTP-01). Verify: curl -vk https://app.$DOMAIN
+
+services:
+  traefik:
+    image: traefik:v3.2
+    environment:
+      ACME_EMAIL: ${ACME_EMAIL:admin@columbusai.tech}
+    entrypoint: ["/bin/sh", "/etc/traefik/entrypoint.sh"]
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        read_only: true
+      - ./infra/traefik/traefik.yml.tpl:/etc/traefik/traefik.yml.tpl:ro
+      - ./infra/traefik/entrypoint.sh:/etc/traefik/entrypoint.sh:ro
+      - columbus_prod_traefik_acme:/acme
+    networks:
+      - columbus-prod
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - columbus_prod_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - columbus-prod
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: columbus
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-columbus}
+      POSTGRES_DB: columbus
+    volumes:
+      - columbus_prod_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U columbus"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - columbus-prod
+
+  postgres-vectors:
+    image: pgvector/pgvector:pg16
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: columbus
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-columbus}
+      POSTGRES_DB: columbus_vectors
+    volumes:
+      - columbus_prod_vectors_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U columbus -d columbus_vectors"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - columbus-prod
+
+  init-vectors:
+    image: pgvector/pgvector:pg16
+    command: >
+      sh -c "
+        until pg_isready -h postgres-vectors -U columbus -d columbus_vectors; do sleep 1; done;
+        psql -h postgres-vectors -U columbus -d columbus_vectors -c 'CREATE EXTENSION IF NOT EXISTS vector;'
+      "
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD:-columbus}
+    depends_on:
+      postgres-vectors:
+        condition: service_healthy
+    networks:
+      - columbus-prod
+    restart: "no"
+
+  migrate:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    command: ["npx", "prisma", "migrate", "deploy"]
+    env_file:
+      - apps/web/.env
+    environment:
+      DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres:5432/columbus
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - columbus-prod
+    restart: "no"
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    env_file:
+      - apps/web/.env
+    environment:
+      NODE_ENV: production
+      PORT: "4000"
+      DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres:5432/columbus
+      VECTOR_DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres-vectors:5432/columbus_vectors
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      init-vectors:
+        condition: service_completed_successfully
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - columbus-prod
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`api.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.api.entrypoints=websecure"
+      - "traefik.http.routers.api.tls=true"
+      - "traefik.http.routers.api.tls.certresolver=letsencrypt"
+      - "traefik.http.services.api.loadbalancer.server.port=4000"
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    env_file:
+      - apps/web/.env
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres:5432/columbus
+      VECTOR_DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres-vectors:5432/columbus_vectors
+      REDIS_URL: redis://redis:6379
+      # Set to your public API URL (e.g. https://api.example.com) or http://localhost:4000 for same-host.
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4000}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      api:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    networks:
+      - columbus-prod
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.web.rule=Host(`app.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.web.entrypoints=websecure"
+      - "traefik.http.routers.web.tls=true"
+      - "traefik.http.routers.web.tls.certresolver=letsencrypt"
+      - "traefik.http.services.web.loadbalancer.server.port=3000"
+
+networks:
+  columbus-prod:
+    name: columbus-prod
+
+volumes:
+  columbus_prod_pgdata:
+  columbus_prod_vectors_pgdata:
+  columbus_prod_redis_data:
+  columbus_prod_traefik_acme:

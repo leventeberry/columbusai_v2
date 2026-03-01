@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { API_BASE } from "@/lib/constants";
 import { evaluateGuardrails } from "@/lib/guardrails";
 
 type ChatMessage = {
@@ -143,7 +144,7 @@ export function ChatWidget({ origin }: ChatWidgetProps) {
       setIsHistoryLoading(true);
       try {
         const res = await fetch(
-          `/api/messages?conversationId=${encodeURIComponent(conversationId)}`,
+          `${API_BASE}/api/messages?conversationId=${encodeURIComponent(conversationId)}`,
           { credentials: "include", ...(requestHeaders ? { headers: requestHeaders } : {}) }
         );
         if (!res.ok) throw new Error("Failed to fetch chat history.");
@@ -212,7 +213,7 @@ export function ChatWidget({ origin }: ChatWidgetProps) {
     ]);
 
     try {
-      const res = await fetch("/api/chat", {
+      const res = await fetch(`${API_BASE}/api/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

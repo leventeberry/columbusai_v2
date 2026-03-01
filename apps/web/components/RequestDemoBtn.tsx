@@ -30,6 +30,7 @@ import {
 } from "@/lib/validations/request-demo";
 import { submitContact } from "@/lib/api/submitContact";
 import { HELPER_TEXT_MAX_W } from "@/lib/constants";
+import type { ContactPayload } from "@/types/contact";
 import { cn } from "@/lib/utils";
 import { useState, type ReactNode } from "react";
 
@@ -101,19 +102,21 @@ export default function RequestDemoBtn({ trigger }: RequestDemoBtnProps) {
     if (website && !/^https?:\/\//i.test(website)) {
       website = "https://" + website;
     }
-    const payload = {
-      fname: data.fname,
-      lname: data.lname,
-      email: data.email,
-      phone: data.phone ?? "",
-      company: data.company ?? "",
-      role: data.role ?? "",
-      industry: data.industry ?? "",
-      team_size: data.team_size ?? "",
-      website,
-      what_automate: data.what_automate ?? "",
-      budget: data.budget ?? "",
-      timeline: data.timeline ?? "",
+    const lines: string[] = ["Request: Demo"];
+    if (data.phone?.trim()) lines.push(`Phone: ${data.phone.trim()}`);
+    if (data.company?.trim()) lines.push(`Company: ${data.company.trim()}`);
+    if (data.role?.trim()) lines.push(`Role: ${data.role.trim()}`);
+    if (data.industry?.trim()) lines.push(`Industry: ${data.industry.trim()}`);
+    if (data.team_size?.trim()) lines.push(`Team size: ${data.team_size.trim()}`);
+    if (website) lines.push(`Website: ${website}`);
+    if (data.what_automate?.trim()) lines.push(`What to automate: ${data.what_automate.trim()}`);
+    if (data.budget?.trim()) lines.push(`Budget: ${data.budget.trim()}`);
+    if (data.timeline?.trim()) lines.push(`Timeline: ${data.timeline.trim()}`);
+    const payload: ContactPayload = {
+      fname: data.fname.trim(),
+      lname: data.lname.trim(),
+      email: data.email.trim(),
+      message: lines.join("\n"),
     };
     try {
       const res = await submitContact(payload);

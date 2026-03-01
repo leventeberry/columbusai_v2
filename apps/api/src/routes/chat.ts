@@ -1,13 +1,18 @@
-import { NextRequest, NextResponse } from "next/server";
+import { Request, Response } from "express";
 import OpenAI from "openai";
-import { prisma } from "@/lib/db/prisma";
-import { MessageRole } from "@prisma/client";
-import { getVectorDatabaseUrl, getVectorPool, ensureVectorSchema, searchChunks } from "@/lib/vector-db";
-import { rateLimit } from "@/lib/rateLimit";
-import { getMissingRequiredEnv } from "@/lib/env";
-import { withTimer } from "@/lib/timing";
-import { postChatBodySchema } from "./schemas";
-import { recordChatMetrics } from "@/lib/metrics-lite";
+import { prisma } from "../lib/prisma.js";
+import { MessageRole } from "@columbusai/db";
+import {
+  getVectorDatabaseUrl,
+  getVectorPool,
+  ensureVectorSchema,
+  searchChunks,
+} from "../lib/vector-db.js";
+import { rateLimit } from "../lib/rateLimit.js";
+import { getMissingRequiredEnv } from "../lib/env.js";
+import { withTimer } from "../lib/timing.js";
+import { postChatBodySchema } from "./schemas/chat.js";
+import { recordChatMetrics } from "../lib/metrics-lite.js";
 
 const CONTEXT_MESSAGE_LIMIT = 20;
 const DEFAULT_INSTRUCTIONS =
@@ -25,8 +30,7 @@ export interface ChatTimings {
   total_ms: number;
 }
 
-// Phase 2: non-streaming only; stream=true is ignored (optional SSE in a later phase).
-export async function POST(request: NextRequest) {
+export async function postChat(req: Request, res: Response): Promise<void> {
   const request_id = crypto.randomUUID();
   const totalStartMs = Date.now();
   try {
@@ -40,51 +44,53 @@ export async function POST(request: NextRequest) {
           missing_keys: missing,
         })
       );
-      return NextResponse.json(
-        { error: "Configuration error. Check server logs." },
-        { status: 500 }
-      );
+      res.status(500).json({
+        error: "Configuration error. Check server logs.",
+      });
+      return;
     }
 
-    const body = await request.json();
-    const parsed = postChatBodySchema.safeParse(body);
+    const parsed = postChatBodySchema.safeParse(req.body);
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: "Invalid request: conversationId (UUID), message (non-empty) required." },
-        { status: 400 }
-      );
+      res.status(400).json({
+        error:
+          "Invalid request: conversationId (UUID), message (non-empty) required.",
+      });
+      return;
     }
     const { conversationId: bodyConvId, message } = parsed.data;
 
-    // Phase 4: rate limit (per-IP, optional per-conversation)
-    const forwarded = request.headers.get("x-forwarded-for");
+    const forwarded = req.headers["x-forwarded-for"];
     const ip =
-      forwarded?.split(",")[0]?.trim() ??
-      (request as NextRequest & { ip?: string }).ip ??
-      "unknown";
+      (typeof forwarded === "string"
+        ? forwarded.split(",")[0]?.trim()
+        : null) ?? req.ip ?? "unknown";
     const scope = process.env.RATE_LIMIT_SCOPE ?? "ip";
     const rlKey =
       `rl:chat:ip:${ip}` +
       (scope === "ip+conversation" && bodyConvId ? `:conv:${bodyConvId}` : "");
-    const limit = Math.max(1, parseInt(process.env.RATE_LIMIT_MAX_REQUESTS ?? "20", 10) || 20);
-    const windowSeconds = Math.max(1, parseInt(process.env.RATE_LIMIT_WINDOW_SECONDS ?? "300", 10) || 300);
+    const limit = Math.max(
+      1,
+      parseInt(process.env.RATE_LIMIT_MAX_REQUESTS ?? "20", 10) || 20
+    );
+    const windowSeconds = Math.max(
+      1,
+      parseInt(process.env.RATE_LIMIT_WINDOW_SECONDS ?? "300", 10) || 300
+    );
     const rl = await rateLimit({ key: rlKey, limit, windowSeconds });
     if (!rl.allowed) {
       recordChatMetrics(429, 0);
-      return NextResponse.json(
-        { error: "Rate limit exceeded. Please try again shortly." },
-        {
-          status: 429,
-          headers: {
-            "Retry-After": String(rl.resetSeconds),
-            "X-RateLimit-Limit": String(limit),
-            "X-RateLimit-Remaining": "0",
-          },
-        }
-      );
+      res
+        .status(429)
+        .set({
+          "Retry-After": String(rl.resetSeconds),
+          "X-RateLimit-Limit": String(limit),
+          "X-RateLimit-Remaining": "0",
+        })
+        .json({ error: "Rate limit exceeded. Please try again shortly." });
+      return;
     }
 
-    // --- db_read: resolve/create conversation, create user message, load context ---
     const dbRead = await withTimer("db_read", async () => {
       let convId: string;
       if (bodyConvId) {
@@ -123,10 +129,8 @@ export async function POST(request: NextRequest) {
     });
 
     if (dbRead.result.notFound) {
-      return NextResponse.json(
-        { error: "Conversation not found" },
-        { status: 404 }
-      );
+      res.status(404).json({ error: "Conversation not found" });
+      return;
     }
 
     const convId = dbRead.result.convId;
@@ -152,7 +156,13 @@ export async function POST(request: NextRequest) {
       process.env.OPENAI_STORE !== "false" && process.env.OPENAI_STORE !== "0";
     const client = new OpenAI({ apiKey });
 
-    const retrievalK = Math.max(1, parseInt(process.env.RETRIEVAL_K ?? String(DEFAULT_RETRIEVAL_K), 10) || DEFAULT_RETRIEVAL_K);
+    const retrievalK = Math.max(
+      1,
+      parseInt(
+        process.env.RETRIEVAL_K ?? String(DEFAULT_RETRIEVAL_K),
+        10
+      ) || DEFAULT_RETRIEVAL_K
+    );
     const embedModel = process.env.OPENAI_EMBED_MODEL ?? DEFAULT_EMBED_MODEL;
     let embed_ms = 0;
     let retrieval_ms = 0;
@@ -210,7 +220,8 @@ export async function POST(request: NextRequest) {
         input,
         store,
       };
-      if (previousResponseId) createParams.previous_response_id = previousResponseId;
+      if (previousResponseId)
+        createParams.previous_response_id = previousResponseId;
       return client.responses.create(createParams);
     });
     const openai_ms = openaiResult.ms;
@@ -286,19 +297,17 @@ export async function POST(request: NextRequest) {
       })
     );
 
-    return NextResponse.json(
-      {
+    res
+      .status(200)
+      .set({
+        "X-RateLimit-Limit": String(limit),
+        "X-RateLimit-Remaining": String(rl.remaining),
+      })
+      .json({
         conversationId: convId,
         responseId: response.id,
         text: assistantText,
-      },
-      {
-        headers: {
-          "X-RateLimit-Limit": String(limit),
-          "X-RateLimit-Remaining": String(rl.remaining),
-        },
-      }
-    );
+      });
   } catch (e) {
     const total_ms = Date.now() - totalStartMs;
     const status = e && typeof e === "object" && "status" in e ? 502 : 500;
@@ -312,10 +321,10 @@ export async function POST(request: NextRequest) {
           error: String(e),
         })
       );
-      return NextResponse.json(
-        { error: "AI temporarily unavailable. Please try again." },
-        { status: 502 }
-      );
+      res.status(502).json({
+        error: "AI temporarily unavailable. Please try again.",
+      });
+      return;
     }
     console.error(
       JSON.stringify({
@@ -325,9 +334,6 @@ export async function POST(request: NextRequest) {
         error: String(e),
       })
     );
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    res.status(500).json({ error: "Internal server error" });
   }
 }

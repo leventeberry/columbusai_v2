@@ -62,13 +62,13 @@ export default function Footer() {
             <ul className="list-none space-y-1 pl-0 text-sm text-muted-foreground">
               <li>
                 <Link href="/contact" className={linkClass}>
-                  {CONTACT_EMAIL}
+                  Email Us
                 </Link>
               </li>
               {CONTACT_PHONE ? (
                 <li>
                   <a href={`tel:${CONTACT_PHONE}`} className={linkClass}>
-                    {CONTACT_PHONE}
+                    Email
                   </a>
                 </li>
               ) : null}

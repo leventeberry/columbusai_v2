@@ -1,3 +1,8 @@
+export type ContactResponse = {
+  ok: boolean;
+  errors?: ContactErrors;
+};
+
 export type ContactPayload = {
   fname: string;
   lname: string;
@@ -5,12 +10,8 @@ export type ContactPayload = {
   message: string;
 };
 
-export type ContactResponse = {
-  ok: boolean;
-  errors?: ContactErrors;
-};
-
 export type ContactErrors = Record<string, string>;
+
 
 export type Lead = {
   id: string;

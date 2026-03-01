@@ -1,27 +1,27 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db/prisma";
-import { MessageRole } from "@prisma/client";
+import { Request, Response } from "express";
+import { prisma } from "../lib/prisma.js";
+import { MessageRole } from "@columbusai/db";
 import {
   postMessagesBodySchema,
   getMessagesQuerySchema,
-} from "./schemas";
+} from "./schemas/messages.js";
 
-export async function POST(request: NextRequest) {
+export async function postMessages(req: Request, res: Response): Promise<void> {
   try {
-    const body = await request.json();
-    const parsed = postMessagesBodySchema.safeParse(body);
+    const parsed = postMessagesBodySchema.safeParse(req.body);
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: "Invalid body", details: parsed.error.flatten() },
-        { status: 400 }
-      );
+      res.status(400).json({
+        error: "Invalid body",
+        details: parsed.error.flatten(),
+      });
+      return;
     }
     const { conversationId, content, role } = parsed.data;
     if (role !== undefined && role !== "user") {
-      return NextResponse.json(
-        { error: "Phase 1 only allows role: user" },
-        { status: 400 }
-      );
+      res.status(400).json({
+        error: "Phase 1 only allows role: user",
+      });
+      return;
     }
 
     let convId = conversationId;
@@ -35,10 +35,8 @@ export async function POST(request: NextRequest) {
         where: { id: convId },
       });
       if (!existing) {
-        return NextResponse.json(
-          { error: "Conversation not found" },
-          { status: 404 }
-        );
+        res.status(404).json({ error: "Conversation not found" });
+        return;
       }
     }
 
@@ -50,7 +48,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({
+    res.status(200).json({
       conversationId: convId,
       message: {
         id: message.id,
@@ -62,24 +60,20 @@ export async function POST(request: NextRequest) {
     });
   } catch (e) {
     console.error("POST /api/messages", e);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    res.status(500).json({ error: "Internal server error" });
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function getMessages(req: Request, res: Response): Promise<void> {
   try {
-    const { searchParams } = new URL(request.url);
     const parsed = getMessagesQuerySchema.safeParse({
-      conversationId: searchParams.get("conversationId") ?? undefined,
+      conversationId: req.query.conversationId ?? undefined,
     });
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: "conversationId is required and must be a valid UUID" },
-        { status: 400 }
-      );
+      res.status(400).json({
+        error: "conversationId is required and must be a valid UUID",
+      });
+      return;
     }
     const { conversationId } = parsed.data;
 
@@ -88,7 +82,7 @@ export async function GET(request: NextRequest) {
       orderBy: { created_at: "asc" },
     });
 
-    return NextResponse.json({
+    res.status(200).json({
       messages: messages.map((m) => ({
         id: m.id,
         conversationId: m.conversation_id,
@@ -99,9 +93,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (e) {
     console.error("GET /api/messages", e);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    res.status(500).json({ error: "Internal server error" });
   }
 }

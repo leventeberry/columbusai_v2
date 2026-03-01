@@ -1,45 +1,26 @@
 "use client";
 
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   contactPayloadSchema,
   type ContactPayloadSchema,
 } from "@/lib/validations/contact";
-import {
-  BUDGET_OPTIONS,
-  TEAM_SIZE_OPTIONS,
-  TIMELINE_OPTIONS,
-} from "@/lib/validations/request-demo";
 import { submitContact } from "@/lib/api/submitContact";
 import { getGridClass } from "@/components/layout/grid";
 import { HELPER_TEXT_MAX_W } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import type { ContactPayload } from "@/types/contact";
 
 const defaultValues: ContactPayloadSchema = {
   fname: "",
   lname: "",
   email: "",
-  phone: "",
-  company: "",
-  website: "",
-  role: "",
-  industry: "",
-  team_size: "",
-  what_automate: "",
-  budget: "",
-  timeline: "",
+  message: "",
 };
 
 export function ContactForm() {
@@ -48,7 +29,6 @@ export function ContactForm() {
 
   const {
     register,
-    control,
     watch,
     handleSubmit,
     setError,
@@ -82,15 +62,11 @@ export function ContactForm() {
 
   const onSubmit = async (data: ContactPayloadSchema) => {
     setServerError(null);
-    let website = (data.website ?? "").trim();
-    if (website && !/^https?:\/\//i.test(website)) {
-      website = "https://" + website;
-    }
-    const payload = {
-      fname: data.fname,
-      lname: data.lname,
-      email: data.email,
-      what_automate: data.what_automate ?? "",
+    const payload: ContactPayload = {
+      fname: data.fname.trim(),
+      lname: data.lname.trim(),
+      email: data.email.trim(),
+      message: data.message.trim(),
     };
     try {
       const res = await submitContact(payload);
@@ -187,200 +163,22 @@ export function ContactForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="contact-phone" className={fieldState("phone").labelClass}>
-          Phone
-        </Label>
-        <Input
-          id="contact-phone"
-          type="tel"
-          placeholder="(555) 123-4567"
-          autoComplete="tel"
-          aria-invalid={!!errors.phone}
-          className={fieldState("phone").inputClass}
-          {...register("phone")}
-        />
-        {errors.phone && (
-          <p className="text-sm text-destructive">{errors.phone.message}</p>
-        )}
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="contact-company" className={fieldState("company").labelClass}>
-          Company
-        </Label>
-        <Input
-          id="contact-company"
-          placeholder="Acme Inc."
-          autoComplete="organization"
-          aria-invalid={!!errors.company}
-          className={fieldState("company").inputClass}
-          {...register("company")}
-        />
-        {errors.company && (
-          <p className="text-sm text-destructive">{errors.company.message}</p>
-        )}
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="contact-what_automate" className={fieldState("what_automate").labelClass}>
-          What do you want to automate?
+        <Label htmlFor="contact-message" className={fieldState("message").labelClass}>
+          Message
         </Label>
         <textarea
-          id="contact-what_automate"
+          id="contact-message"
           className={cn(
             "min-h-20 w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-xs outline-none focus-visible:ring-[3px] md:text-sm placeholder:text-muted-foreground",
-            fieldState("what_automate").inputClass
+            fieldState("message").inputClass
           )}
-          placeholder="e.g. Lead follow-ups, invoice processing"
-          aria-invalid={!!errors.what_automate}
-          {...register("what_automate")}
+          placeholder="How can we help?"
+          aria-invalid={!!errors.message}
+          {...register("message")}
         />
-        {errors.what_automate && (
-          <p className="text-sm text-destructive">
-            {errors.what_automate.message}
-          </p>
+        {errors.message && (
+          <p className="text-sm text-destructive">{errors.message.message}</p>
         )}
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="contact-website" className={fieldState("website").labelClass}>
-          Website
-        </Label>
-        <div
-          className={cn(
-            "flex h-9 w-full overflow-hidden rounded-md border border-input bg-transparent shadow-xs focus-within:ring-[3px] focus-within:ring-offset-0 focus-within:ring-offset-background",
-            fieldState("website").invalid &&
-              "border-destructive focus-within:ring-destructive/20",
-            fieldState("website").valid &&
-              "border-green-600 focus-within:ring-green-600/50"
-          )}
-        >
-          <span className="flex h-full items-center border-r border-input bg-muted px-3 text-sm text-muted-foreground">
-            https://
-          </span>
-          <Input
-            id="contact-website"
-            type="text"
-            placeholder="www.example.com"
-            autoComplete="url"
-            aria-invalid={!!errors.website}
-            className="h-full min-w-0 rounded-none border-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
-            {...register("website")}
-          />
-        </div>
-        {errors.website && (
-          <p className="text-sm text-destructive">{errors.website.message}</p>
-        )}
-      </div>
-
-      <div className={getGridClass("form")}>
-        <div className="space-y-2">
-          <Label htmlFor="contact-role" className={fieldState("role").labelClass}>
-            Role
-          </Label>
-          <Input
-            id="contact-role"
-            placeholder="Operations Manager"
-            className={fieldState("role").inputClass}
-            {...register("role")}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="contact-industry" className={fieldState("industry").labelClass}>
-            Industry
-          </Label>
-          <Input
-            id="contact-industry"
-            placeholder="Healthcare"
-            className={fieldState("industry").inputClass}
-            {...register("industry")}
-          />
-        </div>
-      </div>
-
-      <div className={getGridClass("form")}>
-        <div className="space-y-2">
-          <Label htmlFor="contact-team_size" className={fieldState("team_size").labelClass}>
-            Team size
-          </Label>
-          <Controller
-            name="team_size"
-            control={control}
-            render={({ field }) => (
-              <Select value={field.value || ""} onValueChange={field.onChange}>
-                <SelectTrigger
-                  id="contact-team_size"
-                  aria-invalid={!!errors.team_size}
-                  className={cn("w-full", fieldState("team_size").inputClass)}
-                >
-                  <SelectValue placeholder="Select team size" />
-                </SelectTrigger>
-                <SelectContent>
-                  {TEAM_SIZE_OPTIONS.map((opt) => (
-                    <SelectItem key={opt} value={opt}>
-                      {opt}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="contact-timeline" className={fieldState("timeline").labelClass}>
-            Timeline
-          </Label>
-          <Controller
-            name="timeline"
-            control={control}
-            render={({ field }) => (
-              <Select value={field.value || ""} onValueChange={field.onChange}>
-                <SelectTrigger
-                  id="contact-timeline"
-                  aria-invalid={!!errors.timeline}
-                  className={cn("w-full", fieldState("timeline").inputClass)}
-                >
-                  <SelectValue placeholder="Select timeline" />
-                </SelectTrigger>
-                <SelectContent>
-                  {TIMELINE_OPTIONS.map((opt) => (
-                    <SelectItem key={opt} value={opt}>
-                      {opt}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          />
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="contact-budget" className={fieldState("budget").labelClass}>
-          Budget
-        </Label>
-        <Controller
-          name="budget"
-          control={control}
-          render={({ field }) => (
-            <Select value={field.value || ""} onValueChange={field.onChange}>
-              <SelectTrigger
-                id="contact-budget"
-                aria-invalid={!!errors.budget}
-                className={cn("w-full", fieldState("budget").inputClass)}
-              >
-                <SelectValue placeholder="Select budget range" />
-              </SelectTrigger>
-              <SelectContent>
-                {BUDGET_OPTIONS.map((opt) => (
-                  <SelectItem key={opt} value={opt}>
-                    {opt}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        />
       </div>
 
       {serverError && (
