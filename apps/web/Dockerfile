@@ -1,22 +1,29 @@
-# Phase 5 production Dockerfile — multi-stage, no dev behavior.
+# Phase 5 production Dockerfile — multi-stage, workspace-aware.
 # Build from repo root: docker build -f apps/web/Dockerfile -t columbus-web .
-# Supports: CMD (next start) for web; override with npx prisma migrate deploy for migrate service.
+# Context must be repo root (so package.json + package-lock.json + workspaces are available).
 
-# --- deps ---
+# --- deps (workspace root) ---
 FROM node:20-alpine AS deps
 WORKDIR /app
-COPY apps/web/package.json apps/web/package-lock.json ./
+COPY package.json package-lock.json ./
+COPY packages ./packages
+COPY apps ./apps
 RUN npm ci
 
 # --- build ---
 FROM node:20-alpine AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY apps/web ./
+COPY --from=deps /app/package.json ./
+COPY --from=deps /app/packages ./packages
+COPY --from=deps /app/apps/web ./apps/web
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN npx prisma generate
-# Use webpack (not Turbopack) so @prisma/client resolves at runtime in the image
+# Generate Prisma client from shared db package (no prisma in apps/web)
+RUN npx prisma generate --schema=packages/db/prisma/schema.prisma
+WORKDIR /app/apps/web
 RUN npx next build --webpack
+# Next may externalize @prisma/client with a hash; replace hashed dir with symlink to real client
+RUN for d in /app/node_modules/@prisma/client-*; do [ -d "$d" ] && rm -rf "$d" && ln -sf /app/node_modules/@prisma/client "$d" && break; done 2>/dev/null || true
 
 # --- runtime ---
 FROM node:20-alpine AS runtime
@@ -25,26 +32,26 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 WORKDIR /app
 
-COPY --from=build /app/package.json ./
+COPY --from=build /app/apps/web/package.json ./
 COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/.next ./.next
-COPY --from=build /app/next.config.ts ./
-COPY --from=build /app/prisma ./prisma
-COPY --from=build /app/public ./public
+COPY --from=build /app/apps/web/.next ./.next
+COPY --from=build /app/apps/web/next.config.ts ./
+COPY --from=build /app/apps/web/public ./public
 
-# Next.js externalizes @prisma/client with a hash; symlink so require() resolves at runtime
-RUN ln -sf /app/node_modules/@prisma/client /app/node_modules/@prisma/client-6806b234b4f49db7
-
+# Next.js may externalize @prisma/client with a hash; symlink created in build stage
 EXPOSE 3000
 
 CMD ["npm", "run", "start"]
 
-# --- dev (for docker compose dev: target=dev; runs next dev, env from Compose) ---
+# --- dev (docker compose dev: target=dev) ---
 FROM node:20-alpine AS dev
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY apps/web ./
+COPY --from=deps /app/package.json ./
+COPY --from=deps /app/packages ./packages
+COPY --from=deps /app/apps/web ./apps/web
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN npx prisma generate
+RUN npx prisma generate --schema=packages/db/prisma/schema.prisma
+WORKDIR /app/apps/web
 EXPOSE 3000
 CMD ["npm", "run", "dev"]
