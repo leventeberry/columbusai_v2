@@ -1,4 +1,4 @@
-import express from "express";
+import express, { type Request, type Response, type NextFunction } from "express";
 import { getHealth } from "./routes/health.js";
 import { postChat } from "./routes/chat.js";
 import { getMessages, postMessages } from "./routes/messages.js";
@@ -12,7 +12,7 @@ const allowedOrigins = (process.env.CORS_ORIGIN ?? "http://localhost:3000,http:/
   .map((o) => o.trim())
   .filter(Boolean);
 
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
   const origin = req.headers.origin;
   if (origin && allowedOrigins.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
