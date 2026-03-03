@@ -9,7 +9,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  schemas  = ["chat"]
+  schemas  = ["chat", "automation"]
 }
 
 // --- chat schema ---
@@ -61,3 +61,480 @@ model Message {
 }
 
 // Vector RAG uses a separate database (VECTOR_DATABASE_URL), managed by pg client in lib/vector-db.ts — no Prisma.
+
+// --- automation schema ---
+
+enum ClientSystemStage {
+  new_lead
+  awaiting_response
+  discovery_scheduled
+  discovery_completed
+  no_show
+  proposal_sent
+  negotiation
+  setup_invoiced
+  awaiting_payment
+  setup_paid
+  closed_won
+  fulfilment
+  reactivation
+  on_hold
+  maintenance_active
+  delivered
+  live
+  churn_risk
+  churned
+  closed_lost
+  cancelled
+
+  @@schema("automation")
+}
+
+enum ClientManualOverride {
+  none
+  paused
+  on_hold
+
+  @@schema("automation")
+}
+
+enum FollowupState {
+  active
+  paused
+  completed
+
+  @@schema("automation")
+}
+
+enum TaskStatus {
+  queued
+  in_progress
+  waiting
+  done
+  failed
+  skipped
+  cancelled
+
+  @@schema("automation")
+}
+
+enum TaskPriority {
+  low
+  medium
+  high
+  urgent
+
+  @@schema("automation")
+}
+
+enum TaskChannel {
+  email
+  sms
+  phone
+  linkedin
+  internal
+  other
+
+  @@schema("automation")
+}
+
+enum EventProcessingStatus {
+  pending
+  processing
+  processed
+  failed
+  ignored
+
+  @@schema("automation")
+}
+
+enum StageTransitionTriggeredBy {
+  user_action
+  automation
+  scheduled
+  api
+  system
+  integration
+  manual_override
+
+  @@schema("automation")
+}
+
+enum OutboundMessageDeliveryStatus {
+  pending
+  sent
+  delivered
+  failed
+  bounced
+
+  @@schema("automation")
+}
+
+enum InvoiceStatus {
+  draft
+  sent
+  paid
+  overdue
+  void
+  uncollectible
+
+  @@schema("automation")
+}
+
+enum PaymentStatus {
+  pending
+  succeeded
+  failed
+  refunded
+
+  @@schema("automation")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  created_at   DateTime @default(now()) @db.Timestamptz(6)
+  email        String?  @unique
+  display_name String?
+  role         String?
+  is_active    Boolean  @default(true)
+
+  clients_owned                Client[]
+  task_templates_default_owner TaskTemplate[]
+
+  @@map("users")
+  @@schema("automation")
+}
+
+model Client {
+  id         String   @id @default(uuid())
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @updatedAt @db.Timestamptz(6)
+
+  display_name  String?
+  first_name    String?
+  last_name     String?
+  primary_email String?
+  primary_phone String?
+  company_name  String?
+  role          String?
+  website       String?
+  source        String?
+
+  owner_user_id String?
+  owner         User?    @relation(fields: [owner_user_id], references: [id])
+  priority      String?
+  timeline      String?
+  team_size     String?
+  budget_band   String?
+
+  system_stage                 ClientSystemStage
+  manual_override              ClientManualOverride @default(none)
+  stage_updated_at              DateTime?            @db.Timestamptz(6)
+  lost_reason                   String?
+  discovery_cancelled_reason    String?
+  discovery_cancelled_at        DateTime?            @db.Timestamptz(6)
+
+  followup_state        FollowupState @default(active)
+  followup_sequence_key String?
+  followup_step         Int          @default(0)
+  next_followup_at       DateTime?    @db.Timestamptz(6)
+  sla_due_at            DateTime?    @db.Timestamptz(6)
+  needs_human_action    Boolean      @default(false)
+  last_contact_at       DateTime?    @db.Timestamptz(6)
+  last_followup_type    String?
+  followup_count        Int          @default(0)
+  followup_stop_reason  String?
+
+  meeting_status       String   @default("not_scheduled")
+  meeting_provider      String?
+  meeting_link          String?
+  meeting_external_id   String?
+  meeting_start_at      DateTime? @db.Timestamptz(6)
+  meeting_end_at        DateTime? @db.Timestamptz(6)
+
+  proposed_setup_fee_cents Int?
+  invoice_status           String   @default("not_sent")
+  stripe_customer_id        String?
+  stripe_invoice_id        String?
+  last_payment_at          DateTime? @db.Timestamptz(6)
+
+  subscribed       Boolean   @default(true)
+  unsubscribed_at  DateTime? @db.Timestamptz(6)
+  automation_lock  Boolean   @default(false)
+
+  notion_page_id String?
+
+  events_inbox        EventsInbox[]
+  stage_transitions   StageTransition[]
+  tasks              Task[]
+  outbound_messages  OutboundMessage[]
+  meetings           Meeting[]
+  invoices           Invoice[]
+  payments           Payment[]
+  client_identities   ClientIdentity[]
+
+  @@index([system_stage, next_followup_at])
+  @@index([meeting_external_id])
+  @@index([stripe_customer_id])
+  @@index([stripe_invoice_id])
+  @@map("clients")
+  @@schema("automation")
+}
+
+model EventsInbox {
+  id               String   @id @default(uuid())
+  event_id         String
+  event_type       String
+  source           String
+  occurred_at      DateTime @db.Timestamptz(6)
+  received_at      DateTime @default(now()) @db.Timestamptz(6)
+  client_lookup_key String?
+  client_id        String?
+  client           Client?  @relation(fields: [client_id], references: [id])
+  payload          Json
+  processed_at     DateTime? @db.Timestamptz(6)
+  processing_status EventProcessingStatus @default(pending)
+  last_error       String?
+
+  stage_transitions StageTransition[]
+  tasks             Task[]
+
+  @@unique([source, event_id])
+  @@index([processing_status, received_at])
+  @@index([client_id, occurred_at])
+  @@map("events_inbox")
+  @@schema("automation")
+}
+
+model StageTransition {
+  id             String   @id @default(uuid())
+  client_id      String
+  client         Client   @relation(fields: [client_id], references: [id])
+  from_stage     String?
+  to_stage       ClientSystemStage
+  reason         String?
+  triggered_by   StageTransitionTriggeredBy
+  event_inbox_id String?
+  event_inbox    EventsInbox? @relation(fields: [event_inbox_id], references: [id])
+  workflow_name  String?
+  execution_id   String?
+  occurred_at    DateTime @default(now()) @db.Timestamptz(6)
+  metadata       Json?
+
+  @@index([client_id, occurred_at(sort: Desc)])
+  @@index([to_stage, occurred_at(sort: Desc)])
+  @@map("stage_transitions")
+  @@schema("automation")
+}
+
+model TaskTemplate {
+  id                        String   @id @default(uuid())
+  name                      String
+  is_active                 Boolean  @default(true)
+  trigger_stage             String?
+  stage_trigger_type        String
+  trigger_event_type        String?
+  offset_type               String
+  offset_value              Int      @default(0)
+  offset_unit               String   @default("days")
+  recurrence_rule           String?
+  task_key                  String   @unique
+  task_type                 String
+  priority                  String   @default("medium")
+  assign_to                 String   @default("auto")
+  default_owner_user_id     String?
+  default_owner             User?    @relation(fields: [default_owner_user_id], references: [id])
+  automation_eligible       Boolean  @default(true)
+  cancel_if_stage_changes   Boolean  @default(true)
+  prevent_duplicate         Boolean  @default(true)
+  required                  Boolean  @default(false)
+  channel                   String
+  subject_template          String?
+  message_template          String?
+  booking_link_template     String?
+  require_fields            Json?
+  metadata                  Json?
+  created_at                DateTime @default(now()) @db.Timestamptz(6)
+  updated_at                DateTime @updatedAt @db.Timestamptz(6)
+
+  tasks Task[]
+
+  @@index([is_active, trigger_stage, stage_trigger_type])
+  @@map("task_templates")
+  @@schema("automation")
+}
+
+model Task {
+  id                      String    @id @default(uuid())
+  client_id               String
+  client                  Client    @relation(fields: [client_id], references: [id])
+  template_id             String?
+  template                TaskTemplate? @relation(fields: [template_id], references: [id])
+  task_key                String
+  dedupe_key              String    @unique
+  source_event_inbox_id   String?
+  source_event_inbox      EventsInbox? @relation(fields: [source_event_inbox_id], references: [id])
+  status                  TaskStatus @default(queued)
+  priority                TaskPriority @default(medium)
+  needs_human_action      Boolean   @default(false)
+  automation_eligible     Boolean   @default(true)
+  manual_override         String    @default("none")
+  created_at              DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at              DateTime  @updatedAt @db.Timestamptz(6)
+  execute_at              DateTime  @db.Timestamptz(6)
+  due_at                  DateTime? @db.Timestamptz(6)
+  sla_due_at              DateTime? @db.Timestamptz(6)
+  channel                 TaskChannel
+  to_email                String?
+  to_phone                String?
+  subject                 String?
+  message                 String?   @db.Text
+  booking_link            String?
+  locked_until            DateTime? @db.Timestamptz(6)
+  locked_by               String?
+  attempt_count           Int       @default(0)
+  last_attempt_at         DateTime? @db.Timestamptz(6)
+  last_error              String?
+  processed_at            DateTime? @db.Timestamptz(6)
+  outcome                 String?
+  outcome_notes           String?
+  metadata                Json?
+  notion_page_id          String?
+
+  task_attempts     TaskAttempt[]
+  outbound_messages OutboundMessage[]
+
+  @@index([status, automation_eligible, execute_at])
+  @@index([locked_until])
+  @@index([client_id, status])
+  @@map("tasks")
+  @@schema("automation")
+}
+
+model TaskAttempt {
+  id          String    @id @default(uuid())
+  task_id     String
+  task        Task      @relation(fields: [task_id], references: [id], onDelete: Cascade)
+  attempt_no   Int
+  started_at  DateTime  @default(now()) @db.Timestamptz(6)
+  finished_at DateTime? @db.Timestamptz(6)
+  execution_id String?
+  status      String
+  error       String?
+  result      Json?
+
+  @@index([task_id, attempt_no(sort: Desc)])
+  @@map("task_attempts")
+  @@schema("automation")
+}
+
+model OutboundMessage {
+  id                   String    @id @default(uuid())
+  client_id            String?
+  client               Client?   @relation(fields: [client_id], references: [id])
+  task_id              String?
+  task                 Task?     @relation(fields: [task_id], references: [id])
+  channel              String
+  provider             String?
+  provider_message_id  String?
+  to_address          String?
+  subject              String?
+  body                 String?   @db.Text
+  sent_at              DateTime  @default(now()) @db.Timestamptz(6)
+  delivery_status      OutboundMessageDeliveryStatus?
+  delivered_at         DateTime? @db.Timestamptz(6)
+  bounced_at           DateTime? @db.Timestamptz(6)
+  error                String?
+  metadata             Json?
+
+  @@index([provider_message_id])
+  @@index([client_id, sent_at(sort: Desc)])
+  @@map("outbound_messages")
+  @@schema("automation")
+}
+
+model Meeting {
+  id             String    @id @default(uuid())
+  client_id      String
+  client         Client    @relation(fields: [client_id], references: [id])
+  provider       String
+  external_id    String
+  status         String
+  start_at       DateTime? @db.Timestamptz(6)
+  end_at         DateTime? @db.Timestamptz(6)
+  meeting_link   String?
+  raw_payload    Json?
+  created_at     DateTime  @default(now()) @db.Timestamptz(6)
+
+  @@unique([provider, external_id])
+  @@map("meetings")
+  @@schema("automation")
+}
+
+model Invoice {
+  id                   String    @id @default(uuid())
+  client_id            String
+  client               Client    @relation(fields: [client_id], references: [id])
+  provider             String    @default("stripe")
+  external_invoice_id  String
+  status               InvoiceStatus
+  amount_cents         Int
+  currency             String    @default("usd")
+  invoice_url          String?
+  due_at               DateTime? @db.Timestamptz(6)
+  sent_at              DateTime? @db.Timestamptz(6)
+  paid_at              DateTime? @db.Timestamptz(6)
+  raw_payload          Json?
+  created_at           DateTime  @default(now()) @db.Timestamptz(6)
+
+  payments Payment[]
+
+  @@unique([provider, external_invoice_id])
+  @@map("invoices")
+  @@schema("automation")
+}
+
+model Payment {
+  id                    String    @id @default(uuid())
+  client_id             String
+  client                Client    @relation(fields: [client_id], references: [id])
+  invoice_id            String?
+  invoice               Invoice?   @relation(fields: [invoice_id], references: [id])
+  provider              String    @default("stripe")
+  external_payment_id   String
+  status                PaymentStatus
+  amount_cents          Int
+  currency              String    @default("usd")
+  paid_at               DateTime? @db.Timestamptz(6)
+  raw_payload           Json?
+  created_at            DateTime  @default(now()) @db.Timestamptz(6)
+
+  @@unique([provider, external_payment_id])
+  @@map("payments")
+  @@schema("automation")
+}
+
+model ClientIdentity {
+  id         String   @id @default(uuid())
+  client_id  String
+  client     Client   @relation(fields: [client_id], references: [id], onDelete: Cascade)
+  kind       String
+  value      String
+  is_primary Boolean  @default(false)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+
+  @@unique([kind, value])
+  @@index([client_id, kind])
+  @@map("client_identities")
+  @@schema("automation")
+}
+
+model AutomationLock {
+  lock_key     String   @id
+  locked_until DateTime @db.Timestamptz(6)
+  locked_by    String?
+  created_at   DateTime @default(now()) @db.Timestamptz(6)
+
+  @@map("automation_locks")
+  @@schema("automation")
+}
