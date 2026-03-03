@@ -1,6 +1,15 @@
 # Docker compose files (run from repo root).
 COMPOSE_DEV  = docker compose -f infra/docker/compose.dev.yml
 
+# Database migrations: single source of truth is packages/db. Run from repo root.
+.PHONY: db-migrate db-migrate-dev db-generate
+db-migrate:
+	cd packages/db && npx prisma migrate deploy
+db-migrate-dev:
+	cd packages/db && npx prisma migrate dev
+db-generate:
+	cd packages/db && npx prisma generate
+
 # Run load test against local stack (dev or prod compose).
 # Ensure web is up (e.g. make up).
 BASE_URL ?= http://localhost:3000
