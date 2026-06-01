@@ -4,5 +4,12 @@
   "workspaces": [
     "packages/*",
     "apps/*"
-  ]
+  ],
+  "scripts": {
+    "hermes": "tsx tools/hermes/hermes.ts"
+  },
+  "devDependencies": {
+    "@cursor/sdk": "latest",
+    "tsx": "latest"
+  }
 }

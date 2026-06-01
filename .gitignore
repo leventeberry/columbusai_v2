@@ -70,6 +70,14 @@ web_modules/
 .env.*
 !.env.example
 
+# Runtime lead capture (local fallback when DATABASE_URL unset)
+leads.jsonl
+**/leads.jsonl
+
+# Hermes local state/logs
+tools/hermes/state/agent-state.json
+tools/hermes/state/runs.ndjson
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache

@@ -1,5 +1,55 @@
 # Columbus AI (monorepo)
 
+## Apps
+
+| App | Path | Dev URL | Role |
+|-----|------|---------|------|
+| **Marketing** | `apps/marketing` | http://localhost:3000 | Public site, chat widget, contact/demo |
+| **Portal** | `apps/portal` | http://localhost:3001 | Client portal |
+| **Admin** | `apps/admin` | http://localhost:3002 | Admin dashboard |
+| **API** | `apps/api` | http://localhost:4000 | Chat, messages, OpenAI |
+| **Web (legacy)** | `apps/web` | http://localhost:3010 (Docker profile `legacy`) | Previous Next.js marketing site |
+| **n8n** | docker service `n8n` | http://localhost:5678 | Automation workflow builder |
+
+Copy [`.env.example`](.env.example) to `.env` at repo root. Docker Compose dev loads it for all services.
+
+```bash
+# From repo root
+npm install
+make up-dev          # marketing + portal + admin + api + postgres + redis
+make dev-marketing   # host-only marketing
+```
+
+**Marketing** uses TanStack Start (Vite). Chat calls `VITE_API_URL` (default `http://localhost:4000`). Contact/demo uses server functions + n8n webhooks (same flow as legacy `apps/web`).
+
+## Hermes agent runner (repo-local)
+
+Hermes is a local Cursor SDK runner in `tools/hermes/`.
+
+```bash
+# one-time
+npm install
+
+# create a fresh session
+npm run hermes -- --new "audit compose.dev and propose fixes"
+
+# resume previous session
+npm run hermes -- --resume "apply the approved fix and commit"
+
+# allow push actions for this run
+npm run hermes -- --approve-push "commit and push this branch"
+```
+
+State and structured logs are written to:
+- `tools/hermes/state/agent-state.json`
+- `tools/hermes/state/runs.ndjson`
+
+Optional hooks:
+- Slack: `HERMES_SLACK_WEBHOOK_URL`
+- GitHub issue comment: `GITHUB_TOKEN`, `GITHUB_REPOSITORY`, `HERMES_GITHUB_ISSUE_NUMBER`
+
+---
+
 Phase 0: bootable skeleton — web app with UI layout shell, health endpoint, and Docker dev compose.
 
 ## Phase 0: Run locally

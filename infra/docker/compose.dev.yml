@@ -1,6 +1,25 @@
-# Phase 1 dev compose — web + two Postgres + Redis (Phase 4 rate limiting).
+# Phase 1 dev compose — api + marketing + portal + admin + Postgres + Redis.
 # postgres: chat history only (Prisma). postgres-vectors: RAG only (pgvector, no Prisma).
 services:
+  n8n:
+    image: n8nio/n8n:latest
+    ports:
+      - "5678:5678"
+    environment:
+      N8N_HOST: localhost
+      N8N_PORT: "5678"
+      N8N_PROTOCOL: http
+      WEBHOOK_URL: http://localhost:5678/
+      N8N_SECURE_COOKIE: "false"
+      N8N_BASIC_AUTH_ACTIVE: ${N8N_BASIC_AUTH_ACTIVE:-true}
+      N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER:-admin}
+      N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD:-changeme}
+      GENERIC_TIMEZONE: ${GENERIC_TIMEZONE:-America/New_York}
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - columbus-dev
+
   redis:
     image: redis:7-alpine
     ports:
@@ -16,7 +35,6 @@ services:
       - columbus-dev
 
   postgres:
-    # pgvector image so migrations that drop vector schema can run (chat DB does not use vector in app).
     image: pgvector/pgvector:pg16
     ports:
       - "5432:5432"
@@ -67,6 +85,7 @@ services:
       DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres:5432/columbus
       VECTOR_DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres-vectors:5432/columbus_vectors
       REDIS_URL: redis://redis:6379
+      CORS_ORIGIN: http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001,http://localhost:3002,http://127.0.0.1:3002,http://localhost:3010,http://127.0.0.1:3010
     depends_on:
       postgres:
         condition: service_healthy
@@ -83,21 +102,80 @@ services:
     networks:
       - columbus-dev
 
+  marketing:
+    build:
+      context: ../..
+      dockerfile: apps/marketing/Dockerfile
+      target: dev
+    ports:
+      - "3000:3000"
+    env_file:
+      - ../../.env
+    environment:
+      PORT: "3000"
+      DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres:5432/columbus
+      VITE_API_URL: http://localhost:4000
+      VITE_CONTACT_EMAIL: ${NEXT_PUBLIC_CONTACT_EMAIL:-contact@columbusai.tech}
+      VITE_CHAT_TITLE: ${NEXT_PUBLIC_CHAT_TITLE:-Chexi AI}
+      VITE_CHAT_WELCOME: ${NEXT_PUBLIC_CHAT_WELCOME:-I'm Chexi, your Columbus AI assistant. Ask me anything!}
+      VITE_BOOKING_LINK: ${BOOKING_LINK:-https://cal.com/columbus-ai/30min}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    networks:
+      - columbus-dev
+
+  portal:
+    build:
+      context: ../..
+      dockerfile: apps/portal/Dockerfile
+      target: dev
+    ports:
+      - "3001:3001"
+    env_file:
+      - ../../.env
+    environment:
+      PORT: "3001"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - columbus-dev
+
+  admin:
+    build:
+      context: ../..
+      dockerfile: apps/admin/Dockerfile
+      target: dev
+    ports:
+      - "3002:3002"
+    env_file:
+      - ../../.env
+    environment:
+      PORT: "3002"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - columbus-dev
+
+  # Legacy Next.js marketing (reference only)
   web:
     build:
       context: ../..
       dockerfile: apps/web/Dockerfile
       target: dev
     ports:
-      - "3000:3000"
-    # No volume mount: use built image so Prisma/client resolves. For live reload, use an override that mounts ../../apps/web:/app.
+      - "3010:3000"
     env_file:
       - ../../.env
     environment:
+      PORT: "3000"
       DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres:5432/columbus
       VECTOR_DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres-vectors:5432/columbus_vectors
       REDIS_URL: redis://redis:6379
-      # Browser must reach API on host; port 4000 is published.
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
       postgres:
@@ -108,12 +186,8 @@ services:
         condition: service_healthy
       api:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 30s
+    profiles:
+      - legacy
     networks:
       - columbus-dev
 
@@ -125,3 +199,4 @@ volumes:
   columbus_pgdata:
   columbus_vectors_pgdata:
   columbus_redis_data:
+  n8n_data:

@@ -24,9 +24,12 @@ load-test-dev: load-test
 
 
 # --- Docker (dev) ---
-.PHONY: build-web up-dev up down
+.PHONY: build-marketing build-web up-dev up down n8n-url hermes
+build-marketing:
+	$(COMPOSE_DEV) build marketing
+
 build-web:
-	$(COMPOSE_DEV) build web
+	$(COMPOSE_DEV) --profile legacy build web
 
 up-dev:
 	$(COMPOSE_DEV) up --build
@@ -36,4 +39,22 @@ up:
 
 down:
 	$(COMPOSE_DEV) down
+
+n8n-url:
+	@echo "n8n URL: http://localhost:5678"
+	@echo "Basic auth user: $${N8N_BASIC_AUTH_USER:-admin}"
+
+hermes:
+	npm run hermes -- "$(TASK)"
+
+# Local dev (host, no Docker)
+.PHONY: dev-marketing dev-portal dev-admin
+dev-marketing:
+	cd apps/marketing && npm run dev
+
+dev-portal:
+	cd apps/portal && PORT=3001 npm run dev -- --port 3001
+
+dev-admin:
+	cd apps/admin && PORT=3002 npm run dev -- --port 3002
 
