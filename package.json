@@ -10,6 +10,7 @@
   },
   "devDependencies": {
     "@cursor/sdk": "latest",
+    "dotenv": "^17.4.2",
     "tsx": "latest"
   }
 }
