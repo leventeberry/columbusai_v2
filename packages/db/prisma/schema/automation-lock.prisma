@@ -1,0 +1,11 @@
+// --- automation: AutomationLock ---
+
+model AutomationLock {
+  lock_key     String   @id
+  locked_until DateTime @db.Timestamptz(6)
+  locked_by    String?
+  created_at   DateTime @default(now()) @db.Timestamptz(6)
+
+  @@map("automation_locks")
+  @@schema("automation")
+}

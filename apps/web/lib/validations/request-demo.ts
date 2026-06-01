@@ -1,11 +1,7 @@
 import { z } from "zod";
 
-const optionalUrl = z
-  .string()
-  .optional()
-  .refine((val) => !val || val === "" || /^https?:\/\/.+/.test(val), {
-    message: "Please enter a valid URL",
-  });
+/** Optional; accepts scheme-less URLs (e.g. www.example.com); normalized to https:// on submit. */
+const optionalUrl = z.string().optional();
 
 export const BUDGET_OPTIONS = [
   "Under $1000",

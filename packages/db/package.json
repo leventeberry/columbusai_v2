@@ -16,7 +16,7 @@
     "tsx": "^4"
   },
   "prisma": {
-    "schema": "prisma/schema.prisma",
+    "schema": "prisma/schema",
     "seed": "tsx prisma/seed.ts"
   }
 }

@@ -1,0 +1,69 @@
+# Dependencies — Docker runs npm ci; host node_modules must not be copied
+node_modules
+**/node_modules
+
+# Environment — never bake secrets into images; compose/env inject at runtime
+.env
+.env.*
+!.env.example
+
+# Next.js — avoid stale client bundle (e.g. wrong NEXT_PUBLIC_* from cache)
+.next
+**/.next
+out
+**/out
+
+# Build outputs — images build from source
+dist
+**/dist
+build
+**/build
+.turbo
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE / editor
+.vscode
+.idea
+.cursor
+
+# Docs and tooling (not needed inside images) — exclude repo root only so apps/web/docs stays in context
+/docs
+*.md
+!apps/**/README.md
+Makefile
+.github
+
+# Tests and coverage
+coverage
+**/coverage
+.nyc_output
+**/.nyc_output
+test-results
+playwright-report
+blob-report
+*.lcov
+
+# Logs and caches
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.eslintcache
+.stylelintcache
+*.tsbuildinfo
+.cache
+.parcel-cache
+
+# OS and misc
+.DS_Store
+*.pid
+*.seed
+*.tgz
+
+# Docker / compose (reduce context size; not needed inside app image)
+infra
+docker-compose*.yml

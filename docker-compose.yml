@@ -8,6 +8,13 @@
 #   POSTGRES_PASSWORD=...                 # Optional; default columbus
 #   NEXT_PUBLIC_API_URL=...               # Optional; for chatbot (e.g. https://api.example.com)
 #
+# Production required env (see README "Production required env"):
+#   POSTGRES_PASSWORD   — set a strong password (compose default is columbus).
+#   DOMAIN              — must be set in production for Traefik (e.g. app.<your-domain> or root domain).
+#   NEXT_PUBLIC_API_URL — must be set in production (e.g. https://api.<your-domain>); default http://localhost:4000 is dev only.
+#   CORS_ORIGIN         — must be set in production for the API (e.g. https://app.<your-domain>); do not rely on default localhost.
+#   REDIS_URL           — set if rate limiting must be enabled (compose sets redis://redis:6379).
+#
 # Verification:
 #   docker compose up -d
 #   curl -H "Host: app.${DOMAIN}" http://<server-ip>   # -> web (or redirect to HTTPS)
@@ -22,7 +29,7 @@ services:
   traefik:
     image: traefik:v3.2
     environment:
-      ACME_EMAIL: ${ACME_EMAIL:admin@columbusai.tech}
+      ACME_EMAIL: ${ACME_EMAIL:-admin@columbusai.tech}
     entrypoint: ["/bin/sh", "/etc/traefik/entrypoint.sh"]
     ports:
       - "80:80"
@@ -127,6 +134,7 @@ services:
       dockerfile: apps/api/Dockerfile
     env_file:
       - apps/web/.env
+    # In production set CORS_ORIGIN (e.g. https://app.<your-domain>); API fails start if unset or default localhost.
     environment:
       NODE_ENV: production
       PORT: "4000"
@@ -167,7 +175,7 @@ services:
       DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres:5432/columbus
       VECTOR_DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres-vectors:5432/columbus_vectors
       REDIS_URL: redis://redis:6379
-      # Set to your public API URL (e.g. https://api.example.com) or http://localhost:4000 for same-host.
+      # Production: set NEXT_PUBLIC_API_URL to your public API URL (e.g. https://api.<your-domain>). Default http://localhost:4000 is dev only; web app will fail in prod if missing or localhost.
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4000}
     depends_on:
       migrate:

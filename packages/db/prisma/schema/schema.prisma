@@ -1,0 +1,14 @@
+// Base configuration — generator and datasource. Other .prisma files in this directory
+// are merged automatically (Prisma multi-file schema).
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+  binaryTargets   = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["chat", "automation"]
+}

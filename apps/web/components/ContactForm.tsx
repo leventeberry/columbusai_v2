@@ -66,7 +66,7 @@ export function ContactForm() {
       fname: data.fname.trim(),
       lname: data.lname.trim(),
       email: data.email.trim(),
-      message: data.message.trim(),
+      message: data.message?.trim() ?? "",
     };
     try {
       const res = await submitContact(payload);

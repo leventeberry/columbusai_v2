@@ -10,10 +10,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from "./ui/dialog";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 import {
   requestDemoSchema,
   type RequestDemoFormData,
@@ -22,17 +22,10 @@ import {
   TIMELINE_OPTIONS,
 } from "@/lib/validations/request-demo";
 import { submitContact } from "@/lib/api/submitContact";
-import { HELPER_TEXT_MAX_W } from "@/lib/constants";
-import type { ContactPayload } from "@/types/contact";
 import { cn } from "@/lib/utils";
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 
-type RequestDemoBtnProps = {
-  /** Custom trigger element (e.g. link-styled button). When provided, used instead of the default button. */
-  trigger?: ReactNode;
-};
-
-export default function RequestDemoBtn({ trigger }: RequestDemoBtnProps) {
+export default function RequestDemoBtn() {
   const [open, setOpen] = useState(false);
   const [success, setSuccess] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -43,6 +36,7 @@ export default function RequestDemoBtn({ trigger }: RequestDemoBtnProps) {
     register,
     watch,
     handleSubmit,
+    reset,
     setError,
     formState: { errors, isSubmitting, touchedFields },
   } = useForm<RequestDemoFormData>({
@@ -64,8 +58,6 @@ export default function RequestDemoBtn({ trigger }: RequestDemoBtnProps) {
     },
   });
 
-  // react-hook-form watch() used for field state; compatible with donor UI behavior
-  // eslint-disable-next-line react-hooks/incompatible-library -- baseline form pattern
   const values = watch();
   const hasValue = (v: unknown) =>
     v != null && String(v).trim() !== "";
@@ -94,19 +86,19 @@ export default function RequestDemoBtn({ trigger }: RequestDemoBtnProps) {
     if (website && !/^https?:\/\//i.test(website)) {
       website = "https://" + website;
     }
-    const payload: ContactPayload = {
-      fname: data.fname.trim(),
-      lname: data.lname.trim(),
-      email: data.email.trim(),
-      phone: data.phone?.trim() ?? "",
-      company: data.company?.trim() ?? "",
-      role: data.role?.trim() ?? "",
-      industry: data.industry?.trim() ?? "",
-      team_size: data.team_size?.trim() ?? "",
+    const payload = {
+      fname: data.fname,
+      lname: data.lname,
+      email: data.email,
+      phone: data.phone ?? "",
+      company: data.company ?? "",
+      role: data.role ?? "",
+      industry: data.industry ?? "",
+      team_size: data.team_size ?? "",
       website,
-      what_automate: data.what_automate?.trim() ?? "",
-      budget: data.budget?.trim() ?? "",
-      timeline: data.timeline?.trim() ?? "",
+      what_automate: data.what_automate ?? "",
+      budget: data.budget ?? "",
+      timeline: data.timeline ?? "",
     };
     try {
       const res = await submitContact(payload);
@@ -146,13 +138,9 @@ export default function RequestDemoBtn({ trigger }: RequestDemoBtnProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      {trigger ? (
-        <DialogTrigger asChild>{trigger}</DialogTrigger>
-      ) : (
-        <DialogTrigger className="min-h-10 shrink-0 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
-          Request a Demo
-        </DialogTrigger>
-      )}
+      <DialogTrigger className="min-h-10 shrink-0 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+        Request a Demo
+      </DialogTrigger>
       <DialogContent className="w-full max-w-md p-6">
         <DialogClose />
         {success ? (
@@ -454,7 +442,7 @@ export default function RequestDemoBtn({ trigger }: RequestDemoBtnProps) {
           )}
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <p className={cn(HELPER_TEXT_MAX_W, "text-muted-foreground text-xs")}>
+            <p className="text-muted-foreground text-xs max-w-[280px]">
               By clicking &quot;Submit&quot; you agree to receive email marketing
               and other communications from Columbus AI Automation Solutions. You
               can unsubscribe at any time.

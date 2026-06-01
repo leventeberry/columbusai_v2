@@ -60,8 +60,9 @@ services:
     ports:
       - "4000:4000"
     env_file:
-      - ../../apps/api/.env
+      - ../../.env
     environment:
+      NODE_ENV: development
       PORT: "4000"
       DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres:5432/columbus
       VECTOR_DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres-vectors:5432/columbus_vectors
@@ -91,7 +92,7 @@ services:
       - "3000:3000"
     # No volume mount: use built image so Prisma/client resolves. For live reload, use an override that mounts ../../apps/web:/app.
     env_file:
-      - ../../apps/web/.env
+      - ../../.env
     environment:
       DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres:5432/columbus
       VECTOR_DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres-vectors:5432/columbus_vectors

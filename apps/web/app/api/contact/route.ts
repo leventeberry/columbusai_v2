@@ -9,8 +9,14 @@ import {
 
 const trim = (s: unknown) => (s == null ? "" : String(s).trim());
 
+function normalizeWebsite(website: string | undefined): string {
+  const s = trim(website);
+  if (!s) return "";
+  if (/^https?:\/\//i.test(s)) return s;
+  return "https://" + s;
+}
+
 export async function POST(request: NextRequest) {
-  
   let body: unknown;
 
   try {
@@ -34,15 +40,15 @@ export async function POST(request: NextRequest) {
     fname: trim(p.fname),
     lname: trim(p.lname),
     email: trim(p.email),
-    phone: "",
-    company: "",
-    role: "",
-    industry: "",
-    team_size: "",
-    what_automate: trim(p.message),
-    budget: "",
-    timeline: "",
-    website: "",
+    phone: trim(p.phone),
+    company: trim(p.company),
+    role: trim(p.role),
+    industry: trim(p.industry),
+    team_size: trim(p.team_size),
+    what_automate: trim(p.what_automate) || trim(p.message),
+    budget: trim(p.budget),
+    timeline: trim(p.timeline),
+    website: normalizeWebsite(p.website),
     created_at: new Date().toISOString(),
   };
 

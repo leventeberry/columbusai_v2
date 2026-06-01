@@ -19,7 +19,7 @@ COPY --from=deps /app/packages ./packages
 COPY --from=deps /app/apps/web ./apps/web
 ENV NEXT_TELEMETRY_DISABLED=1
 # Generate Prisma client from shared db package (no prisma in apps/web)
-RUN npx prisma generate --schema=packages/db/prisma/schema.prisma
+RUN npx prisma generate --schema=packages/db/prisma/schema
 WORKDIR /app/apps/web
 RUN npx next build --webpack
 # Next may externalize @prisma/client with a hash; replace hashed dir with symlink to real client
@@ -51,7 +51,7 @@ COPY --from=deps /app/package.json ./
 COPY --from=deps /app/packages ./packages
 COPY --from=deps /app/apps/web ./apps/web
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN npx prisma generate --schema=packages/db/prisma/schema.prisma
+RUN npx prisma generate --schema=packages/db/prisma/schema
 WORKDIR /app/apps/web
 EXPOSE 3000
 CMD ["npm", "run", "dev"]

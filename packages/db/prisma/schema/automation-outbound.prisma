@@ -1,0 +1,26 @@
+// --- automation: OutboundMessage ---
+
+model OutboundMessage {
+  id                   String    @id @default(uuid())
+  client_id            String?
+  client               Client?   @relation(fields: [client_id], references: [id])
+  task_id              String?
+  task                 Task?     @relation(fields: [task_id], references: [id])
+  channel              String
+  provider             String?
+  provider_message_id  String?
+  to_address          String?
+  subject              String?
+  body                 String?   @db.Text
+  sent_at              DateTime  @default(now()) @db.Timestamptz(6)
+  delivery_status      OutboundMessageDeliveryStatus?
+  delivered_at         DateTime? @db.Timestamptz(6)
+  bounced_at           DateTime? @db.Timestamptz(6)
+  error                String?
+  metadata             Json?
+
+  @@index([provider_message_id])
+  @@index([client_id, sent_at(sort: Desc)])
+  @@map("outbound_messages")
+  @@schema("automation")
+}

@@ -1,0 +1,17 @@
+// --- automation: User ---
+
+model User {
+  id           String   @id @default(uuid())
+  created_at   DateTime @default(now()) @db.Timestamptz(6)
+  // Nullable by design: users may exist without email (e.g. SSO placeholder); auth must handle null.
+  email        String?  @unique
+  display_name String?
+  role         String?
+  is_active    Boolean  @default(true)
+
+  clients_owned                Client[]
+  task_templates_default_owner TaskTemplate[]
+
+  @@map("users")
+  @@schema("automation")
+}

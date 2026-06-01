@@ -11,7 +11,7 @@ export async function postMessages(req: Request, res: Response): Promise<void> {
     const parsed = postMessagesBodySchema.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({
-        error: "Invalid body",
+        error: "Invalid request",
         details: parsed.error.flatten(),
       });
       return;
@@ -25,11 +25,22 @@ export async function postMessages(req: Request, res: Response): Promise<void> {
     }
 
     let convId = conversationId;
+    let message: Awaited<ReturnType<typeof prisma.message.create>>;
     if (!convId) {
-      const conv = await prisma.conversation.create({
-        data: {},
+      // Transaction ensures atomic creation of conversation + first message.
+      const result = await prisma.$transaction(async (tx) => {
+        const conv = await tx.conversation.create({ data: {} });
+        const msg = await tx.message.create({
+          data: {
+            conversation_id: conv.id,
+            role: MessageRole.user,
+            content,
+          },
+        });
+        return { convId: conv.id, message: msg };
       });
-      convId = conv.id;
+      convId = result.convId;
+      message = result.message;
     } else {
       const existing = await prisma.conversation.findUnique({
         where: { id: convId },
@@ -38,15 +49,14 @@ export async function postMessages(req: Request, res: Response): Promise<void> {
         res.status(404).json({ error: "Conversation not found" });
         return;
       }
+      message = await prisma.message.create({
+        data: {
+          conversation_id: convId,
+          role: MessageRole.user,
+          content,
+        },
+      });
     }
-
-    const message = await prisma.message.create({
-      data: {
-        conversation_id: convId,
-        role: MessageRole.user,
-        content,
-      },
-    });
 
     res.status(200).json({
       conversationId: convId,

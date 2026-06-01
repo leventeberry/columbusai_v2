@@ -1,0 +1,44 @@
+// --- automation: Invoice, Payment ---
+
+model Invoice {
+  id                   String    @id @default(uuid())
+  client_id            String
+  client               Client    @relation(fields: [client_id], references: [id])
+  provider             String    @default("stripe")
+  external_invoice_id  String
+  status               InvoiceStatus
+  amount_cents         Int
+  currency             String    @default("usd")
+  invoice_url          String?
+  due_at               DateTime? @db.Timestamptz(6)
+  sent_at              DateTime? @db.Timestamptz(6)
+  paid_at              DateTime? @db.Timestamptz(6)
+  raw_payload          Json?
+  created_at           DateTime  @default(now()) @db.Timestamptz(6)
+
+  payments Payment[]
+
+  @@unique([provider, external_invoice_id])
+  @@map("invoices")
+  @@schema("automation")
+}
+
+model Payment {
+  id                    String    @id @default(uuid())
+  client_id             String
+  client                Client    @relation(fields: [client_id], references: [id])
+  invoice_id            String?
+  invoice               Invoice?   @relation(fields: [invoice_id], references: [id])
+  provider              String    @default("stripe")
+  external_payment_id   String
+  status                PaymentStatus
+  amount_cents          Int
+  currency              String    @default("usd")
+  paid_at               DateTime? @db.Timestamptz(6)
+  raw_payload           Json?
+  created_at            DateTime  @default(now()) @db.Timestamptz(6)
+
+  @@unique([provider, external_payment_id])
+  @@map("payments")
+  @@schema("automation")
+}

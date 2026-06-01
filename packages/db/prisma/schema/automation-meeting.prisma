@@ -1,0 +1,19 @@
+// --- automation: Meeting ---
+
+model Meeting {
+  id             String    @id @default(uuid())
+  client_id      String
+  client         Client    @relation(fields: [client_id], references: [id])
+  provider       String
+  external_id    String
+  status         String
+  start_at       DateTime? @db.Timestamptz(6)
+  end_at         DateTime? @db.Timestamptz(6)
+  meeting_link   String?
+  raw_payload    Json?
+  created_at     DateTime  @default(now()) @db.Timestamptz(6)
+
+  @@unique([provider, external_id])
+  @@map("meetings")
+  @@schema("automation")
+}

@@ -193,6 +193,16 @@ The `-v` flag removes named volumes (Postgres and Redis data). The next `up --bu
 
 ### Required env vars in prod
 
+**Production required env** (set in `.env` or environment when using `docker-compose.yml` or `infra/docker/compose.prod.yml`):
+
+- **POSTGRES_PASSWORD** — set a strong password (compose default is `columbus`).
+- **DOMAIN** — required for Traefik routing (e.g. `app.<your-domain>` or your root domain).
+- **NEXT_PUBLIC_API_URL** — must be set in production (e.g. `https://api.<your-domain>`); default `http://localhost:4000` is dev only; web app fails start if missing or localhost in prod.
+- **CORS_ORIGIN** — must be set in production for the API (e.g. `https://app.<your-domain>`); API fails start if unset or default localhost.
+- **REDIS_URL** — set if rate limiting must be enabled (compose sets `redis://redis:6379`).
+
+See comments in `docker-compose.yml` for inline examples.
+
 - **Required for /api/chat:** `DATABASE_URL`, `OPENAI_API_KEY` (compose sets `DATABASE_URL`; ensure `OPENAI_API_KEY` is in `apps/web/.env` or passed to the web service).
 - **Optional:** `VECTOR_DATABASE_URL` (RAG; compose sets it), `REDIS_URL` (compose sets it), `OPENAI_MODEL`, `OPENAI_EMBED_MODEL`, `OPENAI_STORE`, `RATE_LIMIT_WINDOW_SECONDS`, `RATE_LIMIT_MAX_REQUESTS`, `RATE_LIMIT_SCOPE`, `RETRIEVAL_K`, `ADMIN_TOKEN` (for future ingestion API).
 

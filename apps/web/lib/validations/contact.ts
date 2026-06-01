@@ -2,8 +2,11 @@ import { z } from "zod";
 
 const namePattern = /^[a-zA-Z\s\-']+$/;
 
+const optionalString = z.string().optional();
+
 /**
- * Schema for POST /api/contact body. Aligns with ContactPayload (fname, lname, email, message).
+ * Schema for POST /api/contact body. Supports both simple contact (fname, lname, email, message)
+ * and full demo payload (phone, company, role, industry, team_size, website, what_automate, budget, timeline).
  */
 export const contactPayloadSchema = z.object({
   fname: z
@@ -19,8 +22,20 @@ export const contactPayloadSchema = z.object({
       message: "Last name can only contain letters, spaces, hyphens, or apostrophes",
     }),
   email: z.string().min(1, "Email is required").email("Please enter a valid email address"),
-  message: z.string().min(1, "Message is required"),
-});
+  message: z.string().optional(),
+  phone: optionalString,
+  company: optionalString,
+  role: optionalString,
+  industry: optionalString,
+  team_size: optionalString,
+  website: optionalString,
+  what_automate: optionalString,
+  budget: optionalString,
+  timeline: optionalString,
+}).refine(
+  (data) => (data.message?.trim() ?? "") !== "" || (data.what_automate?.trim() ?? "") !== "",
+  { message: "Message or what you want to automate is required", path: ["message"] }
+);
 
 export type ContactPayloadSchema = z.infer<typeof contactPayloadSchema>;
 

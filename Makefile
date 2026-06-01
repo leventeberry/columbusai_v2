@@ -24,9 +24,12 @@ load-test-dev: load-test
 
 
 # --- Docker (dev) ---
-.PHONY: build-web up down
+.PHONY: build-web up-dev up down
 build-web:
 	$(COMPOSE_DEV) build web
+
+up-dev:
+	$(COMPOSE_DEV) up --build
 
 up:
 	$(COMPOSE_DEV) up -d

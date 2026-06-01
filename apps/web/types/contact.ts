@@ -7,7 +7,16 @@ export type ContactPayload = {
   fname: string;
   lname: string;
   email: string;
-  message: string;
+  message?: string;
+  phone?: string;
+  company?: string;
+  role?: string;
+  industry?: string;
+  team_size?: string;
+  website?: string;
+  what_automate?: string;
+  budget?: string;
+  timeline?: string;
 };
 
 export type ContactErrors = Record<string, string>;

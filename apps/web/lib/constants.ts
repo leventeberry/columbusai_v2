@@ -1,5 +1,7 @@
 // Copied from /columbus-ai:lib/constants.ts (Phase 0 UI shell only)
 
+import { getWebEnv } from "./env";
+
 export const SITE_NAME = "Columbus AI Automation Solutions LLC";
 
 /** Base URL for backend API (chat, messages). Set NEXT_PUBLIC_API_URL (e.g. http://localhost:4000) when the API runs as a separate service. */

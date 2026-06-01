@@ -9,7 +9,7 @@ import {
   searchChunks,
 } from "../lib/vector-db.js";
 import { rateLimit } from "../lib/rateLimit.js";
-import { getMissingRequiredEnv } from "../lib/env.js";
+import { getApiEnv } from "../lib/env.js";
 import { withTimer } from "../lib/timing.js";
 import { postChatBodySchema } from "./schemas/chat.js";
 import { recordChatMetrics } from "../lib/metrics-lite.js";
@@ -20,6 +20,11 @@ const DEFAULT_INSTRUCTIONS =
 
 const DEFAULT_EMBED_MODEL = "text-embedding-3-small";
 const DEFAULT_RETRIEVAL_K = 5;
+
+const OPENAI_TIMEOUT_MS = Math.max(
+  1000,
+  parseInt(process.env.OPENAI_TIMEOUT_MS ?? "30000", 10) || 30000
+);
 
 export interface ChatTimings {
   db_read_ms: number;
@@ -34,21 +39,7 @@ export async function postChat(req: Request, res: Response): Promise<void> {
   const request_id = crypto.randomUUID();
   const totalStartMs = Date.now();
   try {
-    const missing = getMissingRequiredEnv();
-    if (missing.length > 0) {
-      console.error(
-        JSON.stringify({
-          level: "error",
-          request_id,
-          message: "Configuration error",
-          missing_keys: missing,
-        })
-      );
-      res.status(500).json({
-        error: "Configuration error. Check server logs.",
-      });
-      return;
-    }
+    const apiEnv = getApiEnv();
 
     const parsed = postChatBodySchema.safeParse(req.body);
     if (!parsed.success) {
@@ -101,18 +92,27 @@ export async function postChat(req: Request, res: Response): Promise<void> {
           return { notFound: true as const, convId: null as unknown as string };
         }
         convId = bodyConvId;
+        await prisma.message.create({
+          data: {
+            conversation_id: convId,
+            role: MessageRole.user,
+            content: message,
+          },
+        });
       } else {
-        const conv = await prisma.conversation.create({ data: {} });
-        convId = conv.id;
+        // Transaction ensures atomic creation of conversation + first message.
+        convId = await prisma.$transaction(async (tx) => {
+          const conv = await tx.conversation.create({ data: {} });
+          await tx.message.create({
+            data: {
+              conversation_id: conv.id,
+              role: MessageRole.user,
+              content: message,
+            },
+          });
+          return conv.id;
+        });
       }
-
-      await prisma.message.create({
-        data: {
-          conversation_id: convId,
-          role: MessageRole.user,
-          content: message,
-        },
-      });
 
       const total = await prisma.message.count({
         where: { conversation_id: convId },
@@ -150,11 +150,12 @@ export async function postChat(req: Request, res: Response): Promise<void> {
         ? lastMsg.openai_response_id
         : undefined;
 
-    const apiKey = process.env.OPENAI_API_KEY!;
+    const apiKey = apiEnv.openaiApiKey;
     const model = process.env.OPENAI_MODEL ?? "gpt-4o-mini";
     const store =
       process.env.OPENAI_STORE !== "false" && process.env.OPENAI_STORE !== "0";
     const client = new OpenAI({ apiKey });
+    const timeoutSignal = AbortSignal.timeout(OPENAI_TIMEOUT_MS);
 
     const retrievalK = Math.max(
       1,
@@ -172,10 +173,10 @@ export async function postChat(req: Request, res: Response): Promise<void> {
     if (getVectorDatabaseUrl()) {
       try {
         const embedResult = await withTimer("embed", () =>
-          client.embeddings.create({
-            model: embedModel,
-            input: message,
-          })
+          client.embeddings.create(
+            { model: embedModel, input: message },
+            { signal: timeoutSignal }
+          )
         );
         embed_ms = embedResult.ms;
         const queryEmbedding = embedResult.result.data[0]?.embedding;
@@ -222,7 +223,9 @@ export async function postChat(req: Request, res: Response): Promise<void> {
       };
       if (previousResponseId)
         createParams.previous_response_id = previousResponseId;
-      return client.responses.create(createParams);
+      return client.responses.create(createParams, {
+        signal: timeoutSignal,
+      });
     });
     const openai_ms = openaiResult.ms;
     const response = openaiResult.result;
@@ -310,6 +313,11 @@ export async function postChat(req: Request, res: Response): Promise<void> {
       });
   } catch (e) {
     const total_ms = Date.now() - totalStartMs;
+    if (e instanceof Error && e.name === "AbortError") {
+      recordChatMetrics(504, total_ms);
+      res.status(504).json({ error: "Upstream timeout" });
+      return;
+    }
     const status = e && typeof e === "object" && "status" in e ? 502 : 500;
     recordChatMetrics(status, total_ms);
     if (e && typeof e === "object" && "status" in e) {

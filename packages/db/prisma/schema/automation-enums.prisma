@@ -1,0 +1,127 @@
+// --- automation schema: enums ---
+
+enum ClientSystemStage {
+  new_lead
+  awaiting_response
+  discovery_scheduled
+  discovery_completed
+  no_show
+  proposal_sent
+  negotiation
+  setup_invoiced
+  awaiting_payment
+  setup_paid
+  closed_won
+  fulfilment
+  reactivation
+  on_hold
+  maintenance_active
+  delivered
+  live
+  churn_risk
+  churned
+  closed_lost
+  cancelled
+
+  @@schema("automation")
+}
+
+enum ClientManualOverride {
+  none
+  paused
+  on_hold
+
+  @@schema("automation")
+}
+
+enum FollowupState {
+  active
+  paused
+  completed
+
+  @@schema("automation")
+}
+
+enum TaskStatus {
+  queued
+  in_progress
+  waiting
+  done
+  failed
+  skipped
+  cancelled
+
+  @@schema("automation")
+}
+
+enum TaskPriority {
+  low
+  medium
+  high
+  urgent
+
+  @@schema("automation")
+}
+
+enum TaskChannel {
+  email
+  sms
+  phone
+  linkedin
+  internal
+  other
+
+  @@schema("automation")
+}
+
+enum EventProcessingStatus {
+  pending
+  processing
+  processed
+  failed
+  ignored
+
+  @@schema("automation")
+}
+
+enum StageTransitionTriggeredBy {
+  user_action
+  automation
+  scheduled
+  api
+  system
+  integration
+  manual_override
+
+  @@schema("automation")
+}
+
+enum OutboundMessageDeliveryStatus {
+  pending
+  sent
+  delivered
+  failed
+  bounced
+
+  @@schema("automation")
+}
+
+enum InvoiceStatus {
+  draft
+  sent
+  paid
+  overdue
+  void
+  uncollectible
+
+  @@schema("automation")
+}
+
+enum PaymentStatus {
+  pending
+  succeeded
+  failed
+  refunded
+
+  @@schema("automation")
+}
