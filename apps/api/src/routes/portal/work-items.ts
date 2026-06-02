@@ -2,17 +2,28 @@ import type { Response } from "express";
 import { z } from "zod";
 import { prisma } from "../../lib/prisma.js";
 import type { RequestWithAuth } from "../../middleware/requireSession.js";
-import { getPortalMemberships, serializeWorkItem, userCanAccessClient } from "../../lib/portal/repository.js";
+import {
+  allowedClientIds,
+  isAgencyRole,
+  serializeWorkItem,
+  userCanAccessClient,
+} from "../../lib/portal/repository.js";
 
 export async function getPortalWorkItems(req: RequestWithAuth, res: Response): Promise<void> {
   const user = req.auth!.user;
   const clientId = typeof req.query.clientId === "string" ? req.query.clientId : undefined;
+  const scope = await allowedClientIds(user.id, user.role);
+
+  if (scope !== "all" && scope.length === 0) {
+    res.json({ workItems: [] });
+    return;
+  }
 
   let clientFilter: string[] | undefined;
-  if (user.role === "CLIENT") {
-    const memberships = await getPortalMemberships(user.id);
-    clientFilter = memberships.map((m) => m.client_id);
-  } else if (clientId) {
+  if (scope !== "all") {
+    clientFilter = scope;
+  }
+  if (clientId) {
     const ok = await userCanAccessClient(user.id, user.role, clientId);
     if (!ok) {
       res.status(403).json({ error: "Forbidden" });
@@ -128,4 +139,149 @@ export async function postPortalWorkItem(req: RequestWithAuth, res: Response): P
   });
 
   res.status(201).json({ workItem: serializeWorkItem(item) });
+}
+
+const patchSchema = z.object({
+  status: z
+    .enum([
+      "requested",
+      "in_review",
+      "planned",
+      "in_progress",
+      "waiting_on_client",
+      "testing",
+      "completed",
+      "cancelled",
+    ])
+    .optional(),
+  priority: z.enum(["low", "medium", "high", "critical"]).optional(),
+});
+
+export async function patchPortalWorkItem(req: RequestWithAuth, res: Response): Promise<void> {
+  const parsed = patchSchema.safeParse(req.body);
+  if (!parsed.success || (!parsed.data.status && !parsed.data.priority)) {
+    res.status(400).json({ error: "Invalid input" });
+    return;
+  }
+
+  const id = req.params.id;
+  const existing = await prisma.portalWorkItem.findUnique({ where: { id } });
+  if (!existing) {
+    res.status(404).json({ error: "Not found" });
+    return;
+  }
+
+  const ok = await userCanAccessClient(req.auth!.user.id, req.auth!.user.role, existing.client_id);
+  if (!ok) {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
+
+  if (!isAgencyRole(req.auth!.user.role)) {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
+
+  const item = await prisma.portalWorkItem.update({
+    where: { id },
+    data: {
+      ...(parsed.data.status ? { status: parsed.data.status } : {}),
+      ...(parsed.data.priority ? { priority: parsed.data.priority } : {}),
+    },
+  });
+
+  if (parsed.data.status && parsed.data.status !== existing.status) {
+    await prisma.portalWorkActivity.create({
+      data: {
+        work_item_id: id,
+        actor_id: req.auth!.user.id,
+        kind: "status_changed",
+        from_value: existing.status,
+        to_value: parsed.data.status,
+      },
+    });
+    if (parsed.data.status === "completed") {
+      await prisma.portalWorkActivity.create({
+        data: {
+          work_item_id: id,
+          actor_id: req.auth!.user.id,
+          kind: "completed",
+        },
+      });
+    }
+  }
+
+  if (parsed.data.priority && parsed.data.priority !== existing.priority) {
+    await prisma.portalWorkActivity.create({
+      data: {
+        work_item_id: id,
+        actor_id: req.auth!.user.id,
+        kind: "priority_changed",
+        from_value: existing.priority,
+        to_value: parsed.data.priority,
+      },
+    });
+  }
+
+  res.json({ workItem: serializeWorkItem(item) });
+}
+
+const commentSchema = z.object({
+  body: z.string().min(1).max(10000),
+  visibility: z.enum(["public", "internal"]).default("public"),
+});
+
+export async function postPortalWorkComment(req: RequestWithAuth, res: Response): Promise<void> {
+  const parsed = commentSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: "Invalid input" });
+    return;
+  }
+
+  if (parsed.data.visibility === "internal" && !isAgencyRole(req.auth!.user.role)) {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
+
+  const id = req.params.id;
+  const existing = await prisma.portalWorkItem.findUnique({ where: { id } });
+  if (!existing) {
+    res.status(404).json({ error: "Not found" });
+    return;
+  }
+
+  const ok = await userCanAccessClient(req.auth!.user.id, req.auth!.user.role, existing.client_id);
+  if (!ok) {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
+
+  const comment = await prisma.portalWorkComment.create({
+    data: {
+      work_item_id: id,
+      author_id: req.auth!.user.id,
+      body: parsed.data.body,
+      visibility: parsed.data.visibility,
+    },
+  });
+
+  await prisma.portalWorkActivity.create({
+    data: {
+      work_item_id: id,
+      actor_id: req.auth!.user.id,
+      kind: "comment_added",
+    },
+  });
+
+  res.status(201).json({
+    comment: {
+      id: comment.id,
+      workItemId: comment.work_item_id,
+      authorId: comment.author_id,
+      body: comment.body,
+      visibility: comment.visibility,
+      mentions: comment.mentions,
+      createdAt: comment.created_at.toISOString(),
+    },
+  });
 }

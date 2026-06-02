@@ -37,8 +37,11 @@ import { getPortalMe } from "./routes/portal/me.js";
 import {
   getPortalWorkItem,
   getPortalWorkItems,
+  patchPortalWorkItem,
+  postPortalWorkComment,
   postPortalWorkItem,
 } from "./routes/portal/work-items.js";
+import { getPortalNotifications } from "./routes/portal/notifications.js";
 
 const env = getApiEnv();
 const app = express();
@@ -107,9 +110,16 @@ app.delete("/api/admin/users/:id", ...adminRoleRequired, asyncHandler(deleteAdmi
 app.get("/api/admin/conversations", adminAccess, asyncHandler(getAdminConversations));
 
 app.get("/api/portal/me", sessionRequired, asyncHandler(getPortalMe));
+app.get("/api/portal/notifications", sessionRequired, asyncHandler(getPortalNotifications));
 app.get("/api/portal/work-items", sessionRequired, asyncHandler(getPortalWorkItems));
 app.get("/api/portal/work-items/:id", sessionRequired, asyncHandler(getPortalWorkItem));
 app.post("/api/portal/work-items", sessionRequired, asyncHandler(postPortalWorkItem));
+app.patch("/api/portal/work-items/:id", sessionRequired, asyncHandler(patchPortalWorkItem));
+app.post(
+  "/api/portal/work-items/:id/comments",
+  sessionRequired,
+  asyncHandler(postPortalWorkComment),
+);
 
 app.get("/api/leads", adminAccess, asyncHandler(getLeads));
 app.get("/api/leads/pipeline", adminAccess, asyncHandler(getPipeline));

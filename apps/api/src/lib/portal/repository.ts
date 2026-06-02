@@ -1,18 +1,37 @@
 import { ClientSource } from "@columbusai/db";
 import { prisma } from "../prisma.js";
 
+const AGENCY_ROLES = new Set(["SUPER_ADMIN", "ADMIN", "STAFF", "VIEWER"]);
+
+export function isAgencyRole(role: string): boolean {
+  return AGENCY_ROLES.has(role);
+}
+
 export async function getPortalMemberships(userId: string) {
   return prisma.clientUser.findMany({
     where: { user_id: userId, client_source: ClientSource.PORTAL },
   });
 }
 
-export async function userCanAccessClient(userId: string, role: string, clientId: string): Promise<boolean> {
-  if (role === "SUPER_ADMIN" || role === "ADMIN" || role === "STAFF") return true;
+export async function userCanAccessClient(
+  userId: string,
+  role: string,
+  clientId: string,
+): Promise<boolean> {
+  if (isAgencyRole(role)) return true;
   const m = await prisma.clientUser.findFirst({
     where: { user_id: userId, client_id: clientId, client_source: ClientSource.PORTAL },
   });
   return !!m;
+}
+
+export async function allowedClientIds(
+  userId: string,
+  role: string,
+): Promise<string[] | "all"> {
+  if (isAgencyRole(role)) return "all";
+  const memberships = await getPortalMemberships(userId);
+  return memberships.map((m) => m.client_id);
 }
 
 export function serializeWorkItem(w: {
