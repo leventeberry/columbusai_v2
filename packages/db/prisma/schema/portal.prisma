@@ -1,0 +1,163 @@
+// --- portal: client workspace & work center ---
+
+enum PortalWorkType {
+  website
+  automation
+  integration
+  support
+  deployment
+  bug
+  internal
+  billing
+  onboarding
+
+  @@schema("portal")
+}
+
+enum PortalWorkStatus {
+  requested
+  in_review
+  planned
+  in_progress
+  waiting_on_client
+  testing
+  completed
+  cancelled
+
+  @@schema("portal")
+}
+
+enum PortalWorkPriority {
+  low
+  medium
+  high
+  critical
+
+  @@schema("portal")
+}
+
+enum PortalCommentVisibility {
+  public
+  internal
+
+  @@schema("portal")
+}
+
+enum PortalActivityKind {
+  created
+  status_changed
+  assignee_changed
+  priority_changed
+  watcher_added
+  watcher_removed
+  comment_added
+  attachment_added
+  attachment_removed
+  archived
+  completed
+
+  @@schema("portal")
+}
+
+model PortalClient {
+  id         String   @id
+  name       String
+  industry   String?
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @updatedAt @db.Timestamptz(6)
+
+  work_items PortalWorkItem[]
+
+  @@map("clients")
+  @@schema("portal")
+}
+
+model PortalWorkItem {
+  id                   String             @id
+  client_id            String
+  client               PortalClient       @relation(fields: [client_id], references: [id], onDelete: Cascade)
+  title                String
+  description          String             @default("") @db.Text
+  type                 PortalWorkType
+  status               PortalWorkStatus   @default(requested)
+  priority             PortalWorkPriority @default(medium)
+  created_by_user_id   String
+  primary_assignee_id  String?
+  assignee_ids         String[]           @default([])
+  watcher_ids          String[]           @default([])
+  tags                 String[]           @default([])
+  due_date             DateTime?          @db.Timestamptz(6)
+  archived_at          DateTime?          @db.Timestamptz(6)
+  created_at           DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime           @updatedAt @db.Timestamptz(6)
+
+  comments    PortalWorkComment[]
+  attachments PortalWorkAttachment[]
+  activity    PortalWorkActivity[]
+
+  @@index([client_id])
+  @@index([status])
+  @@map("work_items")
+  @@schema("portal")
+}
+
+model PortalWorkComment {
+  id          String                  @id @default(uuid())
+  work_item_id String
+  work_item   PortalWorkItem          @relation(fields: [work_item_id], references: [id], onDelete: Cascade)
+  author_id   String
+  body        String                  @db.Text
+  visibility  PortalCommentVisibility @default(public)
+  mentions    String[]                @default([])
+  created_at  DateTime                @default(now()) @db.Timestamptz(6)
+
+  @@index([work_item_id])
+  @@map("work_comments")
+  @@schema("portal")
+}
+
+model PortalWorkAttachment {
+  id           String         @id @default(uuid())
+  work_item_id String
+  work_item    PortalWorkItem @relation(fields: [work_item_id], references: [id], onDelete: Cascade)
+  uploader_id  String
+  name         String
+  size         Int            @default(0)
+  mime         String?
+  url          String         @default("#")
+  created_at   DateTime       @default(now()) @db.Timestamptz(6)
+
+  @@index([work_item_id])
+  @@map("work_attachments")
+  @@schema("portal")
+}
+
+model PortalWorkActivity {
+  id           String             @id @default(uuid())
+  work_item_id String
+  work_item    PortalWorkItem     @relation(fields: [work_item_id], references: [id], onDelete: Cascade)
+  actor_id     String
+  kind         PortalActivityKind
+  from_value   String?
+  to_value     String?
+  created_at   DateTime           @default(now()) @db.Timestamptz(6)
+
+  @@index([work_item_id])
+  @@map("work_activity")
+  @@schema("portal")
+}
+
+model PortalNotification {
+  id         String   @id @default(uuid())
+  user_id    String
+  kind       String
+  title      String
+  body       String?  @db.Text
+  href       String?
+  read_at    DateTime? @db.Timestamptz(6)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([user_id])
+  @@map("notifications")
+  @@schema("portal")
+}

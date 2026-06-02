@@ -1,6 +1,7 @@
-import { PrismaClient } from "@prisma/client";
+import { getPrismaClient } from "../src/client.js";
+import { seedAuthAndPortal } from "./seed-auth-portal.js";
 
-const prisma = new PrismaClient();
+const prisma = getPrismaClient();
 
 async function main() {
   await prisma.$transaction([
@@ -29,9 +30,11 @@ async function main() {
       },
     }),
   ]).then(([user, template]) => {
-    console.log("Upserted user:", user.id, user.email);
+    console.log("Upserted automation user:", user.id, user.email);
     console.log("Upserted task template:", template.id, template.task_key);
   });
+
+  await seedAuthAndPortal(prisma);
 }
 
 main()

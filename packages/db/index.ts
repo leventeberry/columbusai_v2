@@ -1,18 +1,10 @@
 /**
- * @columbusai/db — Prisma client and types.
+ * @columbusai/db — Prisma client and types (Prisma ORM v7).
  *
- * Schema is split across multiple .prisma files under prisma/schema/:
- * - schema.prisma (generator + datasource)
- * - chat.prisma
- * - automation-enums.prisma
- * - automation-user.prisma
- * - automation-client.prisma
- * - automation-events.prisma
- * - automation-tasks.prisma
- * - automation-outbound.prisma
- * - automation-meeting.prisma
- * - automation-billing.prisma
- * - automation-lock.prisma
+ * Schema: packages/db/prisma/schema/*.prisma
+ * Config: packages/db/prisma.config.ts
+ * Generated client: packages/db/generated/prisma/
  */
 
-export * from "@prisma/client";
+export * from "./generated/prisma/client.js";
+export { createPrismaClient, getPrismaClient, PrismaClient } from "./src/client.js";

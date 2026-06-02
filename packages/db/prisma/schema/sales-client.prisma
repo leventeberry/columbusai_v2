@@ -1,0 +1,22 @@
+// --- sales schema: converted clients (CRM lifecycle, not automation.Client) ---
+
+model SalesClient {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  opportunityId String           @unique @map("opportunity_id") @db.Uuid
+  opportunity   SalesOpportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+
+  name    String
+  status  SalesClientStatus @default(onboarding)
+  owner   String?
+  email   String
+  company String  @default("")
+  notes   String?
+
+  @@index([status])
+  @@index([createdAt(sort: Desc)])
+  @@map("clients")
+  @@schema("sales")
+}

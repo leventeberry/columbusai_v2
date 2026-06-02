@@ -1,0 +1,41 @@
+// --- auth: platform users (admin + portal) ---
+
+enum AppUserRole {
+  SUPER_ADMIN
+  ADMIN
+  STAFF
+  VIEWER
+  CLIENT
+
+  @@schema("auth")
+}
+
+enum AppUserStatus {
+  ACTIVE
+  INVITED
+  DISABLED
+
+  @@schema("auth")
+}
+
+model AppUser {
+  id            String        @id @default(uuid())
+  email         String        @unique
+  password_hash String?
+  role          AppUserRole   @default(STAFF)
+  status        AppUserStatus @default(ACTIVE)
+  display_name  String?
+  avatar_url    String?
+  job_title     String?
+  created_at    DateTime      @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime      @updatedAt @db.Timestamptz(6)
+  last_login_at DateTime?     @db.Timestamptz(6)
+
+  sessions           Session[]
+  client_memberships ClientUser[]
+  password_resets    PasswordResetToken[]
+  audit_events       AuditEvent[]         @relation("AuditActor")
+
+  @@map("users")
+  @@schema("auth")
+}

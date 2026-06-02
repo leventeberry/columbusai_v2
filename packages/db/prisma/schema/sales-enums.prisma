@@ -1,0 +1,37 @@
+// --- sales schema: enums ---
+
+enum SalesLeadStatus {
+  new
+  qualified
+  disqualified
+  converted_to_opportunity
+
+  @@schema("sales")
+}
+
+enum SalesLeadSource {
+  demo_request
+  manual
+  import
+
+  @@schema("sales")
+}
+
+enum SalesOpportunityStage {
+  qualified
+  proposal
+  negotiation
+  won
+  lost
+
+  @@schema("sales")
+}
+
+enum SalesClientStatus {
+  onboarding
+  active
+  paused
+  churned
+
+  @@schema("sales")
+}

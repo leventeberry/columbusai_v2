@@ -1,0 +1,61 @@
+// --- auth: tenant membership (portal clients) ---
+
+enum ClientSource {
+  PORTAL
+  SALES
+  AUTOMATION
+
+  @@schema("auth")
+}
+
+enum PortalClientRole {
+  OWNER
+  ADMIN
+  VIEWER
+
+  @@schema("auth")
+}
+
+model ClientUser {
+  user_id        String
+  user           AppUser          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  client_id      String
+  client_source  ClientSource     @default(PORTAL)
+  role           PortalClientRole @default(VIEWER)
+  created_at     DateTime         @default(now()) @db.Timestamptz(6)
+
+  @@id([user_id, client_id, client_source])
+  @@index([client_id, client_source])
+  @@map("client_users")
+  @@schema("auth")
+}
+
+model PasswordResetToken {
+  id         String    @id @default(uuid())
+  user_id    String
+  user       AppUser   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  token_hash String    @unique
+  expires_at DateTime  @db.Timestamptz(6)
+  used_at    DateTime? @db.Timestamptz(6)
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+
+  @@index([user_id])
+  @@map("password_reset_tokens")
+  @@schema("auth")
+}
+
+model AuditEvent {
+  id            String   @id @default(uuid())
+  actor_user_id String?
+  actor         AppUser? @relation("AuditActor", fields: [actor_user_id], references: [id], onDelete: SetNull)
+  action        String
+  resource_type String?
+  resource_id   String?
+  metadata      Json?
+  created_at    DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([actor_user_id])
+  @@index([created_at])
+  @@map("audit_events")
+  @@schema("auth")
+}

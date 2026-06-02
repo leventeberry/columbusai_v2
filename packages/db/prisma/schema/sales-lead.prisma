@@ -1,0 +1,38 @@
+// --- sales schema: inbound leads ---
+
+model SalesLead {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  fname         String
+  lname         String
+  email         String
+  phone         String  @default("")
+  company       String  @default("")
+  role          String  @default("")
+  industry      String  @default("")
+  teamSize      String  @default("") @map("team_size")
+  whatAutomate  String  @map("what_automate")
+  budget        String  @default("")
+  timeline      String  @default("")
+  website       String  @default("")
+
+  status SalesLeadStatus @default(new)
+  source SalesLeadSource @default(demo_request)
+  notes  String?
+
+  summary             String?
+  priority            String?
+  confidence          Int?
+  recommendedNextStep String? @map("recommended_next_step")
+  analysisRaw         Json?   @map("analysis_raw")
+
+  opportunity SalesOpportunity?
+
+  @@index([status])
+  @@index([email])
+  @@index([createdAt(sort: Desc)])
+  @@map("leads")
+  @@schema("sales")
+}
