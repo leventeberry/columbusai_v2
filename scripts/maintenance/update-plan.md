@@ -14,6 +14,7 @@ Generated: 2026-06-02. Review after each `pnpm maintenance:logs` run.
 | `tar` (override) | <7.5.11 | >=7.5.11 | root | Transitive via `@cursor/sdk` → sqlite3 |
 | `undici` (override) | <6.24.0 | >=6.24.0 (resolves 8.3.0) | root | Transitive via `@cursor/sdk` → `@connectrpc/connect-node` |
 | `openai` | 4.104.0 | 6.41.0 | api, web | Maintenance Prompt 4; no app code changes; rebuild `api` Docker image for dev |
+| `redis` | 4.7.1 | 6.0.0 | api, web | Maintenance Prompt 5; chat rate limit only; no app code changes; rebuild `api` Docker image for dev |
 
 **Audit impact:** 33 → 8 (Phase A tar/Next) → **3** after undici override (0 high; remaining: `@hono/node-server`, `postcss`, `@tootallnate/once`).
 
@@ -25,7 +26,6 @@ Generated: 2026-06-02. Review after each `pnpm maintenance:logs` run.
 | Vite | 7.3.x | 8.x | High | Major; retest Docker dev images |
 | Prisma | 7.8.0 | track 7.x patches | Low–medium | Stay on 7.x; read release notes |
 | Express | 4.22.x | 5.x | High | Done — api on Express 5.2.1 |
-| Redis client | 4.x | 6.x | Medium | api + web connection options |
 | TypeScript | 5.9.x | 6.x | High | Whole monorepo |
 | Zod | 3.25.x | 4.x | High | All apps + leads package |
 
