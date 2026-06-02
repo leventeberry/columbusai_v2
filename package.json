@@ -6,7 +6,11 @@
     "apps/*"
   ],
   "scripts": {
-    "hermes": "tsx tools/hermes/hermes.ts"
+    "hermes": "tsx tools/hermes/hermes.ts",
+    "n8n:list": "tsx scripts/n8n/list-workflows.ts",
+    "n8n:pull:demo": "tsx scripts/n8n/pull-workflow.ts",
+    "n8n:push:demo": "tsx scripts/n8n/push-workflow.ts",
+    "n8n:activate:demo": "tsx scripts/n8n/activate-workflow.ts"
   },
   "devDependencies": {
     "@cursor/sdk": "latest",

@@ -70,6 +70,7 @@ services:
       POSTGRES_DB: columbus
     volumes:
       - columbus_prod_pgdata:/var/lib/postgresql/data
+      - ./infra/docker/init-databases.sh:/docker-entrypoint-initdb.d/01-init-databases.sh:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U columbus"]
       interval: 5s
@@ -78,35 +79,17 @@ services:
     networks:
       - columbus-prod
 
-  postgres-vectors:
+  ensure-databases:
     image: pgvector/pgvector:pg16
-    ports:
-      - "5433:5432"
+    entrypoint: ["/bin/sh", "/scripts/ensure-databases.sh"]
     environment:
+      PGHOST: postgres
       POSTGRES_USER: columbus
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-columbus}
-      POSTGRES_DB: columbus_vectors
     volumes:
-      - columbus_prod_vectors_pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U columbus -d columbus_vectors"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    networks:
-      - columbus-prod
-
-  init-vectors:
-    image: pgvector/pgvector:pg16
-    command: >
-      sh -c "
-        until pg_isready -h postgres-vectors -U columbus -d columbus_vectors; do sleep 1; done;
-        psql -h postgres-vectors -U columbus -d columbus_vectors -c 'CREATE EXTENSION IF NOT EXISTS vector;'
-      "
-    environment:
-      PGPASSWORD: ${POSTGRES_PASSWORD:-columbus}
+      - ./infra/docker/ensure-databases.sh:/scripts/ensure-databases.sh:ro
     depends_on:
-      postgres-vectors:
+      postgres:
         condition: service_healthy
     networks:
       - columbus-prod
@@ -122,8 +105,8 @@ services:
     environment:
       DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres:5432/columbus
     depends_on:
-      postgres:
-        condition: service_healthy
+      ensure-databases:
+        condition: service_completed_successfully
     networks:
       - columbus-prod
     restart: "no"
@@ -139,10 +122,10 @@ services:
       NODE_ENV: production
       PORT: "4000"
       DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres:5432/columbus
-      VECTOR_DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres-vectors:5432/columbus_vectors
+      VECTOR_DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres:5432/columbus_vectors
       REDIS_URL: redis://redis:6379
     depends_on:
-      init-vectors:
+      ensure-databases:
         condition: service_completed_successfully
       migrate:
         condition: service_completed_successfully
@@ -173,7 +156,7 @@ services:
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres:5432/columbus
-      VECTOR_DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres-vectors:5432/columbus_vectors
+      VECTOR_DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres:5432/columbus_vectors
       REDIS_URL: redis://redis:6379
       # Production: set NEXT_PUBLIC_API_URL to your public API URL (e.g. https://api.<your-domain>). Default http://localhost:4000 is dev only; web app will fail in prod if missing or localhost.
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4000}
@@ -206,6 +189,5 @@ networks:
 
 volumes:
   columbus_prod_pgdata:
-  columbus_prod_vectors_pgdata:
   columbus_prod_redis_data:
   columbus_prod_traefik_acme:

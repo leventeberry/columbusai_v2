@@ -1,0 +1,322 @@
+{
+  "id": "gEEYTVQe39iBRra3",
+  "name": "ColumbusAI_Demo_Request",
+  "description": null,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "f7ceff32-3922-4ac8-a522-2b83995e5f04",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [-768, 0],
+      "id": "5734a56a-06f9-457f-a034-f038dc0cc232",
+      "name": "Webhook",
+      "webhookId": "f7ceff32-3922-4ac8-a522-2b83995e5f04"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1-lead-id",
+              "name": "lead_id",
+              "value": "={{ $json.body.id || $json.body.lead_id || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "55c3eb75-94b7-404d-8982-0341db151f8a",
+              "name": "first_name",
+              "value": "={{ $json.body.first_name || $json.body.fname || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "7219929f-46ac-4da7-ba9d-618b0d8a75df",
+              "name": "last_name",
+              "value": "={{ $json.body.last_name || $json.body.lname || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "f6cbeaaf-59ac-4a49-87bb-a8ee19e911d3",
+              "name": "email",
+              "value": "={{ $json.body.email || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "eb5155c0-2f0f-4f64-b6b4-aa34f6e431ab",
+              "name": "phone",
+              "value": "={{ $json.body.phone || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "7f41a23d-9c95-4974-9c7f-81b9db05c23c",
+              "name": "role",
+              "value": "={{ $json.body.role || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "d75eee64-5996-42d6-ab25-5d88777634f4",
+              "name": "website",
+              "value": "={{ $json.body.website || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "6ffd41ef-f637-4a73-9ea5-a8b8cc9d9e20",
+              "name": "what_automate",
+              "value": "={{ $json.body.what_automate || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "153e7ea8-14ba-46a0-94d3-d4164122411c",
+              "name": "company",
+              "value": "={{ $json.body.company || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "4ffb3dc2-9dcf-4830-bb7d-90081aea4ce4",
+              "name": "industry",
+              "value": "={{ $json.body.industry || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "25beaa24-593a-41e2-b2ba-303db8ed0052",
+              "name": "budget",
+              "value": "={{ $json.body.budget || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "f323fd41-fef3-40b9-b33c-986952ba7b66",
+              "name": "timeline",
+              "value": "={{ $json.body.timeline || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "7967ec68-867a-4e86-aca4-04b68d63e90f",
+              "name": "team_size",
+              "value": "={{ $json.body.team_size || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "a1-message",
+              "name": "message",
+              "value": "={{ $json.body.message || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "8afa1bbd-1f4f-4472-85a3-e387c86ddf75",
+              "name": "site_url",
+              "value": "http://www.columbusai.tech",
+              "type": "string"
+            },
+            {
+              "id": "e89bd69d-e51d-48f7-90a6-127421117b7f",
+              "name": "booking_link",
+              "value": "={{ $json.body.booking_link || 'https://cal.com/columbus-ai/30min' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [-544, 0],
+      "id": "a32b8d31-f04c-447b-9961-5a312aa0948d",
+      "name": "Normalize Body"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=You are a senior sales qualification analyst for an AI automation agency.\n\nEvaluate the incoming demo lead and return ONE JSON object only. No markdown, no code fences, no extra text.\n\nRequired schema:\n{\n  \"priority\": \"High | Medium | Low\",\n  \"confidence\": \"High | Medium | Low\",\n  \"summary\": \"1-3 sentence summary of what they want to automate and fit for Columbus AI\",\n  \"automation_opportunities\": [\"specific opportunity 1\", \"specific opportunity 2\"],\n  \"reasoning\": \"Brief explanation of priority/confidence\",\n  \"recommended_next_action\": \"What the sales team should do next\"\n}\n\nPriority guidance:\n- High: budget $5k+, clear problem, decision maker, strong automation fit, urgency\n- Medium: budget $1k-$5k, somewhat clear use case, moderate urgency\n- Low: under $1k, vague problem, exploratory\n\nLead submission:\n{{ JSON.stringify($('Normalize Body').item.json) }}\n"
+            }
+          ]
+        },
+        "simplify": false,
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [-320, 0],
+      "id": "ai-lead-analysis-node",
+      "name": "AI Lead Analysis",
+      "credentials": {
+        "openAiApi": {
+          "id": "jxREV56DUpYgg157",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const fallback = {\n  priority: 'Medium',\n  confidence: 'Low',\n  summary: 'The lead submitted a demo request, but the AI analysis could not be parsed.',\n  automation_opportunities: [],\n  reasoning: 'Fallback analysis due to parsing failure.',\n  recommended_next_action: 'Review manually and follow up.',\n};\n\nfunction extractText(item) {\n  const j = item.json || {};\n  return (\n    j.output?.[0]?.content?.[0]?.text ??\n    j.message?.content ??\n    j.text ??\n    ''\n  );\n}\n\nfunction parseAnalysis(raw) {\n  const text = String(raw || '').trim();\n  const cleaned = text\n    .replace(/^```json\\s*/i, '')\n    .replace(/^```\\s*/i, '')\n    .replace(/```\\s*$/i, '')\n    .trim();\n  if (!cleaned) return { ...fallback };\n  try {\n    const parsed = JSON.parse(cleaned);\n    if (!parsed || typeof parsed !== 'object') return { ...fallback };\n    return {\n      priority: parsed.priority ?? fallback.priority,\n      confidence: parsed.confidence ?? fallback.confidence,\n      summary: parsed.summary ?? fallback.summary,\n      automation_opportunities: Array.isArray(parsed.automation_opportunities)\n        ? parsed.automation_opportunities\n        : fallback.automation_opportunities,\n      reasoning: parsed.reasoning ?? fallback.reasoning,\n      recommended_next_action:\n        parsed.recommended_next_action ?? fallback.recommended_next_action,\n    };\n  } catch {\n    return { ...fallback };\n  }\n}\n\nconst normalize = $('Normalize Body').first().json;\n\nreturn $input.all().map((item) => {\n  const analysis = parseAnalysis(extractText(item));\n  const opportunities = analysis.automation_opportunities || [];\n  return {\n    json: {\n      ...normalize,\n      ...analysis,\n      analysis,\n      automation_opportunities_text: opportunities.join('; '),\n    },\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-96, 0],
+      "id": "parse-ai-analysis-node",
+      "name": "Parse AI Analysis"
+    },
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>Demo Request – Columbus AI</title>\n</head>\n<body style=\"margin:0; padding:0; background-color:#f4f4f4; font-family: Arial, Helvetica, sans-serif;\">\n  <table role=\"presentation\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" style=\"background-color:#f4f4f4;\">\n    <tr>\n      <td align=\"center\" style=\"padding: 24px 16px;\">\n        <table role=\"presentation\" width=\"600\" cellspacing=\"0\" cellpadding=\"0\" style=\"max-width:600px; width:100%; background-color:#ffffff;\">\n          <tr>\n            <td style=\"background-color:#2c3e50; color:#ffffff; padding: 20px 32px;\">\n              <h1 style=\"margin:0; font-size: 18px; font-weight: bold;\">New Demo Request</h1>\n              <p style=\"margin: 4px 0 0; font-size: 12px; opacity: 0.9;\">Columbus AI Automation Solutions, LLC</p>\n            </td>\n          </tr>\n          <tr>\n            <td style=\"padding: 32px; color:#333333; font-size: 16px; line-height: 1.6;\">\n              <p style=\"margin:0 0 8px; font-weight: bold; font-size: 14px; color:#2c3e50;\">Lead details</p>\n              <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" style=\"margin: 0 0 24px; width:100%;\">\n                <tr><td style=\"padding: 2px 8px 2px 0; font-weight: bold; width: 160px;\">Lead ID:</td><td>{{ $('Parse AI Analysis').item.json.lead_id }}</td></tr>\n                <tr><td style=\"padding: 2px 8px 2px 0; font-weight: bold;\">Name:</td><td>{{ $('Parse AI Analysis').item.json.first_name }} {{ $('Parse AI Analysis').item.json.last_name }}</td></tr>\n                <tr><td style=\"padding: 2px 8px 2px 0; font-weight: bold;\">Email:</td><td>{{ $('Parse AI Analysis').item.json.email }}</td></tr>\n                <tr><td style=\"padding: 2px 8px 2px 0; font-weight: bold;\">Phone:</td><td>{{ $('Parse AI Analysis').item.json.phone }}</td></tr>\n                <tr><td style=\"padding: 2px 8px 2px 0; font-weight: bold;\">Company:</td><td>{{ $('Parse AI Analysis').item.json.company }}</td></tr>\n                <tr><td style=\"padding: 2px 8px 2px 0; font-weight: bold;\">Role:</td><td>{{ $('Parse AI Analysis').item.json.role }}</td></tr>\n                <tr><td style=\"padding: 2px 8px 2px 0; font-weight: bold;\">Industry:</td><td>{{ $('Parse AI Analysis').item.json.industry }}</td></tr>\n                <tr><td style=\"padding: 2px 8px 2px 0; font-weight: bold;\">Team Size:</td><td>{{ $('Parse AI Analysis').item.json.team_size }}</td></tr>\n                <tr><td style=\"padding: 2px 8px 2px 0; font-weight: bold;\">Website:</td><td>{{ $('Parse AI Analysis').item.json.website }}</td></tr>\n                <tr><td style=\"padding: 2px 8px 2px 0; font-weight: bold;\">Budget:</td><td>{{ $('Parse AI Analysis').item.json.budget }}</td></tr>\n                <tr><td style=\"padding: 2px 8px 2px 0; font-weight: bold;\">Timeline:</td><td>{{ $('Parse AI Analysis').item.json.timeline }}</td></tr>\n              </table>\n              <p style=\"margin:0 0 8px; font-weight: bold; font-size: 14px; color:#2c3e50;\">AI analysis</p>\n              <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" style=\"margin: 0 0 24px; width:100%;\">\n                <tr><td style=\"padding: 2px 8px 2px 0; font-weight: bold; width: 160px;\">Priority:</td><td>{{ $('Parse AI Analysis').item.json.priority }}</td></tr>\n                <tr><td style=\"padding: 2px 8px 2px 0; font-weight: bold;\">Confidence:</td><td>{{ $('Parse AI Analysis').item.json.confidence }}</td></tr>\n                <tr><td style=\"padding: 2px 8px 2px 0; font-weight: bold; vertical-align:top;\">AI Summary:</td><td>{{ $('Parse AI Analysis').item.json.summary }}</td></tr>\n                <tr><td style=\"padding: 2px 8px 2px 0; font-weight: bold; vertical-align:top;\">Automation Opportunities:</td><td>{{ $('Parse AI Analysis').item.json.automation_opportunities_text }}</td></tr>\n                <tr><td style=\"padding: 2px 8px 2px 0; font-weight: bold; vertical-align:top;\">Reasoning:</td><td>{{ $('Parse AI Analysis').item.json.reasoning }}</td></tr>\n                <tr><td style=\"padding: 2px 8px 2px 0; font-weight: bold; vertical-align:top;\">Recommended Next Action:</td><td>{{ $('Parse AI Analysis').item.json.recommended_next_action }}</td></tr>\n              </table>\n              <p style=\"margin:0 0 8px; font-weight: bold; font-size: 14px; color:#2c3e50;\">Original submission</p>\n              <p style=\"margin:0 0 8px;\"><strong>What to automate:</strong> {{ $('Parse AI Analysis').item.json.what_automate }}</p>\n              <p style=\"margin:0;\"><strong>Message:</strong> {{ $('Parse AI Analysis').item.json.message }}</p>\n            </td>\n          </tr>\n          <tr>\n            <td style=\"padding: 0 32px 32px; color:#7f8c8d; font-size: 12px;\">\n              <p style=\"margin:0;\">Columbus AI Automation Solutions, LLC</p>\n            </td>\n          </tr>\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [128, 0],
+      "id": "internal-demo-email-html",
+      "name": "Internal Demo Email HTML"
+    },
+    {
+      "parameters": {
+        "fromEmail": "no-reply@columbusai.tech",
+        "toEmail": "lberry@columbusai.tech",
+        "subject": "=New Demo Request: {{ $('Parse AI Analysis').item.json.first_name }} {{ $('Parse AI Analysis').item.json.last_name }}",
+        "html": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [352, 0],
+      "id": "internal-demo-email",
+      "name": "Internal Demo Email",
+      "credentials": {
+        "smtp": {
+          "id": "QdZmkAJuQO8vqx2e",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>We've Received Your Request – Columbus AI</title>\n</head>\n<body style=\"margin:0; padding:0; background-color:#f4f4f4; font-family: Arial, Helvetica, sans-serif;\">\n  <table role=\"presentation\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" style=\"background-color:#f4f4f4;\">\n    <tr>\n      <td align=\"center\" style=\"padding:24px 16px;\">\n        <table role=\"presentation\" width=\"600\" cellspacing=\"0\" cellpadding=\"0\" style=\"max-width:600px; width:100%; background-color:#ffffff;\">\n          <tr>\n            <td style=\"background-color:#2c3e50; color:#ffffff; padding:20px 32px;\">\n              <h1 style=\"margin:0; font-size:20px; font-weight:bold;\">Thank You For Reaching Out</h1>\n              <p style=\"margin:4px 0 0; font-size:12px; opacity:0.9;\">Columbus AI Automation Solutions, LLC</p>\n            </td>\n          </tr>\n          <tr>\n            <td style=\"padding:32px; color:#333333; font-size:16px; line-height:1.6;\">\n              <p style=\"margin-top:0;\">Hi {{ $('Normalize Body').item.json.first_name }},</p>\n              <p>Thank you for requesting a demo with Columbus AI.</p>\n              <p>We've received your information and are reviewing your automation goals. A member of our team will reach out shortly.</p>\n              <p>If you'd like to schedule a consultation immediately, use the button below.</p>\n              <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" style=\"margin:24px 0;\">\n                <tr>\n                  <td style=\"border-radius:6px; background-color:#2c3e50;\">\n                    <a href=\"{{ $('Normalize Body').item.json.booking_link }}\" style=\"display:inline-block; padding:12px 24px; color:#ffffff; text-decoration:none; font-weight:bold;\">Schedule a Consultation</a>\n                  </td>\n                </tr>\n              </table>\n              <p style=\"margin-top:32px; font-weight:bold; color:#2c3e50;\">Request Summary</p>\n              <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" style=\"margin-bottom:24px; width:100%;\">\n                <tr><td style=\"padding:2px 8px 2px 0; font-weight:bold; width:120px;\">Company:</td><td>{{ $('Normalize Body').item.json.company }}</td></tr>\n                <tr><td style=\"padding:2px 8px 2px 0; font-weight:bold;\">Website:</td><td>{{ $('Normalize Body').item.json.website }}</td></tr>\n                <tr><td style=\"padding:2px 8px 2px 0; font-weight:bold;\">Submitted:</td><td>{{ $now }}</td></tr>\n              </table>\n              <p style=\"padding:12px; background:#f8f9fa; border-left:4px solid #2c3e50; margin:0;\">\"{{ $('Normalize Body').item.json.what_automate }}\"</p>\n              <p style=\"margin-top:24px;\">We look forward to learning more about your business.</p>\n              <p>Thank you,<br><strong>Columbus AI Automation Solutions, LLC</strong><br>Columbus, Ohio</p>\n            </td>\n          </tr>\n          <tr>\n            <td style=\"padding:0 32px 32px; color:#7f8c8d; font-size:12px;\">\n              <p style=\"margin:0;\">This email confirms we received your demo request.</p>\n            </td>\n          </tr>\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [576, 0],
+      "id": "prospect-confirmation-email-html",
+      "name": "Prospect Confirmation Email HTML"
+    },
+    {
+      "parameters": {
+        "fromEmail": "no-reply@columbusai.tech",
+        "toEmail": "={{ $('Normalize Body').item.json.email }}",
+        "subject": "We've received your demo request – Columbus AI",
+        "html": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [800, 0],
+      "id": "prospect-confirmation-email",
+      "name": "Prospect Confirmation Email",
+      "credentials": {
+        "smtp": {
+          "id": "QdZmkAJuQO8vqx2e",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize Body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Body": {
+      "main": [
+        [
+          {
+            "node": "AI Lead Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Lead Analysis": {
+      "main": [
+        [
+          {
+            "node": "Parse AI Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI Analysis": {
+      "main": [
+        [
+          {
+            "node": "Internal Demo Email HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Internal Demo Email HTML": {
+      "main": [
+        [
+          {
+            "node": "Internal Demo Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Internal Demo Email": {
+      "main": [
+        [
+          {
+            "node": "Prospect Confirmation Email HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prospect Confirmation Email HTML": {
+      "main": [
+        [
+          {
+            "node": "Prospect Confirmation Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "pinData": {}
+}

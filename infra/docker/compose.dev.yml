@@ -1,5 +1,5 @@
 # Phase 1 dev compose — api + marketing + portal + admin + Postgres + Redis.
-# postgres: chat history only (Prisma). postgres-vectors: RAG only (pgvector, no Prisma).
+# Single postgres (pgvector): columbus (platform), columbus_vectors (RAG), n8n (automation).
 services:
   n8n:
     image: n8nio/n8n:latest
@@ -15,8 +15,17 @@ services:
       N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER:-admin}
       N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD:-changeme}
       GENERIC_TIMEZONE: ${GENERIC_TIMEZONE:-America/New_York}
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PORT: "5432"
+      DB_POSTGRESDB_DATABASE: n8n
+      DB_POSTGRESDB_USER: columbus
+      DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD:-columbus}
     volumes:
       - n8n_data:/home/node/.n8n
+    depends_on:
+      ensure-databases:
+        condition: service_completed_successfully
     networks:
       - columbus-dev
 
@@ -44,6 +53,7 @@ services:
       POSTGRES_DB: columbus
     volumes:
       - columbus_pgdata:/var/lib/postgresql/data
+      - ./init-databases.sh:/docker-entrypoint-initdb.d/01-init-databases.sh:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U columbus"]
       interval: 5s
@@ -52,24 +62,21 @@ services:
     networks:
       - columbus-dev
 
-  postgres-vectors:
+  ensure-databases:
     image: pgvector/pgvector:pg16
-    ports:
-      - "5433:5432"
+    entrypoint: ["/bin/sh", "/scripts/ensure-databases.sh"]
     environment:
+      PGHOST: postgres
       POSTGRES_USER: columbus
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-columbus}
-      POSTGRES_DB: columbus_vectors
     volumes:
-      - columbus_vectors_pgdata:/var/lib/postgresql/data
-      - ./init-vector-extension.sh:/docker-entrypoint-initdb.d/01-init-vector-extension.sh:ro
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U columbus -d columbus_vectors"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+      - ./ensure-databases.sh:/scripts/ensure-databases.sh:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - columbus-dev
+    restart: "no"
 
   api:
     build:
@@ -83,14 +90,15 @@ services:
       NODE_ENV: development
       PORT: "4000"
       DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres:5432/columbus
-      VECTOR_DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres-vectors:5432/columbus_vectors
+      VECTOR_DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres:5432/columbus_vectors
       REDIS_URL: redis://redis:6379
+      # Active workflows use /webhook/ (webhook-test only works during "Listen for test event" in UI)
+      N8N_DEMO_WEBHOOK_TEST_URL: http://n8n:5678/webhook/f7ceff32-3922-4ac8-a522-2b83995e5f04
+      N8N_DEMO_WEBHOOK_URL: http://n8n:5678/webhook/f7ceff32-3922-4ac8-a522-2b83995e5f04
       CORS_ORIGIN: http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001,http://localhost:3002,http://127.0.0.1:3002,http://localhost:3010,http://127.0.0.1:3010
     depends_on:
-      postgres:
-        condition: service_healthy
-      postgres-vectors:
-        condition: service_healthy
+      ensure-databases:
+        condition: service_completed_successfully
       redis:
         condition: service_healthy
     healthcheck:
@@ -120,8 +128,8 @@ services:
       VITE_CHAT_WELCOME: ${NEXT_PUBLIC_CHAT_WELCOME:-I'm Chexi, your Columbus AI assistant. Ask me anything!}
       VITE_BOOKING_LINK: ${BOOKING_LINK:-https://cal.com/columbus-ai/30min}
     depends_on:
-      postgres:
-        condition: service_healthy
+      ensure-databases:
+        condition: service_completed_successfully
       api:
         condition: service_healthy
     networks:
@@ -174,14 +182,12 @@ services:
     environment:
       PORT: "3000"
       DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres:5432/columbus
-      VECTOR_DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres-vectors:5432/columbus_vectors
+      VECTOR_DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres:5432/columbus_vectors
       REDIS_URL: redis://redis:6379
       NEXT_PUBLIC_API_URL: http://localhost:4000
     depends_on:
-      postgres:
-        condition: service_healthy
-      postgres-vectors:
-        condition: service_healthy
+      ensure-databases:
+        condition: service_completed_successfully
       redis:
         condition: service_healthy
       api:
@@ -197,6 +203,5 @@ networks:
 
 volumes:
   columbus_pgdata:
-  columbus_vectors_pgdata:
   columbus_redis_data:
   n8n_data:

@@ -20,7 +20,7 @@ make up-dev          # marketing + portal + admin + api + postgres + redis
 make dev-marketing   # host-only marketing
 ```
 
-**Marketing** uses TanStack Start (Vite). Chat calls `VITE_API_URL` (default `http://localhost:4000`). Contact/demo uses server functions + n8n webhooks (same flow as legacy `apps/web`).
+**Marketing** uses TanStack Start (Vite). Chat calls `VITE_API_URL` (default `http://localhost:4000`). Demo requests POST to `POST /api/leads/demo` on the API (`@columbusai/leads` shared package). See [docs/demo-request-workflow.md](docs/demo-request-workflow.md).
 
 ## Hermes agent runner (repo-local)
 
@@ -100,17 +100,17 @@ Copy `.env.example` to `.env` and set `NEXT_PUBLIC_CONTACT_EMAIL` / `NEXT_PUBLIC
 
 Phase 1 adds Postgres, Prisma (chat schema), message persistence endpoints, and a minimal `/dev/messages` UI. No OpenAI yet; schema is Responses API–ready.
 
-**Two databases (Phase 3+):** The app uses two Postgres databases when RAG is enabled: **chat** (Prisma, conversations/messages) and **RAG** (pgvector, documents/chunks; no Prisma). Compose defines two services: `postgres` (chat, host port 5432) and `postgres-vectors` (RAG, host port 5433). Web depends on both when using RAG. **Migrations** (`db:migrate` / `db-migrate.sh`) apply only to the **chat DB** (DATABASE_URL). The vector DB has no Prisma migrations; its schema is created by the app on first ingest or first retrieval (`ensureVectorSchema` in `apps/web/lib/vector-db.ts`).
+**One Postgres, three databases:** A single `pgvector/pg16` container (`postgres`, host port 5432) hosts **columbus** (platform / Prisma / leads), **columbus_vectors** (RAG / pgvector), and **n8n** (local n8n metadata). **Migrations** (`db:migrate` / `db-migrate.sh`) apply only to **columbus** (`DATABASE_URL`). The vector DB has no Prisma migrations; its schema is created by the app on first ingest or retrieval (`ensureVectorSchema` in `apps/web/lib/vector-db.ts`). See [docs/postgres.md](docs/postgres.md) for one-time setup on existing volumes.
 
 **Prereq:** Postgres (run locally or via Docker Compose).
 
-**Development flows (DATABASE_URL):** You do not need to set `DATABASE_URL` manually in either flow. (1) **Host:** Run `npm run dev` in `apps/web` with Postgres on the host (e.g. `docker compose -f infra/docker/compose.dev.yml up -d postgres postgres-vectors`). If `DATABASE_URL` is unset, it defaults to `postgresql://columbus:columbus@localhost:5432/columbus`. (2) **Docker:** Run `docker compose -f infra/docker/compose.dev.yml up`; the web service uses the dev image and Compose injects `DATABASE_URL` (and `VECTOR_DATABASE_URL`, `REDIS_URL`), so no need to set them in `.env` for the app.
+**Development flows (DATABASE_URL):** You do not need to set `DATABASE_URL` manually in either flow. (1) **Host:** Run `npm run dev` in `apps/web` with Postgres on the host (e.g. `docker compose -f infra/docker/compose.dev.yml up -d postgres`). If `DATABASE_URL` is unset, it defaults to `postgresql://columbus:columbus@localhost:5432/columbus`. (2) **Docker:** Run `docker compose -f infra/docker/compose.dev.yml up`; Compose injects `DATABASE_URL`, `VECTOR_DATABASE_URL`, and `REDIS_URL`.
 
 ### Phase 1: Run locally
 
 1. Copy `apps/web/.env.example` to `apps/web/.env`. In development, `DATABASE_URL` is optional (it defaults to localhost:5432 when unset). To override, set e.g. `DATABASE_URL="postgresql://columbus:columbus@localhost:5432/columbus"`.
-   For RAG (Phase 3): set `VECTOR_DATABASE_URL="postgresql://columbus:columbus@localhost:5433/columbus_vectors"` and start both Postgres services: `docker compose -f infra/docker/compose.dev.yml up -d postgres postgres-vectors`.
-2. Ensure Postgres is running (e.g. start only chat: `docker compose -f infra/docker/compose.dev.yml up -d postgres`, or both: `postgres postgres-vectors`).
+   For RAG (Phase 3): set `VECTOR_DATABASE_URL="postgresql://columbus:columbus@localhost:5432/columbus_vectors"` and start Postgres: `docker compose -f infra/docker/compose.dev.yml up -d postgres`.
+2. Ensure Postgres is running: `docker compose -f infra/docker/compose.dev.yml up -d postgres` (the `ensure-databases` job creates `columbus_vectors` and `n8n` if missing).
 3. Run migrations (chat DB only):
    ```bash
    cd apps/web && npm run db:migrate
@@ -126,7 +126,7 @@ Phase 1 adds Postgres, Prisma (chat schema), message persistence endpoints, and 
    docker compose -f infra/docker/compose.dev.yml up -d --build
    ```
    The web service is built with the Dockerfile `dev` stage and runs `next dev`; Compose injects `DATABASE_URL`, `VECTOR_DATABASE_URL`, and `REDIS_URL`.
-2. Run migrations (chat DB only; web container has `DATABASE_URL` → `postgres`, `VECTOR_DATABASE_URL` → `postgres-vectors`):
+2. Run migrations (platform DB only; web container has `DATABASE_URL` → `postgres`, `VECTOR_DATABASE_URL` → `postgres:5432/columbus_vectors`):
    ```bash
    docker compose -f infra/docker/compose.dev.yml exec web npm run db:migrate
    ```
@@ -226,7 +226,7 @@ curl -X POST http://localhost:3000/api/chat \
   -H "Content-Type: application/json" \
   -d '{"message":"hi"}'
 
-# All services healthy or completed (migrate, init-vectors are one-shot)
+# All services healthy or completed (migrate, ensure-databases are one-shot)
 docker compose -f infra/docker/compose.prod.yml ps
 ```
 
@@ -263,7 +263,7 @@ See `apps/web/.env.example` for all supported variables.
 If your Compose version does not support `depends_on: condition: service_completed_successfully`, run migrations manually then start web:
 
 ```bash
-docker compose -f infra/docker/compose.prod.yml up -d postgres postgres-vectors redis
+docker compose up -d postgres redis
 docker compose -f infra/docker/compose.prod.yml run --rm migrate
 docker compose -f infra/docker/compose.prod.yml up -d web
 ```

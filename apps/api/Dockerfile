@@ -6,6 +6,7 @@ FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package.json ./
 COPY packages/db packages/db
+COPY packages/leads packages/leads
 COPY apps/api apps/api
 # Use npm install so build works without root package-lock.json; prefer `npm ci` when lockfile exists.
 COPY package-lock.json* ./
@@ -16,8 +17,10 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/package.json ./
 COPY --from=deps /app/packages/db ./packages/db
+COPY --from=deps /app/packages/leads ./packages/leads
 COPY --from=deps /app/apps/api ./apps/api
-RUN cd apps/api && npm run build
+# Remove stale incremental cache so tsc emits dist (context excludes **/dist)
+RUN cd packages/leads && npm run build && cd /app/apps/api && rm -f tsconfig.tsbuildinfo && npm run build
 
 FROM node:20-alpine AS runtime
 RUN apk add --no-cache curl
@@ -26,6 +29,7 @@ WORKDIR /app
 COPY --from=build /app/package.json ./
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/packages/db ./packages/db
+COPY --from=build /app/packages/leads ./packages/leads
 COPY --from=build /app/apps/api/dist ./apps/api/dist
 COPY --from=build /app/apps/api/package.json ./apps/api/
 EXPOSE 4000

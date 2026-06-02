@@ -1,6 +1,6 @@
 #!/bin/bash
 # Legacy: for single-instance setup only (one Postgres with two DBs).
-# Current compose uses the postgres-vectors service and init-vector-extension.sh instead.
+# Legacy. Unified postgres: see init-databases.sh and ensure-databases.sh.
 # Create RAG vector database and enable pgvector (runs in postgres container init).
 # Uses postgres superuser; columbus_vectors is owned by columbus for app access.
 set -e

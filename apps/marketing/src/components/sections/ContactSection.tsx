@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { submitContact } from "@/lib/api/contact.functions";
+import { submitDemoLead } from "@/lib/api/submitDemoLead";
 import { CONTACT_EMAIL, BOOKING_LINK } from "@/lib/env";
 import { SectionHeading } from "./SectionHeading";
 
@@ -80,7 +80,7 @@ export function ContactSection() {
     }
     setLoading(true);
     try {
-      const res = await submitContact({ data: result.data });
+      const res = await submitDemoLead(result.data);
       if (!res.ok) {
         const formErrors = res.errors ?? {};
         if (formErrors._form) {
@@ -325,10 +325,12 @@ function Confirmation({
         <div className="mx-auto h-14 w-14 rounded-2xl bg-gradient-primary shadow-glow flex items-center justify-center">
           <CheckCircle2 className="h-7 w-7 text-primary-foreground" />
         </div>
-        <h3 className="mt-6 text-2xl font-semibold tracking-tight">Request received</h3>
+        <h3 className="mt-6 text-2xl font-semibold tracking-tight">
+          Thank you for your request.
+        </h3>
         <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">
-          Thanks, {values.firstName}. A confirmation is on its way to{" "}
-          <span className="text-foreground">{values.email}</span>. We'll respond within 1 business day.
+          A Columbus AI team member will reach out shortly. Check{" "}
+          <span className="text-foreground">{values.email}</span> for next steps.
         </p>
 
         <div className="mt-8 grid sm:grid-cols-2 gap-3 text-left">
@@ -348,7 +350,7 @@ function Confirmation({
           {bookingHref ? (
             <Button asChild className="bg-gradient-primary text-primary-foreground">
               <a href={bookingHref} target="_blank" rel="noopener noreferrer">
-                Book a call <ArrowRight className="ml-2 h-4 w-4" />
+                Schedule a Consultation <ArrowRight className="ml-2 h-4 w-4" />
               </a>
             </Button>
           ) : null}

@@ -3,6 +3,7 @@ import { getApiEnv } from "./lib/env.js";
 import { getHealth } from "./routes/health.js";
 import { postChat } from "./routes/chat.js";
 import { getMessages, postMessages } from "./routes/messages.js";
+import { postLeadsDemo } from "./routes/leads-demo.js";
 
 const env = getApiEnv();
 const app = express();
@@ -42,6 +43,7 @@ app.get("/api/health", getHealth);
 app.post("/api/chat", asyncHandler(postChat));
 app.get("/api/messages", asyncHandler(getMessages));
 app.post("/api/messages", asyncHandler(postMessages));
+app.post("/api/leads/demo", asyncHandler(postLeadsDemo));
 
 // Global error middleware (Audit 2.1): log and return 500 so clients don't hang.
 app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {

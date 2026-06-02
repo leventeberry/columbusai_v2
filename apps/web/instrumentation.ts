@@ -1,7 +1,7 @@
 /**
  * Runs once when the Node server starts, before app code.
  * Default DATABASE_URL in development so npm run dev works without editing .env
- * (Postgres must be running, e.g. docker compose up -d postgres postgres-vectors).
+ * (Postgres must be running, e.g. docker compose up -d postgres).
  */
 export async function register() {
   if (
