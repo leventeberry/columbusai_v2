@@ -2,21 +2,33 @@
   "name": "@columbusai/db",
   "version": "1.0.0",
   "private": true,
-  "main": "index.js",
-  "types": "index.d.ts",
+  "type": "module",
+  "main": "./index.js",
+  "types": "./index.ts",
+  "exports": {
+    ".": {
+      "types": "./index.ts",
+      "import": "./index.js",
+      "default": "./index.js"
+    }
+  },
   "scripts": {
     "generate": "prisma generate",
+    "migrate:deploy": "prisma migrate deploy",
+    "migrate:status": "prisma migrate status",
     "postinstall": "prisma generate"
   },
   "dependencies": {
-    "@prisma/client": "^6"
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "pg": "^8.19.0"
   },
   "devDependencies": {
-    "prisma": "^6",
-    "tsx": "^4"
-  },
-  "prisma": {
-    "schema": "prisma/schema",
-    "seed": "tsx prisma/seed.ts"
+    "@types/bcryptjs": "^2.4.6",
+    "@types/pg": "^8.16.0",
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^16.6.1",
+    "prisma": "^7.8.0",
+    "tsx": "^4.20.5"
   }
 }

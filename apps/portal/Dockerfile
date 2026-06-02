@@ -2,14 +2,14 @@
 # Dev:  docker build -f apps/portal/Dockerfile --target dev -t columbus-portal .
 # Prod: docker build -f apps/portal/Dockerfile --target runtime -t columbus-portal .
 
-FROM node:22-alpine AS deps
+FROM node:26-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 COPY packages ./packages
 COPY apps ./apps
 RUN npm ci
 
-FROM node:22-alpine AS dev
+FROM node:26-alpine AS dev
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/package.json ./
@@ -19,7 +19,7 @@ WORKDIR /app/apps/portal
 EXPOSE 3001
 CMD ["sh", "-c", "npm run dev -- --host 0.0.0.0 --port ${PORT:-3001}"]
 
-FROM node:22-alpine AS build
+FROM node:26-alpine AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/package.json ./
@@ -28,7 +28,7 @@ COPY --from=deps /app/apps/portal ./apps/portal
 WORKDIR /app/apps/portal
 RUN npm run build
 
-FROM node:22-alpine AS runtime
+FROM node:26-alpine AS runtime
 RUN apk add --no-cache curl
 WORKDIR /app
 COPY --from=build /app/apps/portal/dist ./dist

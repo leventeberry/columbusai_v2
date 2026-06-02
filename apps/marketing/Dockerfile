@@ -2,14 +2,14 @@
 # Dev:  docker build -f apps/marketing/Dockerfile --target dev -t columbus-marketing .
 # Prod: docker build -f apps/marketing/Dockerfile --target runtime -t columbus-marketing .
 
-FROM node:22-alpine AS deps
+FROM node:26-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 COPY packages ./packages
 COPY apps ./apps
 RUN npm ci
 
-FROM node:22-alpine AS dev
+FROM node:26-alpine AS dev
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/package.json ./
@@ -17,9 +17,10 @@ COPY --from=deps /app/packages ./packages
 COPY --from=deps /app/apps/marketing ./apps/marketing
 WORKDIR /app/apps/marketing
 EXPOSE 3000
-CMD ["sh", "-c", "npm run dev -- --host 0.0.0.0 --port ${PORT:-3000}"]
+# Leads package exports dist for Node (API); build so linked workspace resolves if dist is used.
+CMD ["sh", "-c", "cd /app/packages/leads && npm run build && cd /app/apps/marketing && npm run dev -- --host 0.0.0.0 --port ${PORT:-3000}"]
 
-FROM node:22-alpine AS build
+FROM node:26-alpine AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/package.json ./
@@ -31,15 +32,17 @@ ARG VITE_CONTACT_EMAIL=contact@columbusai.tech
 ARG VITE_BOOKING_LINK=https://cal.com/columbus-ai/30min
 ARG VITE_CHAT_TITLE=Chexi AI
 ARG VITE_CHAT_WELCOME="I'm Chexi, your Columbus AI assistant. Ask me anything!"
+ARG VITE_ADMIN_URL=https://admin.columbusai.tech
 ENV VITE_API_URL=$VITE_API_URL
 ENV VITE_CONTACT_EMAIL=$VITE_CONTACT_EMAIL
 ENV VITE_BOOKING_LINK=$VITE_BOOKING_LINK
 ENV VITE_CHAT_TITLE=$VITE_CHAT_TITLE
 ENV VITE_CHAT_WELCOME=$VITE_CHAT_WELCOME
+ENV VITE_ADMIN_URL=$VITE_ADMIN_URL
 RUN cd /app/packages/leads && npm run build
 RUN npm run build
 
-FROM node:22-alpine AS runtime
+FROM node:26-alpine AS runtime
 RUN apk add --no-cache curl
 WORKDIR /app
 COPY --from=build /app/apps/marketing/dist ./dist

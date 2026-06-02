@@ -146,6 +146,9 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
+# Prisma 7 generated client (@columbusai/db)
+packages/db/generated/
+
 # Playwright
 test-results/
 playwright-report/

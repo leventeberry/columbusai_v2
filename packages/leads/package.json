@@ -17,9 +17,11 @@
   },
   "scripts": {
     "build": "tsc",
+    "prepare": "npm run build",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@columbusai/db": "file:../db",
     "pg": "^8.19.0",
     "zod": "^3"
   },

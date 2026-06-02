@@ -1,8 +1,8 @@
-# API service — Node 20, build from repo root for workspace deps.
+# API service — Node 26, build from repo root for workspace deps.
 # Build: docker build -f apps/api/Dockerfile -t columbus-api .
 # Run:   docker run -p 4000:4000 --env-file .env columbus-api
 
-FROM node:20-alpine AS deps
+FROM node:26-alpine AS deps
 WORKDIR /app
 COPY package.json ./
 COPY packages/db packages/db
@@ -12,7 +12,7 @@ COPY apps/api apps/api
 COPY package-lock.json* ./
 RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
-FROM node:20-alpine AS build
+FROM node:26-alpine AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/package.json ./
@@ -22,7 +22,7 @@ COPY --from=deps /app/apps/api ./apps/api
 # Remove stale incremental cache so tsc emits dist (context excludes **/dist)
 RUN cd packages/leads && npm run build && cd /app/apps/api && rm -f tsconfig.tsbuildinfo && npm run build
 
-FROM node:20-alpine AS runtime
+FROM node:26-alpine AS runtime
 RUN apk add --no-cache curl
 ENV NODE_ENV=production
 WORKDIR /app
