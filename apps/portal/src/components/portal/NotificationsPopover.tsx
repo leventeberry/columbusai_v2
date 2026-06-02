@@ -17,13 +17,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-
 import type { WorkActivityKind } from "@/data/entities";
-import { CURRENT_AGENCY_USER_ID, CURRENT_CLIENT_USER_ID } from "@/data/mock/db";
 import { formatRelative } from "@/data/utils";
 import { useNotifications } from "@/hooks/useWorkItems";
 import { markAllRead, markRead } from "@/data/services/notifications";
+import { isPortalMockEnabled } from "@/lib/portal-config";
+import { usePortalWorkspace } from "@/hooks/usePortalWorkspace";
 import { getRole, isAgency } from "@/lib/portal-auth";
 
 const kindIcon: Record<WorkActivityKind, typeof Bell> = {
@@ -41,20 +40,10 @@ const kindIcon: Record<WorkActivityKind, typeof Bell> = {
 };
 
 export function NotificationsPopover() {
-  const [role, setRole] = useState(() => getRole());
-  useEffect(() => {
-    const sync = () => setRole(getRole());
-    window.addEventListener("portal-role-changed", sync);
-    window.addEventListener("storage", sync);
-    return () => {
-      window.removeEventListener("portal-role-changed", sync);
-      window.removeEventListener("storage", sync);
-    };
-  }, []);
-
-  const agency = isAgency(role);
-  const currentUserId = agency ? CURRENT_AGENCY_USER_ID : CURRENT_CLIENT_USER_ID;
-  const { notifications, unreadCount } = useNotifications(currentUserId);
+  const { currentUserId } = usePortalWorkspace();
+  const { notifications, unreadCount } = useNotifications();
+  const mock = isPortalMockEnabled();
+  const agency = isAgency(getRole());
 
   return (
     <Popover>
@@ -78,51 +67,60 @@ export function NotificationsPopover() {
             variant="ghost"
             size="sm"
             className="text-xs text-muted-foreground"
-            onClick={() => markAllRead(currentUserId)}
-            disabled={unreadCount === 0}
+            disabled={!mock || unreadCount === 0}
+            onClick={() => mock && markAllRead(currentUserId)}
           >
-            <Check className="mr-1 h-3 w-3" /> Mark all read
+            Mark all read
           </Button>
         </div>
-        <ul className="max-h-[440px] overflow-auto divide-y divide-border">
-          {notifications.map((n) => {
-            const Icon = kindIcon[n.kind];
-            const isRead = n.readAt !== null;
-            return (
-              <li key={n.id} onClick={() => markRead(n.id, currentUserId)}>
-                <Link
-                  to={agency ? "/admin/work/$id" : "/requests/$id"}
-                  params={{ id: n.workItemId }}
-                >
-                  <div className="flex gap-3 px-4 py-3 hover:bg-surface-elevated/60 transition">
-                    <div className="relative mt-0.5">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-surface-elevated text-muted-foreground">
-                        <Icon className="h-3.5 w-3.5" />
+        <div className="max-h-[360px] overflow-y-auto">
+          {notifications.length === 0 ? (
+            <p className="px-4 py-8 text-center text-sm text-muted-foreground">You're all caught up.</p>
+          ) : (
+            <ul>
+              {notifications.map((n) => {
+                const Icon = kindIcon[n.kind] ?? Bell;
+                const href = agency ? `/admin/work/${n.workItemId}` : `/requests/${n.workItemId}`;
+                return (
+                  <li
+                    key={n.id}
+                    className={`border-b border-border px-4 py-3 hover:bg-surface-elevated/50 transition ${
+                      !n.readAt ? "bg-surface-elevated/30" : ""
+                    }`}
+                  >
+                    <Link to={href} className="flex gap-3">
+                      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface border border-border">
+                        <Icon className="h-4 w-4 text-muted-foreground" />
                       </div>
-                      {!isRead && (
-                        <CircleDot className="absolute -right-0.5 -top-0.5 h-3 w-3 fill-[color:var(--accent)] text-[color:var(--accent)]" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="text-sm font-medium leading-tight">{n.title}</p>
-                        <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-start gap-2">
+                          <p className="text-sm font-medium truncate">{n.title}</p>
+                          {!n.readAt && (
+                            <CircleDot className="h-3 w-3 shrink-0 text-[color:var(--accent)]" />
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground line-clamp-2">{n.body}</p>
+                        <p className="mt-1 text-[10px] text-muted-foreground">
                           {formatRelative(n.createdAt)}
-                        </span>
+                        </p>
                       </div>
-                      <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">{n.body}</p>
-                    </div>
-                  </div>
-                </Link>
-              </li>
-            );
-          })}
-          {notifications.length === 0 && (
-            <li className="px-4 py-8 text-center text-xs text-muted-foreground">
-              No recent activity
-            </li>
+                    </Link>
+                    {mock && !n.readAt && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="mt-1 h-7 text-xs"
+                        onClick={() => markRead(n.id, currentUserId)}
+                      >
+                        <Check className="mr-1 h-3 w-3" /> Mark read
+                      </Button>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
           )}
-        </ul>
+        </div>
       </PopoverContent>
     </Popover>
   );

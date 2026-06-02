@@ -17,15 +17,20 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useNavigate } from "@tanstack/react-router";
 import { getRole, setRole, signOut } from "@/lib/portal-auth";
-import { currentUser } from "@/lib/mock/portal";
+import { usePortalMe } from "@/hooks/usePortalWorkspace";
 import { useEffect, useState } from "react";
 import type { Role } from "@/lib/mock/portal";
 
 export function TopBar() {
   const navigate = useNavigate();
+  const me = usePortalMe();
   const [role, setR] = useState<Role>("owner");
   const [searchOpen, setSearchOpen] = useState(false);
   useEffect(() => setR(getRole()), []);
+
+  const displayName = me?.user.display_name ?? me?.user.email ?? "User";
+  const email = me?.user.email ?? "";
+  const initials = (me?.user.display_name ?? me?.user.email ?? "U").slice(0, 2).toUpperCase();
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -67,11 +72,11 @@ export function TopBar() {
             <button className="flex items-center gap-2 rounded-full border border-border bg-surface px-2 py-1 hover:bg-surface-elevated transition">
               <Avatar className="h-7 w-7">
                 <AvatarFallback className="bg-gradient-to-br from-[color:var(--accent)] to-[color:var(--chart-4)] text-primary-foreground text-xs">
-                  {currentUser.initials}
+                  {initials}
                 </AvatarFallback>
               </Avatar>
               <span className="hidden sm:block text-xs font-medium">
-                {currentUser.name.split(" ")[0]}
+                {displayName.split(" ")[0]}
               </span>
               <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
             </button>
@@ -79,10 +84,8 @@ export function TopBar() {
           <DropdownMenuContent align="end" className="w-60">
             <DropdownMenuLabel>
               <div className="flex flex-col">
-                <span className="text-sm">{currentUser.name}</span>
-                <span className="text-xs text-muted-foreground font-normal">
-                  {currentUser.email}
-                </span>
+                <span className="text-sm">{displayName}</span>
+                <span className="text-xs text-muted-foreground font-normal">{email}</span>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />

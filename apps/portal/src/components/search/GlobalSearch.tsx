@@ -19,8 +19,8 @@ import {
   UserCheck,
 } from "lucide-react";
 
-import { CURRENT_AGENCY_USER_ID, CURRENT_CLIENT_ID, CURRENT_CLIENT_USER_ID } from "@/data/mock/db";
 import { useGlobalSearch } from "@/hooks/useWorkItems";
+import { usePortalWorkspace } from "@/hooks/usePortalWorkspace";
 import { getRole, isAgency } from "@/lib/portal-auth";
 import { NewWorkItemDialog } from "@/components/work/NewWorkItemDialog";
 
@@ -46,10 +46,11 @@ export function GlobalSearch({
     };
   }, []);
 
+  const { currentUserId, activeClientId } = usePortalWorkspace();
   const agency = isAgency(role);
   const actor = agency
-    ? { userId: CURRENT_AGENCY_USER_ID }
-    : { userId: CURRENT_CLIENT_USER_ID, clientId: CURRENT_CLIENT_ID };
+    ? { userId: currentUserId }
+    : { userId: currentUserId, clientId: activeClientId ?? undefined };
 
   const results = useGlobalSearch(query, actor);
 
@@ -182,7 +183,7 @@ export function GlobalSearch({
       {newOpen && (
         <div className="hidden">
           <NewWorkItemDialog
-            clientId={agency ? CURRENT_CLIENT_ID : CURRENT_CLIENT_ID}
+            clientId={activeClientId ?? ""}
             createdBy={actor.userId}
           />
         </div>

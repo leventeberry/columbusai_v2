@@ -23,7 +23,7 @@ import { KpiCard } from "@/components/portal/KpiCard";
 import { StatusPill } from "@/components/portal/StatusPill";
 import { activity, businessImpact, client, monthInReview, services } from "@/lib/mock/portal";
 import { useWorkItems } from "@/hooks/useWorkItems";
-import { CURRENT_CLIENT_ID } from "@/data/mock/db";
+import { usePortalWorkspace } from "@/hooks/usePortalWorkspace";
 import { formatRelative } from "@/data/utils";
 import { get as getUser } from "@/data/repositories/users";
 import { WorkStatusPill } from "@/components/work/WorkStatusPill";
@@ -86,7 +86,8 @@ function delta(current: number, previous: number) {
 }
 
 function Dashboard() {
-  const allWork = useWorkItems({ clientId: CURRENT_CLIENT_ID });
+  const { activeClientId } = usePortalWorkspace();
+  const allWork = useWorkItems({ clientId: activeClientId ?? undefined });
   const activeRequests = allWork
     .filter((w) => !["completed", "cancelled"].includes(w.status))
     .slice(0, 3);

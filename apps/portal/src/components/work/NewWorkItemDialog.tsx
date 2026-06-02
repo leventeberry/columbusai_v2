@@ -30,6 +30,8 @@ import {
   type WorkType,
 } from "@/data/entities";
 import { createWorkItem } from "@/data/services/work-center";
+import { usePortalWorkMutations } from "@/hooks/useWorkItems";
+import { isPortalMockEnabled } from "@/lib/portal-config";
 
 const CLIENT_TYPES: WorkType[] = ["website", "automation", "integration", "support", "internal"];
 
@@ -62,6 +64,9 @@ export function NewWorkItemDialog({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<WorkPriority>("medium");
+  const [submitting, setSubmitting] = useState(false);
+  const mutations = usePortalWorkMutations();
+  const mock = isPortalMockEnabled();
 
   const reset = () => {
     setType(types[0]);
@@ -70,28 +75,49 @@ export function NewWorkItemDialog({
     setPriority("medium");
   };
 
-  const submit = () => {
+  const submit = async () => {
+    if (!clientId) {
+      toast.error("Select a client first");
+      return;
+    }
     if (!title.trim()) {
       toast.error("Please add a title");
       return;
     }
-    createWorkItem({
-      title: title.trim(),
-      description: description.trim() || "—",
-      type,
-      priority,
-      clientId,
-      createdBy,
-    });
-    toast.success("Request submitted to Columbus AI");
-    reset();
-    setOpen(false);
+    setSubmitting(true);
+    try {
+      if (mock) {
+        createWorkItem({
+          title: title.trim(),
+          description: description.trim() || "—",
+          type,
+          priority,
+          clientId,
+          createdBy,
+        });
+      } else {
+        await mutations.createWorkItem({
+          title: title.trim(),
+          description: description.trim() || "—",
+          type,
+          priority,
+          clientId,
+        });
+      }
+      toast.success("Request submitted to Columbus AI");
+      reset();
+      setOpen(false);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not create work item");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
+        <Button disabled={!clientId}>
           <Plus className="mr-2 h-4 w-4" /> {buttonLabel}
         </Button>
       </DialogTrigger>
@@ -162,7 +188,9 @@ export function NewWorkItemDialog({
           <DialogClose asChild>
             <Button variant="ghost">Cancel</Button>
           </DialogClose>
-          <Button onClick={submit}>Submit request</Button>
+          <Button onClick={() => void submit()} disabled={submitting}>
+            Submit request
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

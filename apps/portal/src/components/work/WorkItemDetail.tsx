@@ -17,7 +17,14 @@ import { WorkTypeBadge } from "./WorkTypeBadge";
 import { CommentThread } from "./CommentThread";
 import { AttachmentList } from "./AttachmentList";
 import { ActivityTimeline } from "./ActivityTimeline";
-import { useActivity, useAttachments, useComments, useWorkItem } from "@/hooks/useWorkItems";
+import {
+  useActivity,
+  useAttachments,
+  useComments,
+  usePortalWorkMutations,
+  useWorkItemDetail,
+} from "@/hooks/useWorkItems";
+import { isPortalMockEnabled } from "@/lib/portal-config";
 import {
   WORK_PRIORITIES,
   WORK_STATUSES,
@@ -50,10 +57,21 @@ export function WorkItemDetail({
   canSeeInternal: boolean;
   canEdit: boolean;
 }) {
-  const item = useWorkItem(id);
+  const detailQuery = useWorkItemDetail(id);
+  const item = detailQuery.data?.workItem;
   const comments = useComments(id, canSeeInternal);
   const attachments = useAttachments(id);
   const activity = useActivity(id);
+  const mutations = usePortalWorkMutations();
+  const mock = isPortalMockEnabled();
+
+  if (detailQuery.isPending) {
+    return (
+      <div className="space-y-4">
+        <PageHeader title="Loading…" description="Fetching work item details." />
+      </div>
+    );
+  }
 
   if (!item) {
     return (
@@ -133,8 +151,19 @@ export function WorkItemDetail({
                   <Select
                     value={item.status}
                     onValueChange={(v) => {
-                      changeStatus(item.id, v as WorkStatus, currentUserId);
-                      toast.success(`Status → ${workStatusLabel[v as WorkStatus]}`);
+                      const status = v as WorkStatus;
+                      void (async () => {
+                        try {
+                          if (mock) {
+                            changeStatus(item.id, status, currentUserId);
+                          } else {
+                            await mutations.changeStatus(item.id, status);
+                          }
+                          toast.success(`Status → ${workStatusLabel[status]}`);
+                        } catch (e) {
+                          toast.error(e instanceof Error ? e.message : "Could not update status");
+                        }
+                      })();
                     }}
                   >
                     <SelectTrigger className="bg-background h-8 text-xs">
@@ -157,8 +186,19 @@ export function WorkItemDetail({
                   <Select
                     value={item.priority}
                     onValueChange={(v) => {
-                      changePriority(item.id, v as WorkPriority, currentUserId);
-                      toast.success(`Priority → ${workPriorityLabel[v as WorkPriority]}`);
+                      const priority = v as WorkPriority;
+                      void (async () => {
+                        try {
+                          if (mock) {
+                            changePriority(item.id, priority, currentUserId);
+                          } else {
+                            await mutations.changePriority(item.id, priority);
+                          }
+                          toast.success(`Priority → ${workPriorityLabel[priority]}`);
+                        } catch (e) {
+                          toast.error(e instanceof Error ? e.message : "Could not update priority");
+                        }
+                      })();
                     }}
                   >
                     <SelectTrigger className="bg-background h-8 text-xs">
@@ -190,7 +230,7 @@ export function WorkItemDetail({
 
           <section className="surface-card p-6">
             <h3 className="text-sm font-semibold mb-3">Assignee</h3>
-            {canEdit ? (
+            {canEdit && mock ? (
               <Select
                 value={item.primaryAssigneeId ?? "_none"}
                 onValueChange={(v) => {
@@ -254,7 +294,9 @@ export function WorkItemDetail({
                 variant="ghost"
                 size="sm"
                 className="h-7 text-xs"
+                disabled={!mock}
                 onClick={() => {
+                  if (!mock) return;
                   toggleWatcher(item.id, currentUserId);
                   toast.success(
                     item.watcherIds.includes(currentUserId) ? "Unwatched" : "Now watching",

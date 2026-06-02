@@ -8,6 +8,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { type WorkComment } from "@/data/entities";
 import { addComment } from "@/data/services/work-center";
+import { usePortalWorkMutations } from "@/hooks/useWorkItems";
+import { isPortalMockEnabled } from "@/lib/portal-config";
 import { get as getUser } from "@/data/repositories/users";
 import { formatRelative } from "@/data/utils";
 
@@ -24,19 +26,34 @@ export function CommentThread({
 }) {
   const [body, setBody] = useState("");
   const [internal, setInternal] = useState(false);
+  const [sending, setSending] = useState(false);
+  const mutations = usePortalWorkMutations();
+  const mock = isPortalMockEnabled();
 
-  const send = () => {
+  const send = async () => {
     const text = body.trim();
     if (!text) return;
-    addComment({
-      workItemId,
-      authorId: currentUserId,
-      body: text,
-      visibility: internal && canPostInternal ? "internal" : "public",
-    });
-    setBody("");
-    setInternal(false);
-    toast.success(internal && canPostInternal ? "Internal note added" : "Reply sent");
+    const visibility = internal && canPostInternal ? "internal" : "public";
+    setSending(true);
+    try {
+      if (mock) {
+        addComment({
+          workItemId,
+          authorId: currentUserId,
+          body: text,
+          visibility,
+        });
+      } else {
+        await mutations.addComment({ workItemId, body: text, visibility });
+      }
+      setBody("");
+      setInternal(false);
+      toast.success(internal && canPostInternal ? "Internal note added" : "Reply sent");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not post comment");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -117,7 +134,7 @@ export function CommentThread({
           ) : (
             <span className="text-[11px] text-muted-foreground">Press Send to reply</span>
           )}
-          <Button size="sm" onClick={send} disabled={!body.trim()}>
+          <Button size="sm" onClick={() => void send()} disabled={!body.trim() || sending}>
             <Send className="mr-1.5 h-3.5 w-3.5" /> Send
           </Button>
         </div>

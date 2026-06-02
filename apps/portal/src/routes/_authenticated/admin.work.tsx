@@ -10,7 +10,7 @@ import { WorkKanban } from "@/components/work/WorkKanban";
 import { WorkMetrics } from "@/components/work/WorkMetrics";
 import { NewWorkItemDialog } from "@/components/work/NewWorkItemDialog";
 import { useWorkItems } from "@/hooks/useWorkItems";
-import { CURRENT_AGENCY_USER_ID, CURRENT_CLIENT_ID } from "@/data/mock/db";
+import { usePortalWorkspace } from "@/hooks/usePortalWorkspace";
 import { type WorkStatus } from "@/data/entities";
 import { list as listClients } from "@/data/repositories/clients";
 import {
@@ -36,7 +36,9 @@ export const Route = createFileRoute("/_authenticated/admin/work")({
 type View = "inbox" | "mine" | "needs_review" | "waiting" | "completed" | "all";
 
 function AdminWorkCenter() {
+  const { currentUserId, clients } = usePortalWorkspace();
   const all = useWorkItems();
+  const defaultClientId = clients[0]?.id ?? "";
   const [view, setView] = useState<View>("inbox");
   const [layout, setLayout] = useState<"list" | "kanban">("list");
   const [query, setQuery] = useState("");
@@ -51,15 +53,14 @@ function AdminWorkCenter() {
       if (view === "completed" && w.status !== "completed") return false;
       if (view === "mine") {
         const mine =
-          w.primaryAssigneeId === CURRENT_AGENCY_USER_ID ||
-          w.assigneeIds.includes(CURRENT_AGENCY_USER_ID);
+          w.primaryAssigneeId === currentUserId || w.assigneeIds.includes(currentUserId);
         const closed: WorkStatus[] = ["completed", "cancelled"];
         if (!mine || closed.includes(w.status)) return false;
       }
       if (query && !`${w.title} ${w.id}`.toLowerCase().includes(query.toLowerCase())) return false;
       return true;
     });
-  }, [all, view, query, clientId]);
+  }, [all, view, query, clientId, currentUserId]);
 
   return (
     <div className="space-y-6">
@@ -68,8 +69,8 @@ function AdminWorkCenter() {
         description="Every client request and internal task across Columbus AI, in one operational view."
         actions={
           <NewWorkItemDialog
-            clientId={clientId === "_all" ? CURRENT_CLIENT_ID : clientId}
-            createdBy={CURRENT_AGENCY_USER_ID}
+            clientId={clientId === "_all" ? defaultClientId : clientId}
+            createdBy={currentUserId}
             buttonLabel="New work item"
             allowAllTypes
           />
@@ -138,7 +139,7 @@ function AdminWorkCenter() {
           <WorkItemTable items={filtered} detailBase="/admin/work" showClient />
         </div>
       ) : (
-        <WorkKanban items={filtered} detailBase="/admin/work" actorId={CURRENT_AGENCY_USER_ID} />
+        <WorkKanban items={filtered} detailBase="/admin/work" actorId={currentUserId} />
       )}
     </div>
   );

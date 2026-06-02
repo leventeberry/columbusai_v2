@@ -28,7 +28,8 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { canAccess, getRole, isAgency } from "@/lib/portal-auth";
-import { client } from "@/lib/mock/portal";
+import { usePortalWorkspace } from "@/hooks/usePortalWorkspace";
+import { get as getClient } from "@/data/repositories/clients";
 import { useEffect, useState } from "react";
 import type { Role } from "@/lib/mock/portal";
 
@@ -73,6 +74,8 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const currentPath = useRouterState({ select: (r) => r.location.pathname });
+  const { activeClientId } = usePortalWorkspace();
+  const clientName = getClient(activeClientId)?.name ?? "Columbus AI";
   const [role, setRoleState] = useState<Role>("owner");
 
   useEffect(() => {
@@ -96,7 +99,7 @@ export function AppSidebar() {
           {!collapsed && (
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold">Columbus AI</p>
-              <p className="truncate text-[11px] text-muted-foreground">{client.name}</p>
+              <p className="truncate text-[11px] text-muted-foreground">{clientName}</p>
             </div>
           )}
         </div>

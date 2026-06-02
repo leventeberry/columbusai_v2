@@ -15,7 +15,10 @@ import {
   type WorkStatus,
 } from "@/data/entities";
 import { changeStatus } from "@/data/services/work-center";
+import { usePortalWorkMutations } from "@/hooks/useWorkItems";
+import { isPortalMockEnabled } from "@/lib/portal-config";
 import { get as getUser } from "@/data/repositories/users";
+import { toast } from "sonner";
 import { formatRelative } from "@/data/utils";
 import { WorkPriorityChip } from "./WorkPriorityChip";
 import { WorkTypeBadge } from "./WorkTypeBadge";
@@ -32,13 +35,25 @@ type Props = {
 export function WorkKanban({ items, detailBase, actorId }: Props) {
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
   const dragEnabled = !!actorId;
+  const mutations = usePortalWorkMutations();
+  const mock = isPortalMockEnabled();
 
   const onDragEnd = (e: DragEndEvent) => {
     if (!actorId || !e.over) return;
     const id = String(e.active.id);
     const target = String(e.over.id) as WorkStatus;
     if (!WORK_KANBAN_STATUSES.includes(target)) return;
-    changeStatus(id, target, actorId);
+    void (async () => {
+      try {
+        if (mock) {
+          changeStatus(id, target, actorId);
+        } else {
+          await mutations.changeStatus(id, target);
+        }
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Could not update status");
+      }
+    })();
   };
 
   const inner = (

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/portal/PageHeader";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,9 +9,8 @@ import { WorkItemTable } from "@/components/work/WorkItemTable";
 import { WorkKanban } from "@/components/work/WorkKanban";
 import { NewWorkItemDialog } from "@/components/work/NewWorkItemDialog";
 import { useWorkItems } from "@/hooks/useWorkItems";
-import { CURRENT_CLIENT_ID, CURRENT_CLIENT_USER_ID, CURRENT_AGENCY_USER_ID } from "@/data/mock/db";
+import { usePortalWorkspace } from "@/hooks/usePortalWorkspace";
 import { type WorkStatus } from "@/data/entities";
-import { getRole, isAgency } from "@/lib/portal-auth";
 
 export const Route = createFileRoute("/_authenticated/requests")({
   head: () => ({ meta: [{ title: "Work Center — Columbus AI" }] }),
@@ -21,22 +20,11 @@ export const Route = createFileRoute("/_authenticated/requests")({
 type View = "all" | "open" | "in_progress" | "waiting" | "completed";
 
 function WorkCenterPage() {
-  const items = useWorkItems({ clientId: CURRENT_CLIENT_ID });
+  const { activeClientId, currentUserId, isAgency } = usePortalWorkspace();
+  const items = useWorkItems({ clientId: activeClientId ?? undefined });
   const [view, setView] = useState<View>("open");
   const [layout, setLayout] = useState<"list" | "kanban">("list");
   const [query, setQuery] = useState("");
-  const [agency, setAgency] = useState(false);
-
-  useEffect(() => {
-    const sync = () => setAgency(isAgency(getRole()));
-    sync();
-    window.addEventListener("portal-role-changed", sync);
-    window.addEventListener("storage", sync);
-    return () => {
-      window.removeEventListener("portal-role-changed", sync);
-      window.removeEventListener("storage", sync);
-    };
-  }, []);
 
   const filtered = useMemo(() => {
     const closed: WorkStatus[] = ["completed", "cancelled"];
@@ -50,16 +38,24 @@ function WorkCenterPage() {
     });
   }, [items, view, query]);
 
+  if (!activeClientId) {
+    return (
+      <div className="space-y-4">
+        <PageHeader
+          title="Work Center"
+          description="No client workspace is linked to your account yet."
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
         title="Work Center"
         description="Submit requests and follow every change Columbus AI ships for your business."
         actions={
-          <NewWorkItemDialog
-            clientId={CURRENT_CLIENT_ID}
-            createdBy={agency ? CURRENT_AGENCY_USER_ID : CURRENT_CLIENT_USER_ID}
-          />
+          <NewWorkItemDialog clientId={activeClientId} createdBy={currentUserId} />
         }
       />
 
@@ -112,7 +108,7 @@ function WorkCenterPage() {
         <WorkKanban
           items={filtered}
           detailBase="/requests"
-          actorId={agency ? CURRENT_AGENCY_USER_ID : CURRENT_CLIENT_USER_ID}
+          actorId={isAgency ? currentUserId : undefined}
         />
       )}
     </div>

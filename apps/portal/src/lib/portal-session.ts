@@ -13,6 +13,13 @@ export type PortalMeResponse = {
     isAgency: boolean;
     clients: { id: string; name: string; industry: string | null }[];
     activeClientId: string | null;
+    roster: {
+      id: string;
+      email: string;
+      displayName: string | null;
+      initials: string;
+      kind: "agency" | "client";
+    }[];
   };
 };
 
@@ -41,7 +48,10 @@ export function getEffectiveRole(): Role {
 }
 
 export function mapMeToRole(me: PortalMeResponse): Role {
-  if (me.portal.isAgency) return "agency_admin";
+  if (me.portal.isAgency) {
+    if (me.user.role === "VIEWER") return "agency_member";
+    return "agency_admin";
+  }
   const m = me.client_memberships[0];
   if (!m) return "viewer";
   switch (m.role) {
