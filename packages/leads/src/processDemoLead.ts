@@ -1,5 +1,7 @@
 import { appendLead } from "./appendLead.js";
 import { normalizeRequestBody } from "./normalizeRequestBody.js";
+import { getDemoFollowUpWebhookUrl } from "./followUpWebhookUrl.js";
+import { sendLeadFollowUpToN8n } from "./sendLeadFollowUpToN8n.js";
 import { sendLeadToN8n } from "./sendLeadToN8n.js";
 import type { DemoLeadResult, Lead } from "./types.js";
 import { getDemoWebhookUrl } from "./webhookUrl.js";
@@ -109,6 +111,31 @@ export async function processDemoLead(
       status: webhookResult.status,
       error: webhookResult.error,
     });
+  }
+
+  const followUpUrl = getDemoFollowUpWebhookUrl();
+  if (!followUpUrl) {
+    log("demo_followup_trigger_skipped", {
+      request_id: options?.requestId,
+      lead_id: lead.id,
+      reason: "webhook_url_unset",
+    });
+  } else {
+    const followUpResult = await sendLeadFollowUpToN8n(followUpUrl, lead);
+    if (followUpResult.ok) {
+      log("demo_followup_trigger_sent", {
+        request_id: options?.requestId,
+        lead_id: lead.id,
+        status: followUpResult.status,
+      });
+    } else {
+      log("demo_followup_trigger_failed", {
+        request_id: options?.requestId,
+        lead_id: lead.id,
+        status: followUpResult.status,
+        error: followUpResult.error,
+      });
+    }
   }
 
   return { ok: true, id: lead.id };

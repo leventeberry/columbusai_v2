@@ -1,0 +1,405 @@
+{
+  "name": "ColumbusAI_Demo_Follow_Up",
+  "description": "Discovery call follow-up: wait, re-fetch lead from API, email only if status is still new.",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "demo-follow-up",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [-1200, 0],
+      "id": "fu-webhook-001",
+      "name": "Webhook",
+      "webhookId": "demo-follow-up"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fu-lead-id",
+              "name": "lead_id",
+              "value": "={{ $json.body.lead_id || $json.body.id || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "fu-fname",
+              "name": "first_name",
+              "value": "={{ $json.body.first_name || $json.body.fname || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "fu-lname",
+              "name": "last_name",
+              "value": "={{ $json.body.last_name || $json.body.lname || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "fu-email",
+              "name": "email",
+              "value": "={{ $json.body.email || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "fu-phone",
+              "name": "phone",
+              "value": "={{ $json.body.phone || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "fu-company",
+              "name": "company",
+              "value": "={{ $json.body.company || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "fu-what",
+              "name": "what_automate",
+              "value": "={{ $json.body.what_automate || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "fu-booking",
+              "name": "booking_link",
+              "value": "={{ $json.body.booking_link || 'https://cal.com/columbus-ai/30min' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [-960, 0],
+      "id": "fu-normalize-001",
+      "name": "Normalize Lead"
+    },
+    {
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": "={{ $env.FOLLOWUP_WAIT_1_MINUTES || 1440 }}",
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [-720, 0],
+      "id": "fu-wait1-001",
+      "name": "Wait 1",
+      "webhookId": "fu-wait1-001"
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.COLUMBUS_API_URL }}/api/leads/{{ $('Normalize Lead').item.json.lead_id }}",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Admin-Token",
+              "value": "={{ $env.ADMIN_API_TOKEN }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-480, 0],
+      "id": "fu-get1-001",
+      "name": "GET Lead 1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fu-if1-status",
+              "leftValue": "={{ $json.lead.status }}",
+              "rightValue": "new",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [-240, 0],
+      "id": "fu-if1-001",
+      "name": "IF Still New 1"
+    },
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>Follow-up – Columbus AI</title>\n</head>\n<body style=\"margin:0; padding:0; background-color:#f4f4f4; font-family: Arial, Helvetica, sans-serif;\">\n  <table role=\"presentation\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" style=\"background-color:#f4f4f4;\">\n    <tr>\n      <td align=\"center\" style=\"padding:24px 16px;\">\n        <table role=\"presentation\" width=\"600\" cellspacing=\"0\" cellpadding=\"0\" style=\"max-width:600px; width:100%; background-color:#ffffff;\">\n          <tr>\n            <td style=\"background-color:#2c3e50; color:#ffffff; padding:20px 32px;\">\n              <h1 style=\"margin:0; font-size:20px; font-weight:bold;\">Quick follow-up</h1>\n              <p style=\"margin:4px 0 0; font-size:12px; opacity:0.9;\">Columbus AI Automation Solutions, LLC</p>\n            </td>\n          </tr>\n          <tr>\n            <td style=\"padding:32px; color:#333333; font-size:16px; line-height:1.6;\">\n              <p style=\"margin-top:0;\">Hi {{ $('Normalize Lead').item.json.first_name }},</p>\n              <p>Thank you again for reaching out to Columbus AI. We enjoyed reviewing your demo request for {{ $('Normalize Lead').item.json.company || 'your business' }}.</p>\n              <p>We would love to learn more about your automation goals and explore how we can help.</p>\n              <p style=\"padding:12px; background:#f8f9fa; border-left:4px solid #2c3e50; margin:16px 0;\">{{ $('GET Lead 1').item.json.lead.service || $('Normalize Lead').item.json.what_automate }}</p>\n              <p>If you have not booked a discovery call yet, you can pick a time that works for you below.</p>\n              <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" style=\"margin:24px 0;\">\n                <tr>\n                  <td style=\"border-radius:6px; background-color:#2c3e50;\">\n                    <a href=\"{{ $('Normalize Lead').item.json.booking_link }}\" style=\"display:inline-block; padding:12px 24px; color:#ffffff; text-decoration:none; font-weight:bold;\">Schedule a discovery call</a>\n                  </td>\n                </tr>\n              </table>\n              <p>We look forward to connecting with you.</p>\n              <p>Thank you,<br><strong>Columbus AI Automation Solutions, LLC</strong><br>Columbus, Ohio</p>\n            </td>\n          </tr>\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [0, -120],
+      "id": "fu-email1-html",
+      "name": "Follow-Up 1 HTML"
+    },
+    {
+      "parameters": {
+        "fromEmail": "no-reply@columbusai.tech",
+        "toEmail": "={{ $('Normalize Lead').item.json.email }}",
+        "subject": "Quick follow-up on your Columbus AI demo request",
+        "html": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [240, -120],
+      "id": "fu-email1-send",
+      "name": "Follow-Up 1 Email",
+      "credentials": {
+        "smtp": {
+          "id": "QdZmkAJuQO8vqx2e",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": "={{ $env.FOLLOWUP_WAIT_2_MINUTES || 2880 }}",
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [480, -120],
+      "id": "fu-wait2-001",
+      "name": "Wait 2",
+      "webhookId": "fu-wait2-001"
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.COLUMBUS_API_URL }}/api/leads/{{ $('Normalize Lead').item.json.lead_id }}",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Admin-Token",
+              "value": "={{ $env.ADMIN_API_TOKEN }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [720, -120],
+      "id": "fu-get2-001",
+      "name": "GET Lead 2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fu-if2-status",
+              "leftValue": "={{ $json.lead.status }}",
+              "rightValue": "new",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [960, -120],
+      "id": "fu-if2-001",
+      "name": "IF Still New 2"
+    },
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>Closing the loop – Columbus AI</title>\n</head>\n<body style=\"margin:0; padding:0; background-color:#f4f4f4; font-family: Arial, Helvetica, sans-serif;\">\n  <table role=\"presentation\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" style=\"background-color:#f4f4f4;\">\n    <tr>\n      <td align=\"center\" style=\"padding:24px 16px;\">\n        <table role=\"presentation\" width=\"600\" cellspacing=\"0\" cellpadding=\"0\" style=\"max-width:600px; width:100%; background-color:#ffffff;\">\n          <tr>\n            <td style=\"background-color:#2c3e50; color:#ffffff; padding:20px 32px;\">\n              <h1 style=\"margin:0; font-size:20px; font-weight:bold;\">Should we close the loop?</h1>\n              <p style=\"margin:4px 0 0; font-size:12px; opacity:0.9;\">Columbus AI Automation Solutions, LLC</p>\n            </td>\n          </tr>\n          <tr>\n            <td style=\"padding:32px; color:#333333; font-size:16px; line-height:1.6;\">\n              <p style=\"margin-top:0;\">Hi {{ $('Normalize Lead').item.json.first_name }},</p>\n              <p>We wanted to check in one last time about your Columbus AI demo request. If timing is not right, no worries at all — we completely understand.</p>\n              <p>If you would still like to explore automation for your business, we would be happy to speak with you. You can schedule a discovery call whenever it suits you.</p>\n              <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" style=\"margin:24px 0;\">\n                <tr>\n                  <td style=\"border-radius:6px; background-color:#2c3e50;\">\n                    <a href=\"{{ $('Normalize Lead').item.json.booking_link }}\" style=\"display:inline-block; padding:12px 24px; color:#ffffff; text-decoration:none; font-weight:bold;\">Schedule a discovery call</a>\n                  </td>\n                </tr>\n              </table>\n              <p>Either way, thank you for considering Columbus AI. We are here if you need us in the future.</p>\n              <p>Warm regards,<br><strong>Columbus AI Automation Solutions, LLC</strong><br>Columbus, Ohio</p>\n            </td>\n          </tr>\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [1200, -200],
+      "id": "fu-email2-html",
+      "name": "Final Follow-Up HTML"
+    },
+    {
+      "parameters": {
+        "fromEmail": "no-reply@columbusai.tech",
+        "toEmail": "={{ $('Normalize Lead').item.json.email }}",
+        "subject": "Should we close the loop?",
+        "html": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [1440, -200],
+      "id": "fu-email2-send",
+      "name": "Final Follow-Up Email",
+      "credentials": {
+        "smtp": {
+          "id": "QdZmkAJuQO8vqx2e",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Lead": {
+      "main": [
+        [
+          {
+            "node": "Wait 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 1": {
+      "main": [
+        [
+          {
+            "node": "GET Lead 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Lead 1": {
+      "main": [
+        [
+          {
+            "node": "IF Still New 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Still New 1": {
+      "main": [
+        [
+          {
+            "node": "Follow-Up 1 HTML",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Follow-Up 1 HTML": {
+      "main": [
+        [
+          {
+            "node": "Follow-Up 1 Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Follow-Up 1 Email": {
+      "main": [
+        [
+          {
+            "node": "Wait 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 2": {
+      "main": [
+        [
+          {
+            "node": "GET Lead 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Lead 2": {
+      "main": [
+        [
+          {
+            "node": "IF Still New 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Still New 2": {
+      "main": [
+        [
+          {
+            "node": "Final Follow-Up HTML",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Final Follow-Up HTML": {
+      "main": [
+        [
+          {
+            "node": "Final Follow-Up Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "pinData": {}
+}
