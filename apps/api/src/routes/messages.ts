@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { z } from "zod";
 import { prisma } from "../lib/prisma.js";
 import { MessageRole } from "@columbusai/db";
 import {
@@ -12,7 +13,7 @@ export async function postMessages(req: Request, res: Response): Promise<void> {
     if (!parsed.success) {
       res.status(400).json({
         error: "Invalid request",
-        details: parsed.error.flatten(),
+        details: z.flattenError(parsed.error),
       });
       return;
     }

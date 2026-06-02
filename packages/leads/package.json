@@ -22,7 +22,7 @@
   "dependencies": {
     "@columbusai/db": "file:../db",
     "pg": "^8.19.0",
-    "zod": "^3"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "^22.16.5",

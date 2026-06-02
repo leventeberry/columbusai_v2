@@ -4,7 +4,7 @@ import { routeParam } from "../../lib/route-params.js";
 import { z } from "zod";
 import * as sales from "../../lib/sales/repository.js";
 
-const statusSchema = z.nativeEnum(SalesLeadStatus);
+const statusSchema = z.enum(SalesLeadStatus);
 
 export async function getLeads(_req: Request, res: Response): Promise<void> {
   const leads = await sales.listLeads();
@@ -29,7 +29,7 @@ export async function patchLeadStatus(req: Request, res: Response): Promise<void
     .refine((d) => d.status ?? d.pipelineStage, { message: "status or pipelineStage required" })
     .safeParse(req.body);
   if (!body.success) {
-    res.status(400).json({ error: "Invalid body", details: body.error.flatten() });
+    res.status(400).json({ error: "Invalid body", details: z.flattenError(body.error) });
     return;
   }
 

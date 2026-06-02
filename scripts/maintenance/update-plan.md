@@ -27,7 +27,7 @@ Generated: 2026-06-02. Review after each `pnpm maintenance:logs` run.
 | Prisma | 7.8.0 | track 7.x patches | Low–medium | Stay on 7.x; read release notes |
 | Express | 4.22.x | 5.x | High | Done — api on Express 5.2.1 |
 | TypeScript | 5.9.x | 6.x | High | Whole monorepo |
-| Zod | 3.25.x | 4.x | High | All apps + leads package |
+| Zod | 4.4.3 | 4.x | — | **Done** — Maintenance Prompt 7; see Phase G |
 
 **Process:** One workspace or one vertical at a time; run `pnpm maintenance:check` + `make smoke` + demo curl.
 
@@ -91,6 +91,34 @@ Pre-existing; do not bump Nitro beta solely to silence.
 ### Rollback (Vite 8)
 
 Revert `infra/vite/tanstack-start.ts`, restore Lovable-based `vite.config.ts`, restore `vite@^7` + `@vitejs/plugin-react@^5`, `pnpm install`, rebuild Docker images.
+
+## Phase G — Zod 4 (Maintenance Prompt 7, 2026-06-02) — **applied**
+
+**Scope:** `packages/leads`, `apps/api`, `apps/marketing`, `apps/admin`, `apps/portal`, `apps/web`.
+
+### What changed
+
+| Package | From | To |
+|---------|------|-----|
+| `zod` | 3.25.76 | 4.4.3 |
+
+- Root `pnpm.overrides`: `"zod": "^4.4.3"` (single version across monorepo).
+- API: `z.nativeEnum()` → `z.enum()` (Prisma sales enums); `error.flatten()` → `z.flattenError()` in sales + messages routes.
+- Web: [`apps/web/lib/validations/contact.ts`](../../apps/web/lib/validations/contact.ts) re-exports `@columbusai/leads/validation`; thin `zodErrorsToContactErrors` maps `what_automate` → `message` for simple contact form UX.
+- TanStack apps + leads package: no schema API changes required (`z.string().email()` / `.uuid()` still work; deprecated in v4).
+- 22 direct Zod import files; no top-level `z.email()` / `z.uuid()` codemod yet (optional follow-up).
+
+### Verification (2026-06-02)
+
+- `pnpm typecheck`, `pnpm lint`, `pnpm --filter web test`
+- Rebuild `api` Docker image + `make smoke`
+- `POST /api/leads/demo` — 200 valid, 400 field errors
+- `POST /api/chat` — 400 on bad UUID
+- `POST /api/messages` — 400 with `details.fieldErrors` shape from `z.flattenError()`
+
+### Rollback (Zod 4)
+
+Revert code + `zod@^3` in all six workspaces, remove root zod override, `pnpm install`, rebuild `api` image, `make smoke`, demo curl.
 
 ## Rollback
 
