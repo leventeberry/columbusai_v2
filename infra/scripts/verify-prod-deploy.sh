@@ -5,8 +5,13 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
+if [[ ! -f .env.production ]]; then
+  echo "Missing .env.production — copy from .env.production.example"
+  exit 1
+fi
+
 echo "==> Validating compose.prod.yml"
-docker compose -f infra/docker/compose.prod.yml config --quiet
+docker compose --env-file .env.production -f infra/docker/compose.prod.yml config --quiet
 
 echo "==> Building API image"
 docker build -f apps/api/Dockerfile -t columbus-api-verify .
@@ -35,5 +40,5 @@ echo "PASS: marketing HTTP 200"
 
 echo ""
 echo "Local verification complete."
-echo "On VPS after DNS + .env: docker compose -f infra/docker/compose.prod.yml up -d --build"
+echo "On VPS after DNS + .env.production: docker compose --env-file .env.production -f infra/docker/compose.prod.yml up -d --build"
 echo "Then: curl -sf https://api.\${DOMAIN}/api/health && demo submit on https://\${DOMAIN}/contact"
