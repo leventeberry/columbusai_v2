@@ -8,7 +8,8 @@
   "pnpm": {
     "overrides": {
       "@types/react": "^19.2.7",
-      "@types/react-dom": "^19.2.3"
+      "@types/react-dom": "^19.2.3",
+      "tar": ">=7.5.11"
     },
     "onlyBuiltDependencies": [
       "@prisma/engines",
@@ -58,7 +59,10 @@
     "hostinger:verify-env": "pnpm exec tsx scripts/hostinger/verify-env.ts",
     "hostinger:dns:dump": "pnpm exec tsx scripts/hostinger/dump-dns.ts",
     "hostinger:check-auth": "pnpm exec tsx scripts/hostinger/check-auth.ts",
-    "hostinger:deploy:all": "pnpm exec tsx scripts/hostinger/deploy-all.ts"
+    "hostinger:deploy:all": "pnpm exec tsx scripts/hostinger/deploy-all.ts",
+    "maintenance:logs": "./scripts/maintenance/audit-deps.sh",
+    "maintenance:check": "pnpm typecheck && pnpm lint && pnpm build",
+    "maintenance:audit": "pnpm outdated -r && pnpm audit"
   },
   "devDependencies": {
     "@cursor/sdk": "latest",
