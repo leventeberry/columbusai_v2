@@ -2,38 +2,52 @@
 
 Repo scripts to list, pull, push, and activate n8n workflows via the [Public API v1](https://docs.n8n.io/api/api-reference/). Not used by app runtime.
 
-## Setup
+**Local testing (recommended):** [n8n-local-dev.md](n8n-local-dev.md) — use `.env.local` + `pnpm n8n:bootstrap-local` against Docker n8n on port 5678.
 
-1. Start local n8n: `docker compose -f infra/docker/compose.dev.yml up -d n8n`
-2. In n8n UI (http://localhost:5678): **Settings → API** → create an API key
-3. Copy [`.env.example`](../.env.example) vars into `.env`:
+## Setup (local)
+
+1. `make n8n-local-up`
+2. `cp .env.local.example .env.local`
+3. Create API key at http://localhost:5678 → **Settings → n8n API**
+4. `pnpm n8n:doctor` then `pnpm n8n:bootstrap-local`
 
 ```env
+# .env.local (pnpm n8n:* loads this file by default)
 N8N_API_URL=http://localhost:5678
-N8N_API_KEY=<your-key>
-N8N_DEMO_WORKFLOW_ID=<workflow-id>
+N8N_API_KEY=<your-local-key>
 ```
 
-Never commit the API key. Scripts do not print it.
+Never commit API keys. Scripts do not print them.
 
-**Workflow id vs webhook path:** `N8N_DEMO_WORKFLOW_ID` is the workflow id from `npm run n8n:list` (e.g. `gEEYTVQe39iBRra3`). The webhook URL uses a different UUID (the Webhook node path). Scripts exit with a clear error if you confuse the two.
+**Workflow id vs webhook path:** `N8N_DEMO_WORKFLOW_ID` is the workflow id from `pnpm n8n:list` (e.g. `gEEYTVQe39iBRra3`). The demo-request webhook URL uses a different UUID (the Webhook node path). The follow-up workflow uses path `demo-follow-up` (`/webhook/demo-follow-up`). Scripts exit with a clear error if you set the demo workflow id to the webhook path UUID.
 
 ## Commands
 
-| Script | npm command | Description |
-|--------|-------------|-------------|
-| List | `npm run n8n:list` | All workflows (`id`, `name`, `active`, `updatedAt`) |
-| Pull | `npm run n8n:pull:demo` | GET workflow → `infra/n8n/workflows/demo-request.workflow.json` |
-| Push | `npm run n8n:push:demo` | Update workflow from JSON (PATCH, PUT fallback on local) |
-| Activate | `npm run n8n:activate:demo` | POST `.../workflows/:id/activate` |
+| Script | pnpm command | Description |
+|--------|--------------|-------------|
+| List | `pnpm n8n:list` | All workflows (`id`, `name`, `active`, `updatedAt`) |
+| Pull demo | `pnpm n8n:pull:demo` | → `demo-request.workflow.json` |
+| Push demo | `pnpm n8n:push:demo` | Update demo-request workflow |
+| Activate demo | `pnpm n8n:activate:demo` | Activate demo-request |
+| Pull follow-up | `pnpm n8n:pull:followup` | → `demo-follow-up.workflow.json` |
+| Push follow-up | `pnpm n8n:push:followup` | Update follow-up workflow |
+| Activate follow-up | `pnpm n8n:activate:followup` | Activate follow-up |
 
-## Typical flow
+## Typical flow (demo-request)
 
-1. `npm run n8n:list` — copy the demo workflow `id` into `N8N_DEMO_WORKFLOW_ID`
-2. `npm run n8n:pull:demo` — version workflow JSON in git
+1. `pnpm n8n:list` — copy the demo workflow `id` into `N8N_DEMO_WORKFLOW_ID`
+2. `pnpm n8n:pull:demo` — version workflow JSON in git
 3. Edit `infra/n8n/workflows/demo-request.workflow.json`
-4. `npm run n8n:push:demo` — apply changes
-5. `npm run n8n:activate:demo` — enable triggers
+4. `pnpm n8n:push:demo` — apply changes
+5. `pnpm n8n:activate:demo` — enable triggers
+
+## Typical flow (demo-follow-up)
+
+1. `pnpm n8n:list` — copy follow-up workflow `id` into `N8N_DEMO_FOLLOWUP_WORKFLOW_ID`
+2. Edit `infra/n8n/workflows/demo-follow-up.workflow.json` (or pull from n8n after UI setup)
+3. `pnpm n8n:push:followup` → `pnpm n8n:activate:followup`
+
+See [demo-follow-up-workflow.md](demo-follow-up-workflow.md).
 
 ## Notes
 

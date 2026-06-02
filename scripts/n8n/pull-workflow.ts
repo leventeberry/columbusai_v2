@@ -3,29 +3,36 @@ import path from "node:path";
 import { n8nRequest, type N8nWorkflow } from "./lib/client";
 import { loadN8nEnv } from "./lib/env";
 import { sanitizeForRepo } from "./lib/workflow-payload";
-
-const OUT_PATH = path.join(
-  process.cwd(),
-  "infra/n8n/workflows/demo-request.workflow.json"
-);
+import {
+  getWorkflowConfig,
+  resolveWorkflowKey,
+  workflowFilePath,
+} from "./lib/workflows";
 
 async function main() {
-  const env = loadN8nEnv({ requireDemoWorkflowId: true });
-  const id = env.demoWorkflowId!;
+  const config = getWorkflowConfig(resolveWorkflowKey());
+  const env = loadN8nEnv(
+    config.key === "demo"
+      ? { requireDemoWorkflowId: true }
+      : { requireFollowUpWorkflowId: true },
+  );
+  const id =
+    config.key === "demo" ? env.demoWorkflowId! : env.followUpWorkflowId!;
 
   const workflow = await n8nRequest<N8nWorkflow>(
     env,
     "GET",
-    `/api/v1/workflows/${id}`
+    `/api/v1/workflows/${id}`,
   );
 
   const sanitized = sanitizeForRepo(workflow);
   sanitized.id = id;
 
-  fs.mkdirSync(path.dirname(OUT_PATH), { recursive: true });
-  fs.writeFileSync(OUT_PATH, `${JSON.stringify(sanitized, null, 2)}\n`, "utf8");
+  const outPath = workflowFilePath(config);
+  fs.mkdirSync(path.dirname(outPath), { recursive: true });
+  fs.writeFileSync(outPath, `${JSON.stringify(sanitized, null, 2)}\n`, "utf8");
 
-  console.log(`Saved ${OUT_PATH}`);
+  console.log(`Saved ${outPath}`);
   console.log(`Workflow: ${workflow.name ?? "(unnamed)"} (${id})`);
 }
 

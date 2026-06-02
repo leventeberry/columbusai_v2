@@ -77,12 +77,13 @@ export function sanitizeForPush(workflow: N8nWorkflow): Record<string, unknown> 
 
 export function assertWorkflowIdMatch(
   fileWorkflow: N8nWorkflow,
-  expectedId: string
+  expectedId: string,
+  envVarName = "N8N_DEMO_WORKFLOW_ID",
 ): void {
   const fileId = fileWorkflow.id;
   if (fileId && fileId !== expectedId) {
     console.error(
-      `Workflow id mismatch: file has "${fileId}" but N8N_DEMO_WORKFLOW_ID is "${expectedId}"`
+      `Workflow id mismatch: file has "${fileId}" but ${envVarName} is "${expectedId}"`,
     );
     process.exit(1);
   }

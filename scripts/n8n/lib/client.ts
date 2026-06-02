@@ -92,6 +92,14 @@ export async function listAllWorkflows(env: N8nEnv): Promise<N8nWorkflow[]> {
   return all;
 }
 
+/** Create workflow from JSON body (no id required). */
+export async function createWorkflow(
+  env: N8nEnv,
+  body: Record<string, unknown>,
+): Promise<N8nWorkflow> {
+  return n8nRequest<N8nWorkflow>(env, "POST", "/api/v1/workflows", body);
+}
+
 /** Update workflow: PATCH (newer API) with PUT fallback (local Docker n8n). */
 export async function updateWorkflow(
   env: N8nEnv,
