@@ -3,7 +3,7 @@
 #   docker compose -f infra/docker/compose.prod.yml up -d --build
 #
 # Required in .env: DOMAIN, ACME_EMAIL, POSTGRES_PASSWORD, OPENAI_API_KEY,
-#   CORS_ORIGIN, VITE_API_URL (build arg), Supabase vars for admin (if deploying admin).
+#   CORS_ORIGIN, VITE_API_URL (build arg), SESSION_SECRET, ADMIN_API_TOKEN (optional).
 
 services:
   traefik:

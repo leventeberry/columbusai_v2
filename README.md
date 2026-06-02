@@ -240,6 +240,6 @@ Full runbook: [docs/deployment-runbook.md](docs/deployment-runbook.md).
 - **DOMAIN**, **ACME_EMAIL**, **POSTGRES_PASSWORD**
 - **OPENAI_API_KEY**, **CORS_ORIGIN** (`https://columbusai.tech,https://www.columbusai.tech`)
 - **VITE_API_URL** (`https://api.columbusai.tech`) — baked into marketing image at build
-- **Supabase** vars for admin (see `.env.example`)
+- **SESSION_SECRET**, **ADMIN_API_TOKEN** (optional legacy), auth seed vars — see `.env.example`
 
 Compose injects `DATABASE_URL`, `REDIS_URL`, `VECTOR_DATABASE_URL`, and internal `N8N_DEMO_WEBHOOK_URL` for the API.

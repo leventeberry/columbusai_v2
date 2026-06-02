@@ -65,7 +65,7 @@ Auth: `Authorization: Bearer HOSTINGER_API_TOKEN`
 
 ## Environment allowlist (Docker Manager)
 
-Injected from `.env` at deploy time: `DOMAIN`, `ACME_EMAIL`, `POSTGRES_PASSWORD`, `CORS_ORIGIN`, `OPENAI_*`, `VITE_*`, Supabase admin vars, n8n basic auth, etc. See `DOCKER_ENV_ALLOWLIST` in [`scripts/hostinger/lib/docker-env.ts`](../scripts/hostinger/lib/docker-env.ts).
+Injected from `.env` at deploy time: `DOMAIN`, `ACME_EMAIL`, `POSTGRES_PASSWORD`, `CORS_ORIGIN`, `OPENAI_*`, `VITE_*`, `SESSION_SECRET`, n8n basic auth, etc. See `DOCKER_ENV_ALLOWLIST` in [`scripts/hostinger/lib/docker-env.ts`](../scripts/hostinger/lib/docker-env.ts).
 
 Secrets are sent to Hostinger only in the deploy request body; they are not stored in the repo.
 

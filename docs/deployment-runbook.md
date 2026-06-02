@@ -156,6 +156,14 @@ docker compose -f infra/docker/compose.prod.yml up -d marketing
 
 ### Postgres (daily recommended)
 
+Automated helper (gzip + retention):
+
+```bash
+./infra/scripts/backup-postgres.sh
+```
+
+Per-database dumps (manual):
+
 ```bash
 docker compose -f infra/docker/compose.prod.yml exec -T postgres \
   pg_dump -U columbus -Fc columbus > backup-columbus-$(date +%F).dump
@@ -253,14 +261,16 @@ make verify-prod
 
 See [infra/scripts/verify-prod-deploy.sh](../infra/scripts/verify-prod-deploy.sh).
 
+`GET /api/health` returns `{ ok, database }` where `database` is `up` when Postgres answers a probe query.
+
 ## Readiness summary
 
 | Component | Status | Notes |
 |-----------|--------|-------|
 | Marketing | READY | Prod Dockerfile + Traefik apex/www |
 | API | READY | Prod image + demo webhook via internal n8n |
-| Admin | PARTIAL | Needs Supabase project + env at build/deploy |
-| Portal | PARTIAL | Prod image; mock-backed UI |
+| Admin | PARTIAL | Postgres session auth; sales live; provisioning/analytics mock |
+| Portal | PARTIAL | Postgres session auth; Work Center on live API (`DEV_MOCK_PORTAL` for UI-only dev) |
 | n8n | READY | In prod compose; push workflow before go-live |
 | Postgres | READY | `columbus`, `columbus_vectors`, `n8n` |
 | Redis | READY | |

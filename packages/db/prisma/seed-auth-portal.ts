@@ -131,6 +131,6 @@ export async function seedAuthAndPortal(prisma: PrismaClient): Promise<void> {
     });
   }
 
-  console.log("Auth seed:", { superAdmin: superAdmin.email, demoPassword: DEMO_PASSWORD });
+  console.log("Auth seed:", { superAdmin: superAdmin.email });
   console.log("Portal seed: clients", clients.length, "work items", workItems.length);
 }

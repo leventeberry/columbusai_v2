@@ -27,6 +27,17 @@ pnpm db:migrate:status
 pnpm db:seed
 ```
 
+### Auth + portal seed (local)
+
+From the repo root, point `DATABASE_URL` at the host-visible Postgres port (not the Docker service hostname `postgres` unless you run the command inside the container):
+
+```bash
+DATABASE_URL=postgresql://columbus:columbus@localhost:5432/columbus \
+  pnpm --filter @columbusai/db exec tsx prisma/seed-auth-portal.ts
+```
+
+Uses `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` from `.env`. Re-run after changing seed passwords so `auth.users` hashes stay in sync.
+
 ## App usage
 
 ```typescript
