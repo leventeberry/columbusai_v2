@@ -93,7 +93,7 @@ Do **not** run `pnpm update --latest -r` without a written phase plan.
 
 ### pnpm overrides
 
-Use root `package.json` → `pnpm.overrides` for **transitive** security fixes (e.g. `tar` under dev-only `@cursor/sdk`). Re-run `pnpm audit` after changing overrides.
+Use root `package.json` → `pnpm.overrides` for **transitive** security fixes (e.g. `tar`, `undici` under dev-only `@cursor/sdk`). Re-run `pnpm audit` after changing overrides.
 
 ### Peer dependency warnings
 

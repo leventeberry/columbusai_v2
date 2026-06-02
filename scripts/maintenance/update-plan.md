@@ -12,8 +12,9 @@ Generated: 2026-06-02. Review after each `pnpm maintenance:logs` run.
 | `dotenv` | 16.6.1 | 17.4.2 | packages/db | Align with root; no API break for load |
 | `eslint-plugin-react-refresh` | ^0.4.20 | ^0.5.2 | admin, marketing, portal | Minor; new HOC lint hints only |
 | `tar` (override) | <7.5.11 | >=7.5.11 | root | Transitive via `@cursor/sdk` → sqlite3 |
+| `undici` (override) | <6.24.0 | >=6.24.0 (resolves 8.3.0) | root | Transitive via `@cursor/sdk` → `@connectrpc/connect-node` |
 
-**Audit impact:** 33 → 8 vulnerabilities (high tar chain resolved; Next CVEs resolved).
+**Audit impact:** 33 → 8 (Phase A tar/Next) → **3** after undici override (0 high; remaining: `@hono/node-server`, `postcss`, `@tootallnate/once`).
 
 ## Phase B — Framework updates (deferred)
 
