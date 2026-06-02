@@ -2,9 +2,11 @@
 
 ## Flow
 
-Marketing `ContactSection` → `POST {VITE_API_URL}/api/leads/demo` → `@columbusai/leads` `processDemoLead` → Postgres `leads` table (or `LEADS_PATH` jsonl) → n8n webhook (non-blocking).
+Marketing `ContactSection` → `POST {VITE_API_URL}/api/leads/demo` → `@columbusai/leads` `processDemoLead` → Postgres `leads` table (or `LEADS_PATH` jsonl) → n8n demo-request webhook (non-blocking) → n8n demo-follow-up webhook (non-blocking).
 
 Shared lead logic lives in [`packages/leads`](../packages/leads/) (ported from marketing server fn + n8n sender).
+
+Discovery-call follow-up: [demo-follow-up-workflow.md](demo-follow-up-workflow.md).
 
 ## Environment variables
 
@@ -16,6 +18,8 @@ Shared lead logic lives in [`packages/leads`](../packages/leads/) (ported from m
 | `N8N_DEMO_WEBHOOK_TEST_URL` | API only | Dev demo webhook |
 | `N8N_WEBHOOK_URL` / `N8N_WEBHOOK_TEST_URL` | API only | Fallback if demo vars unset |
 | `BOOKING_LINK` | API only | Included in n8n payload |
+| `N8N_DEMO_FOLLOWUP_WEBHOOK_URL` | API only | Follow-up workflow (prod) |
+| `N8N_DEMO_FOLLOWUP_WEBHOOK_TEST_URL` | API only | Follow-up workflow (dev) |
 | `CORS_ORIGIN` | API | Must include marketing origin |
 
 ## API contract
@@ -47,7 +51,7 @@ curl -sS -X POST http://localhost:4000/api/leads/demo \
 ## Local test plan
 
 1. Start stack: `docker compose -f infra/docker/compose.dev.yml up -d postgres api marketing` (or `make up` + `make dev-marketing`)
-2. Set `N8N_DEMO_WEBHOOK_TEST_URL` (or legacy `N8N_WEBHOOK_TEST_URL`) in `.env`
+2. Set `N8N_DEMO_WEBHOOK_TEST_URL` (or legacy `N8N_WEBHOOK_TEST_URL`) in `.env.local`
 3. Open http://localhost:3000/contact and submit the demo form
 4. Expect success UI, API logs `lead_created` + `lead_webhook_sent`
 5. Break webhook URL or stop n8n — submit again; expect **200** + `lead_webhook_failed`, row still in DB

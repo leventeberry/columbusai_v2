@@ -36,7 +36,7 @@ Or run `npm run hostinger:provision:dns` if the zone is managed in Hostinger (se
 
 ## Hostinger API (optional automation)
 
-From your laptop with production values in repo-root `.env` (including `HOSTINGER_API_TOKEN`):
+From your laptop with production values in repo-root `.env.production` (including `HOSTINGER_API_TOKEN`):
 
 1. Push the default branch to GitHub (public repo required for Docker Manager URL deploy).
 2. Provision firewall, SSH key, and DNS:
@@ -85,7 +85,7 @@ ssh columbusai-vps 'echo ok'   # must succeed before deploy
 ./infra/scripts/remote-deploy.sh
 ```
 
-The script runs an SSH preflight (fails in ~25s if port 22 is unreachable), bootstraps Docker, rsyncs the repo, copies `.env`, and runs `docker compose -f infra/docker/compose.prod.yml up -d --build`.
+The script runs an SSH preflight (fails in ~25s if port 22 is unreachable), bootstraps Docker, rsyncs the repo, copies `.env.production`, and runs `docker compose --env-file .env.production -f infra/docker/compose.prod.yml up -d --build`.
 
 If SSH times out, open **hPanel → VPS → Browser terminal** and run:
 
@@ -102,9 +102,9 @@ See [vps-ssh-setup.md](vps-ssh-setup.md).
 
 1. Install Docker Engine and Compose v2 on the VPS.
 2. Clone the repository and `cd` into it.
-3. Copy [.env.example](../.env.example) to `.env` and set production values (see matrix below). **Never commit `.env`.**
+3. Copy [.env.production.example](../.env.production.example) to `.env.production` and set values (see [env.md](env.md)). **Never commit live env files.**
 4. Open firewall: **22** (SSH), **80**, **443**.
-5. Push demo workflow to n8n (from laptop with `N8N_API_URL` / `N8N_API_KEY` in `.env`):
+5. Push demo workflow to n8n (`COLUMBUS_ENV=production`, keys in `.env.production`):
    ```bash
    npm run n8n:push:demo
    npm run n8n:activate:demo
@@ -194,7 +194,7 @@ Optional Hostinger volume snapshots for `columbus_prod_pgdata`, `n8n_prod_data`,
 
 ## Production environment matrix
 
-Set in VPS `.env` only. Do not commit secrets.
+Set in VPS `.env.production` only. Do not commit secrets.
 
 ### Infra
 

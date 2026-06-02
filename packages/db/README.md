@@ -5,7 +5,7 @@ Prisma ORM **v7** package for Columbus AI (Postgres, multi-schema).
 ## Requirements
 
 - **Node.js** `24+` (repo standard; Prisma 7 also supports `20.19+` and `22.12+`)
-- `DATABASE_URL` in repo root `.env` (loaded via `prisma.config.ts`)
+- `DATABASE_URL` in repo root `.env.local` or `.env.production` (see `COLUMBUS_ENV` in `prisma.config.ts`)
 
 ## Layout
 
@@ -36,7 +36,7 @@ DATABASE_URL=postgresql://columbus:columbus@localhost:5432/columbus \
   pnpm --filter @columbusai/db exec tsx prisma/seed-auth-portal.ts
 ```
 
-Uses `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` from `.env`. Re-run after changing seed passwords so `auth.users` hashes stay in sync.
+Uses `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` from the active env file. Re-run after changing seed passwords so `auth.users` hashes stay in sync.
 
 ## App usage
 

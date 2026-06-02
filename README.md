@@ -11,7 +11,7 @@
 | **Web (legacy)** | `apps/web` | http://localhost:3010 (Docker profile `legacy`) | Previous Next.js marketing site |
 | **n8n** | docker service `n8n` | http://localhost:5678 | Automation workflow builder |
 
-Copy [`.env.example`](.env.example) to `.env` at repo root. Docker Compose dev loads it for all services.
+Copy [`.env.local.example`](.env.local.example) to [`.env.local`](.env.local) at repo root (see [docs/env.md](docs/env.md)). `make up-dev` uses `.env.local` with `compose.dev.yml`.
 
 ```bash
 # From repo root (Node 26+, pnpm via Corepack)
@@ -217,7 +217,7 @@ Production runs on a single VPS (e.g. Hostinger) with Traefik TLS and [infra/doc
 
 Legacy Next.js (optional): `docker compose --profile legacy up -d web` → `app.columbusai.tech`.
 
-**Prereq:** Docker Compose v2.1+, repo root `.env` from `.env.example` (`DOMAIN`, `ACME_EMAIL`, `POSTGRES_PASSWORD`, `OPENAI_API_KEY`, `CORS_ORIGIN`, `VITE_API_URL`).
+**Prereq:** Docker Compose v2.1+, `.env.production` from [`.env.production.example`](.env.production.example) (`DOMAIN`, `ACME_EMAIL`, `POSTGRES_PASSWORD`, `OPENAI_API_KEY`, `CORS_ORIGIN`, `VITE_API_URL`). See [docs/env.md](docs/env.md).
 
 ### Start prod stack
 
@@ -240,6 +240,6 @@ Full runbook: [docs/deployment-runbook.md](docs/deployment-runbook.md).
 - **DOMAIN**, **ACME_EMAIL**, **POSTGRES_PASSWORD**
 - **OPENAI_API_KEY**, **CORS_ORIGIN** (`https://columbusai.tech,https://www.columbusai.tech`)
 - **VITE_API_URL** (`https://api.columbusai.tech`) — baked into marketing image at build
-- **SESSION_SECRET**, **ADMIN_API_TOKEN** (optional legacy), auth seed vars — see `.env.example`
+- **SESSION_SECRET**, **ADMIN_API_TOKEN** (optional legacy), auth seed vars — see `.env.production.example`
 
 Compose injects `DATABASE_URL`, `REDIS_URL`, `VECTOR_DATABASE_URL`, and internal `N8N_DEMO_WEBHOOK_URL` for the API.

@@ -1,11 +1,11 @@
 # Hostinger API automation
 
-TypeScript scripts under [`scripts/hostinger/`](../scripts/hostinger/) use the official [`hostinger-api-sdk`](https://github.com/hostinger/api-typescript-sdk) and repo-root `.env`.
+TypeScript scripts under [`scripts/hostinger/`](../scripts/hostinger/) use the official [`hostinger-api-sdk`](https://github.com/hostinger/api-typescript-sdk) and repo-root `.env.production` (see [env.md](env.md)).
 
 ## Prerequisites
 
 1. API token from [hPanel → Profile → API](https://hpanel.hostinger.com/profile/api).
-2. Set in `.env` (see [`.env.example`](../.env.example)):
+2. Set in `.env.production` (see [`.env.production.example`](../.env.production.example)):
    - `HOSTINGER_API_TOKEN` (required)
    - `HOSTINGER_VPS_IP` (default `147.93.113.58`)
    - `HOSTINGER_DOMAIN` (default `columbusai.tech`)
@@ -65,7 +65,7 @@ Auth: `Authorization: Bearer HOSTINGER_API_TOKEN`
 
 ## Environment allowlist (Docker Manager)
 
-Injected from `.env` at deploy time: `DOMAIN`, `ACME_EMAIL`, `POSTGRES_PASSWORD`, `CORS_ORIGIN`, `OPENAI_*`, `VITE_*`, `SESSION_SECRET`, n8n basic auth, etc. See `DOCKER_ENV_ALLOWLIST` in [`scripts/hostinger/lib/docker-env.ts`](../scripts/hostinger/lib/docker-env.ts).
+Injected from `.env.production` at deploy time: `DOMAIN`, `ACME_EMAIL`, `POSTGRES_PASSWORD`, `CORS_ORIGIN`, `OPENAI_*`, `VITE_*`, `SESSION_SECRET`, n8n basic auth, etc. See `DOCKER_ENV_ALLOWLIST` in [`scripts/hostinger/lib/docker-env.ts`](../scripts/hostinger/lib/docker-env.ts).
 
 Secrets are sent to Hostinger only in the deploy request body; they are not stored in the repo.
 
