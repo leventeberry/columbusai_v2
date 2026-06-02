@@ -7,7 +7,7 @@
 
 services:
   traefik:
-    image: traefik:v3.2
+    image: traefik:v3.6.6
     environment:
       ACME_EMAIL: ${ACME_EMAIL:-admin@columbusai.tech}
     entrypoint: ["/bin/sh", "/etc/traefik/entrypoint.sh"]

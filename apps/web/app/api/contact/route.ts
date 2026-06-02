@@ -63,8 +63,8 @@ export async function POST(request: NextRequest) {
   }
 
   const nodeEnv = process.env.NODE_ENV;
-  const testUrl = process.env.N8N_WEBHOOK_TEST_URL;
-  const prodUrl = process.env.N8N_WEBHOOK_URL;
+  const testUrl = process.env.N8N_DEMO_WEBHOOK_TEST_URL;
+  const prodUrl = process.env.N8N_DEMO_WEBHOOK_URL;
   const webhookUrl =
     nodeEnv === "development" ? testUrl : prodUrl;
   if (!webhookUrl) {
