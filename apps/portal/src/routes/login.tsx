@@ -19,16 +19,21 @@ export const Route = createFileRoute("/login")({
 function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("kira@kdmdermatherapy.com");
-  const [password, setPassword] = useState("••••••••");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      signIn(email);
-      navigate({ to: "/dashboard" });
-    }, 500);
+    setError(null);
+    const result = await signIn(email, password);
+    setLoading(false);
+    if (result.error) {
+      setError(result.error);
+      return;
+    }
+    navigate({ to: "/dashboard" });
   };
 
   return (
@@ -46,22 +51,35 @@ function LoginPage() {
         <div className="surface-card p-8">
           <h1 className="text-xl font-semibold tracking-tight">Welcome back</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Sign in to your workspace to view your website, automations, and reports.
+            Sign in with your Columbus AI account.
           </p>
           <form onSubmit={submit} className="mt-6 space-y-4" suppressHydrationWarning>
             <div className="space-y-1.5">
               <Label htmlFor="email">Work email</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="pw">Password</Label>
-              <Input id="pw" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              <Input
+                id="pw"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
             </div>
+            {error ? <p className="text-sm text-destructive">{error}</p> : null}
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Signing in…" : "Sign in"}
             </Button>
             <p className="text-xs text-center text-muted-foreground">
-              Demo portal — any credentials will sign you in.
+              Dev seed: kira@kdmdermatherapy.com / ColumbusDev2026!
             </p>
           </form>
         </div>

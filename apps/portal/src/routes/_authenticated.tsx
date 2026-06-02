@@ -1,13 +1,24 @@
 import { createFileRoute, redirect, Outlet } from "@tanstack/react-router";
+import { createIsomorphicFn } from "@tanstack/react-start";
+import { getCookie } from "@tanstack/react-start/server";
+import { useEffect } from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/portal/AppSidebar";
 import { TopBar } from "@/components/portal/TopBar";
 import { Toaster } from "@/components/ui/sonner";
+import { SESSION_COOKIE } from "@/lib/auth-middleware";
+import { hydrateSession } from "@/lib/portal-auth";
+
+const hasSessionCookie = createIsomorphicFn()
+  .server(() => !!getCookie(SESSION_COOKIE))
+  .client(() =>
+    typeof document !== "undefined" &&
+    document.cookie.split("; ").some((c) => c.startsWith(`${SESSION_COOKIE}=`)),
+  );
 
 export const Route = createFileRoute("/_authenticated")({
   beforeLoad: () => {
-    if (typeof window === "undefined") return;
-    if (localStorage.getItem("portal_session") !== "1") {
+    if (!hasSessionCookie()) {
       throw redirect({ to: "/login" });
     }
   },
@@ -15,6 +26,10 @@ export const Route = createFileRoute("/_authenticated")({
 });
 
 function AuthLayout() {
+  useEffect(() => {
+    void hydrateSession();
+  }, []);
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-background bg-hero-glow">

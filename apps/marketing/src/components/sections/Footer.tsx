@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Sparkles } from "lucide-react";
-import { CONTACT_EMAIL } from "@/lib/env";
+import { CONTACT_EMAIL, getAdminLoginUrl } from "@/lib/env";
 
 export function Footer() {
   return (
@@ -28,7 +28,7 @@ export function Footer() {
           </Col>
           <Col title="Access">
             <FLink to="/client">Client Login</FLink>
-            <FLink to="/admin">Admin Login</FLink>
+            <FExternalLink href={getAdminLoginUrl()}>Admin Login</FExternalLink>
             <FLink to="/contact">Request Demo</FLink>
           </Col>
           <Col title="Legal">
@@ -62,6 +62,20 @@ function FLink({ to, children }: { to: string; children: React.ReactNode }) {
       <Link to={to} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
         {children}
       </Link>
+    </li>
+  );
+}
+
+function FExternalLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <li>
+      <a
+        href={href}
+        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+        rel="noopener noreferrer"
+      >
+        {children}
+      </a>
     </li>
   );
 }

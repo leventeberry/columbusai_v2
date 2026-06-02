@@ -132,7 +132,8 @@ services:
       DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres:5432/columbus
       VECTOR_DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres:5432/columbus_vectors
       REDIS_URL: redis://redis:6379
-      CORS_ORIGIN: ${CORS_ORIGIN:-https://columbusai.tech,https://www.columbusai.tech}
+      CORS_ORIGIN: ${CORS_ORIGIN:-https://columbusai.tech,https://www.columbusai.tech,https://admin.columbusai.tech,https://portal.columbusai.tech}
+      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET must be set in production}
       N8N_DEMO_WEBHOOK_URL: http://n8n:5678/webhook/f7ceff32-3922-4ac8-a522-2b83995e5f04
       BOOKING_LINK: ${BOOKING_LINK:-https://cal.com/columbus-ai/30min}
     depends_on:
@@ -172,6 +173,7 @@ services:
         VITE_BOOKING_LINK: ${BOOKING_LINK:-https://cal.com/columbus-ai/30min}
         VITE_CHAT_TITLE: ${VITE_CHAT_TITLE:-Chexi AI}
         VITE_CHAT_WELCOME: ${VITE_CHAT_WELCOME:-I'm Chexi, your Columbus AI assistant. Ask me anything!}
+        VITE_ADMIN_URL: ${VITE_ADMIN_URL:-https://admin.${DOMAIN:-columbusai.tech}}
     environment:
       NODE_ENV: production
       PORT: "3000"
@@ -203,14 +205,13 @@ services:
       context: ../..
       dockerfile: apps/admin/Dockerfile
       target: runtime
-      args:
-        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:-}
-        VITE_SUPABASE_PUBLISHABLE_KEY: ${VITE_SUPABASE_PUBLISHABLE_KEY:-}
     env_file:
       - ../../.env
     environment:
       NODE_ENV: production
       PORT: "3002"
+      SALES_API_URL: http://api:4000
+      API_URL: http://api:4000
     depends_on:
       api:
         condition: service_healthy
@@ -233,6 +234,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: "3001"
+      API_URL: http://api:4000
     depends_on:
       api:
         condition: service_healthy

@@ -31,3 +31,15 @@ export const CONTACT_EMAIL =
 
 export const BOOKING_LINK =
   readVite("VITE_BOOKING_LINK") || "https://cal.com/columbus-ai/30min";
+
+/** Columbus AI operator dashboard (separate TanStack Start app). */
+export function getAdminUrl(): string {
+  const url = readVite("VITE_ADMIN_URL");
+  if (url) return url.replace(/\/$/, "");
+  if (import.meta.env.DEV) return "http://localhost:3002";
+  return "https://admin.columbusai.tech";
+}
+
+export function getAdminLoginUrl(): string {
+  return `${getAdminUrl()}/login`;
+}

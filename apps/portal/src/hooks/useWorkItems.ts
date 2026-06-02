@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { fetchPortalWorkItems } from "@/lib/portal.functions";
 
 import { dbSubscribe } from "@/data/mock/db";
 import * as activityRepo from "@/data/repositories/activity";
@@ -29,7 +31,23 @@ dbSubscribe(() => {
 
 export function useWorkItems(filter: WorkItemFilter = {}) {
   useStoreVersion();
-  return workItemsRepo.list(filter);
+  const { data: apiItems } = useQuery({
+    queryKey: ["portal-work-items", filter.clientId],
+    queryFn: () => fetchPortalWorkItems(),
+    staleTime: 30_000,
+  });
+  const mockItems = workItemsRepo.list(filter);
+  if (apiItems?.length) {
+    if (!filter.clientId && !filter.statuses?.length && !filter.query) return apiItems;
+    return apiItems.filter((w) => {
+      if (filter.clientId && w.clientId !== filter.clientId) return false;
+      if (filter.statuses?.length && !filter.statuses.includes(w.status)) return false;
+      if (filter.priorities?.length && !filter.priorities.includes(w.priority)) return false;
+      if (filter.types?.length && !filter.types.includes(w.type)) return false;
+      return true;
+    });
+  }
+  return mockItems;
 }
 
 export function useWorkItem(id: string) {

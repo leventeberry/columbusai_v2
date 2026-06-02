@@ -1,41 +1,53 @@
 import type { Role } from "./mock/portal";
+import { portalAuthLogin, portalAuthLogout, portalAuthMe } from "@/lib/auth.functions";
+import {
+  applyPortalSession,
+  clearPortalSession,
+  getEffectiveRole,
+  getPortalMe,
+  setRoleOverride,
+} from "@/lib/portal-session";
 
-const SESSION_KEY = "portal_session";
-const ROLE_KEY = "portal_role";
-
-const COOKIE_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
+export type { Role };
 
 export function isLoggedIn(): boolean {
-  if (typeof document === "undefined") return false;
-  return (
-    localStorage.getItem(SESSION_KEY) === "1" ||
-    document.cookie.split("; ").some((c) => c.startsWith(`${SESSION_KEY}=1`))
-  );
+  return !!getPortalMe();
 }
 
-export function signIn(email: string) {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(SESSION_KEY, "1");
-  localStorage.setItem("portal_email", email);
-  if (!localStorage.getItem(ROLE_KEY)) localStorage.setItem(ROLE_KEY, "owner");
-  document.cookie = `${SESSION_KEY}=1; path=/; max-age=${COOKIE_MAX_AGE}; samesite=lax`;
+export async function signIn(email: string, password: string): Promise<{ error: string | null }> {
+  try {
+    const me = await portalAuthLogin({ data: { email, password } });
+    applyPortalSession(me);
+    return { error: null };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Login failed" };
+  }
 }
 
-export function signOut() {
-  if (typeof window === "undefined") return;
-  localStorage.removeItem(SESSION_KEY);
-  document.cookie = `${SESSION_KEY}=; path=/; max-age=0; samesite=lax`;
+export async function signOut(): Promise<void> {
+  await portalAuthLogout();
+  clearPortalSession();
+}
+
+export async function hydrateSession(): Promise<boolean> {
+  const me = await portalAuthMe();
+  if (!me) {
+    clearPortalSession();
+    return false;
+  }
+  applyPortalSession(me);
+  return true;
 }
 
 export function getRole(): Role {
-  if (typeof window === "undefined") return "owner";
-  return (localStorage.getItem(ROLE_KEY) as Role) || "owner";
+  return getEffectiveRole();
 }
 
-export function setRole(role: Role) {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(ROLE_KEY, role);
-  window.dispatchEvent(new Event("portal-role-changed"));
+export function setRole(role: Role): void {
+  setRoleOverride(role);
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("portal-role-changed"));
+  }
 }
 
 export function isAgency(role: Role): boolean {
@@ -71,7 +83,7 @@ export const NAV_PERMISSIONS: Record<string, Role[]> = {
   "/analytics": ALL_ROLES,
   "/documents": ALL_ROLES,
   "/reports": ALL_ROLES,
-  "/requests": ALL_ROLES, // Client "Work Center" — visible to everyone
+  "/requests": ALL_ROLES,
   "/billing": ["owner", ...AGENCY_ROLES],
   "/support": ["owner", "admin", ...AGENCY_ROLES],
   "/settings": ["owner", "admin", ...AGENCY_ROLES],

@@ -1,44 +1,38 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { SiteLayout } from "@/components/sections/SiteLayout";
-import { Button } from "@/components/ui/button";
-import { Lock } from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { getAdminLoginUrl } from "@/lib/env";
 
 export const Route = createFileRoute("/admin")({
-  head: () => ({
-    meta: [
-      { title: "Admin Portal — Columbus AI" },
-      { name: "description", content: "Restricted admin console for Columbus AI operators." },
-      { name: "robots", content: "noindex" },
-      { property: "og:url", content: "/admin" },
-    ],
-  }),
-  component: AdminPlaceholder,
+  head: () => {
+    const target = getAdminLoginUrl();
+    return {
+      meta: [
+        { title: "Admin Portal — Columbus AI" },
+        { name: "description", content: "Redirecting to the Columbus AI admin dashboard." },
+        { name: "robots", content: "noindex" },
+        { httpEquiv: "refresh", content: `0;url=${target}` },
+      ],
+    };
+  },
+  component: AdminRedirect,
 });
 
-function AdminPlaceholder() {
+function AdminRedirect() {
+  const target = getAdminLoginUrl();
+
+  useEffect(() => {
+    window.location.replace(target);
+  }, [target]);
+
   return (
-    <SiteLayout>
-      <section className="relative min-h-[70vh] flex items-center justify-center px-4 py-24">
-        <div className="absolute inset-0 bg-grid opacity-30" />
-        <div className="relative max-w-xl text-center">
-          <div className="mx-auto h-14 w-14 rounded-2xl surface-3 border border-strong flex items-center justify-center">
-            <Lock className="h-7 w-7 text-foreground" />
-          </div>
-          <h1 className="mt-6 text-4xl font-semibold tracking-tight">Admin Portal</h1>
-          <p className="mt-3 text-muted-foreground">
-            Restricted to Columbus AI operators. Authentication will be wired in from the
-            separate admin application — this is a placeholder access point.
-          </p>
-          <div className="mt-8 flex justify-center gap-3 flex-wrap">
-            <Button variant="outline" className="border-strong" disabled>
-              Sign in (coming soon)
-            </Button>
-            <Button asChild variant="ghost">
-              <Link to="/">Back home</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-    </SiteLayout>
+    <div className="grid min-h-[40vh] place-items-center px-4">
+      <p className="text-sm text-muted-foreground">
+        Redirecting to the{" "}
+        <a href={target} className="text-primary underline-offset-4 hover:underline">
+          admin dashboard
+        </a>
+        …
+      </p>
+    </div>
   );
 }

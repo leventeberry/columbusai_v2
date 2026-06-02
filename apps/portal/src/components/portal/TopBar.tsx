@@ -93,7 +93,7 @@ export function TopBar() {
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
-                signOut();
+                void signOut().then(() => navigate({ to: "/login" }));
                 navigate({ to: "/login" });
               }}
             >

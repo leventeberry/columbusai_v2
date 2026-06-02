@@ -1,4 +1,13 @@
+import { getAdminUrl } from "@/lib/env";
 import { SectionHeading } from "./SectionHeading";
+
+function adminHostLabel(): string {
+  try {
+    return new URL(getAdminUrl()).host;
+  } catch {
+    return "admin.columbusai.tech";
+  }
+}
 
 export function AdminPlatformPreview() {
   return (
@@ -13,7 +22,7 @@ export function AdminPlatformPreview() {
         <div className="mt-14 rounded-2xl border border-strong surface-1 shadow-elevated overflow-hidden">
           <div className="flex items-center gap-2 px-4 py-3 border-b border-subtle surface-2">
             <div className="flex gap-1.5">{[0, 1, 2].map((i) => <div key={i} className="h-2.5 w-2.5 rounded-full bg-muted-foreground/30" />)}</div>
-            <div className="flex-1 text-center text-xs text-muted-foreground font-mono">columbusai.tech/admin</div>
+            <div className="flex-1 text-center text-xs text-muted-foreground font-mono">{adminHostLabel()}</div>
           </div>
           <div className="grid lg:grid-cols-4 gap-4 p-6">
             {[
