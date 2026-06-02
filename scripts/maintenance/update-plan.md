@@ -22,8 +22,8 @@ Generated: 2026-06-02. Review after each `pnpm maintenance:logs` run.
 
 | Package | Current | Latest | Risk | Notes |
 |---------|---------|--------|------|-------|
-| TanStack Router / Start | 1.167.x | newer | Medium | Test all routes + SSR after bump |
-| Vite | 7.3.x | 8.x | High | Major; retest Docker dev images |
+| TanStack Router / Start | 1.168.x | newer | Medium | Test all routes + SSR after bump; peers declare Vite 8 OK |
+| Vite | 8.0.16 | 8.0.16 | — | **Done** — Maintenance Prompt 6b; hand-rolled `infra/vite/tanstack-start.ts`; see Phase F |
 | Prisma | 7.8.0 | track 7.x patches | Low–medium | Stay on 7.x; read release notes |
 | Express | 4.22.x | 5.x | High | Done — api on Express 5.2.1 |
 | TypeScript | 5.9.x | 6.x | High | Whole monorepo |
@@ -36,7 +36,7 @@ Generated: 2026-06-02. Review after each `pnpm maintenance:logs` run.
 - ESLint 9 → 10 (`@eslint/js`, flat config migration)
 - `lucide-react` 0.x → 1.x (icon import changes)
 - `react-day-picker` 9 → 10
-- `@vitejs/plugin-react` 5 → 6
+- `@vitejs/plugin-react` 5 → 6 — **Done** with Vite 8 (marketing/admin/portal)
 - `@types/node` 22 → 25 (split web @20 vs rest @22 first)
 - `jest` 29 → 30 (web only)
 
@@ -57,6 +57,40 @@ Generated: 2026-06-02. Review after each `pnpm maintenance:logs` run.
 | Node 26 | Required by engines; CI/WSL must use Node 26+ |
 | `nitro` beta | Do not bump to newer beta without testing; peer `jiti@^2` unmet |
 | `@cursor/sdk` | Dev-only; consider pin + periodic audit vs `latest` |
+
+## Phase F — Vite 8 (Maintenance Prompt 6b, 2026-06-02) — **applied**
+
+**Scope:** `apps/marketing`, `apps/admin`, `apps/portal` only.
+
+### What changed
+
+| Package | From | To |
+|---------|------|-----|
+| `vite` | 7.3.5 | 8.0.16 |
+| `@vitejs/plugin-react` | 5.2.0 | 6.0.2 |
+| `@lovable.dev/vite-tanstack-config` | 2.3.1 | **removed** |
+
+- Shared factory: [`infra/vite/tanstack-start.ts`](../../infra/vite/tanstack-start.ts) — `tailwindcss`, `vite-tsconfig-paths`, `tanstackStart` (+ `importProtection` defaults), `nitro` (build-only, `node-server`, output `dist/`), `@vitejs/plugin-react`, `VITE_*` defines, Lightning CSS, `@` alias, React/Query dedupe, `PORT` / per-app default port.
+- Omitted (Lovable-only): dev-server-bridge, HMR-gate, componentTagger, SSR/server-fn error logger plugins.
+- Runtime: [`lovable-error-reporting.ts`](../../apps/marketing/src/lib/lovable-error-reporting.ts) unchanged in app code.
+- Docker: copy `infra/vite` into dev/build stages; `.dockerignore` negates `!infra/vite` under `infra` exclude.
+
+### Verification (2026-06-02)
+
+- `pnpm typecheck`, `pnpm lint` (warnings only), `pnpm --filter {marketing,admin,portal} build` → `dist/server/index.mjs`
+- `docker compose` rebuild + `make smoke` — marketing 200, portal/admin 307, API health OK
+
+### Peer warnings (unchanged)
+
+```
+apps/admin → nitro → unmet jiti@^2.6.1 (found 1.21.7)
+```
+
+Pre-existing; do not bump Nitro beta solely to silence.
+
+### Rollback (Vite 8)
+
+Revert `infra/vite/tanstack-start.ts`, restore Lovable-based `vite.config.ts`, restore `vite@^7` + `@vitejs/plugin-react@^5`, `pnpm install`, rebuild Docker images.
 
 ## Rollback
 

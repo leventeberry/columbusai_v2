@@ -66,4 +66,6 @@ yarn-error.log*
 
 # Docker / compose (reduce context size; not needed inside app image)
 infra
+!infra/vite
+!infra/vite/**
 docker-compose*.yml

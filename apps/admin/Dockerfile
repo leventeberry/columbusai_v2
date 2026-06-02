@@ -21,6 +21,7 @@ COPY --from=deps /app/package.json ./
 COPY --from=deps /app/pnpm-workspace.yaml ./
 COPY --from=deps /app/packages ./packages
 COPY --from=deps /app/apps/admin ./apps/admin
+COPY infra/vite ./infra/vite
 WORKDIR /app/apps/admin
 EXPOSE 3002
 CMD ["sh", "-c", "pnpm run dev --host 0.0.0.0 --port ${PORT:-3002}"]
@@ -32,6 +33,7 @@ COPY --from=deps /app/package.json ./
 COPY --from=deps /app/pnpm-workspace.yaml ./
 COPY --from=deps /app/packages ./packages
 COPY --from=deps /app/apps/admin ./apps/admin
+COPY infra/vite ./infra/vite
 WORKDIR /app/apps/admin
 RUN pnpm run build
 

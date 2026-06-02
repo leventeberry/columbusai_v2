@@ -21,6 +21,7 @@ COPY --from=deps /app/package.json ./
 COPY --from=deps /app/pnpm-workspace.yaml ./
 COPY --from=deps /app/packages ./packages
 COPY --from=deps /app/apps/marketing ./apps/marketing
+COPY infra/vite ./infra/vite
 WORKDIR /app/apps/marketing
 EXPOSE 3000
 CMD ["sh", "-c", "pnpm --filter @columbusai/db build && pnpm --filter @columbusai/leads build && pnpm run dev --host 0.0.0.0 --port ${PORT:-3000}"]
@@ -32,6 +33,7 @@ COPY --from=deps /app/package.json ./
 COPY --from=deps /app/pnpm-workspace.yaml ./
 COPY --from=deps /app/packages ./packages
 COPY --from=deps /app/apps/marketing ./apps/marketing
+COPY infra/vite ./infra/vite
 WORKDIR /app/apps/marketing
 ARG VITE_API_URL=https://api.columbusai.tech
 ARG VITE_CONTACT_EMAIL=contact@columbusai.tech
