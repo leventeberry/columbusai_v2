@@ -26,7 +26,7 @@ Generated: 2026-06-02. Review after each `pnpm maintenance:logs` run.
 | Vite | 8.0.16 | 8.0.16 | — | **Done** — Maintenance Prompt 6b; hand-rolled `infra/vite/tanstack-start.ts`; see Phase F |
 | Prisma | 7.8.0 | track 7.x patches | Low–medium | Stay on 7.x; read release notes |
 | Express | 4.22.x | 5.x | High | Done — api on Express 5.2.1 |
-| TypeScript | 5.9.x | 6.x | High | Whole monorepo |
+| TypeScript | 6.0.3 | 6.x | — | **Done** — Maintenance Prompt 8; see Phase H |
 | Zod | 4.4.3 | 4.x | — | **Done** — Maintenance Prompt 7; see Phase G |
 
 **Process:** One workspace or one vertical at a time; run `pnpm maintenance:check` + `make smoke` + demo curl.
@@ -119,6 +119,34 @@ Revert `infra/vite/tanstack-start.ts`, restore Lovable-based `vite.config.ts`, r
 ### Rollback (Zod 4)
 
 Revert code + `zod@^3` in all six workspaces, remove root zod override, `pnpm install`, rebuild `api` image, `make smoke`, demo curl.
+
+## Phase H — TypeScript 6 (Maintenance Prompt 8, 2026-06-02) — **applied**
+
+**Scope:** Root + all 7 workspaces (`api`, `web`, `marketing`, `admin`, `portal`, `packages/db`, `packages/leads`).
+
+### What changed
+
+| Package | From | To |
+|---------|------|-----|
+| `typescript` | 5.9.3 | 6.0.3 |
+
+- Root `pnpm.overrides`: `"typescript": "^6.0.3"` (single version across monorepo).
+- **Stay on 6.0.x** — `typescript-eslint@8.60.1` peer caps at `<6.1.0`; do not bump to 6.1+ until eslint peer allows.
+- [`apps/api/tsconfig.json`](../../apps/api/tsconfig.json): removed unused deprecated `baseUrl` (no `paths` usage).
+- [`packages/db/tsconfig.build.json`](../../packages/db/tsconfig.build.json), [`packages/leads/tsconfig.json`](../../packages/leads/tsconfig.json): explicit `"types": ["node"]` (TS 6 default `types: []` no longer auto-includes `@types/*`).
+- [`apps/web/tsconfig.jest.json`](../../apps/web/tsconfig.jest.json) + [`jest.config.js`](../../apps/web/jest.config.js): explicit `rootDir: "."` for ts-jest (TS 6 TS5011 when compiling isolated test files).
+
+### Verification (2026-06-02)
+
+- `pnpm typecheck`, `pnpm lint` (warnings only), `pnpm --filter web test`
+- `pnpm --filter api build`, `pnpm --filter marketing build`
+- Rebuild `api` Docker image + `make smoke` (API health, marketing 200, portal/admin 307, n8n 200, Redis PONG)
+- `POST /api/leads/demo` — 200 valid, 400 field errors
+- `pnpm n8n:doctor` — API connection OK
+
+### Rollback (TypeScript 6)
+
+Revert `typescript@^5.8.3` in root + workspaces, remove root typescript override, revert tsconfig/jest changes, `pnpm install`, `pnpm typecheck`, rebuild `api` image, `make smoke`.
 
 ## Rollback
 

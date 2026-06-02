@@ -10,6 +10,7 @@
     "emitDeclarationOnly": true,
     "skipLibCheck": true,
     "strict": true,
+    "types": ["node"],
     "esModuleInterop": true
   },
   "include": ["src/**/*.ts"]

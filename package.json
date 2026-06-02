@@ -11,7 +11,8 @@
       "@types/react-dom": "^19.2.3",
       "tar": ">=7.5.11",
       "undici": ">=6.24.0",
-      "zod": "^4.4.3"
+      "zod": "^4.4.3",
+      "typescript": "^6.0.3"
     },
     "onlyBuiltDependencies": [
       "@prisma/engines",
@@ -70,7 +71,7 @@
     "@cursor/sdk": "latest",
     "dotenv": "^17.4.2",
     "tsx": "^4.20.5",
-    "typescript": "^5.8.3"
+    "typescript": "^6.0.3"
   },
   "dependencies": {
     "hostinger-api-sdk": "^0.0.17"
