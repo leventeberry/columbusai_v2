@@ -2,6 +2,8 @@
 
 Columbus AI uses **three environment files** at the repo root. Each file has the **same keys** in the **same order**; only values differ.
 
+See also [local-development.md](local-development.md) for the canonical onboarding flow.
+
 | Live file (gitignored) | Template | Docker Compose |
 |------------------------|----------|----------------|
 | `.env.local` | `.env.local.example` | [`compose.dev.yml`](../infra/docker/compose.dev.yml) |
@@ -18,9 +20,11 @@ cp .env.production.example .env.production
 ```
 
 ```bash
-make up-dev       # .env.local
-make up-staging   # .env.staging
-make up-prod      # .env.production
+make up            # .env.local — default local startup
+make up-dev        # .env.local — foreground logs (debug)
+make up-staging    # .env.staging
+make up-prod       # .env.production
+make smoke         # HTTP health checks after make up
 ```
 
 ## Host-side tools

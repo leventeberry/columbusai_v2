@@ -75,7 +75,9 @@ export function NotificationsPopover() {
         </div>
         <div className="max-h-[360px] overflow-y-auto">
           {notifications.length === 0 ? (
-            <p className="px-4 py-8 text-center text-sm text-muted-foreground">You're all caught up.</p>
+            <p className="px-4 py-8 text-center text-sm text-muted-foreground">
+              You're all caught up.
+            </p>
           ) : (
             <ul>
               {notifications.map((n) => {

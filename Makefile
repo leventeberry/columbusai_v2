@@ -28,12 +28,20 @@ db-generate:
 	pnpm db:generate
 
 # --- Env validation ---
-.PHONY: env-check env-sync help
+.PHONY: env-check env-sync help verify verify-ci
 env-check:
 	pnpm env:check
 
 env-sync:
 	pnpm env:sync-examples
+
+# Release verification (host CI + Docker smoke; stack must be running for smoke)
+verify-ci: env-check
+	pnpm typecheck
+	pnpm lint
+	pnpm test
+
+verify: verify-ci smoke
 
 define require_env
 	@test -f $(1) || (echo "Missing $(1). Copy from $(1).example and set secrets." && exit 1)
@@ -50,6 +58,8 @@ help:
 	@echo "    make down            Stop local stack"
 	@echo "    make restart         down + up + smoke"
 	@echo "    make smoke           HTTP health checks"
+	@echo "    make verify          typecheck + lint + test + smoke"
+	@echo "    make verify-ci       typecheck + lint + test (no Docker)"
 	@echo "    make ps              Container status"
 	@echo "    make logs            Tail all service logs"
 	@echo "    make n8n-local-up    postgres + redis + n8n + api only"

@@ -7,9 +7,9 @@ Single VPS (Hostinger) deployment using Docker Compose and Traefik TLS.
 **From repo root:**
 
 ```bash
-docker compose -f infra/docker/compose.prod.yml up -d --build
+make up-prod
 # or
-docker compose up -d --build
+docker compose --env-file .env.production -f infra/docker/compose.prod.yml up -d --build
 ```
 
 ## Target routing
@@ -111,7 +111,7 @@ See [vps-ssh-setup.md](vps-ssh-setup.md).
    ```
 6. Start the stack:
    ```bash
-   docker compose -f infra/docker/compose.prod.yml up -d --build
+   docker compose --env-file .env.production -f infra/docker/compose.prod.yml up -d --build
    ```
 7. Verify:
    ```bash
@@ -121,34 +121,34 @@ See [vps-ssh-setup.md](vps-ssh-setup.md).
    ```
 8. Demo pipeline: submit on `https://columbusai.tech/contact`, then check API logs and n8n execution:
    ```bash
-   docker compose -f infra/docker/compose.prod.yml logs api --since 10m | grep lead_
+   docker compose --env-file .env.production -f infra/docker/compose.prod.yml logs api --since 10m | grep lead_
    ```
 
 ## Updating production
 
 ```bash
 git pull
-docker compose -f infra/docker/compose.prod.yml build
-docker compose -f infra/docker/compose.prod.yml up -d
+docker compose --env-file .env.production -f infra/docker/compose.prod.yml build
+docker compose --env-file .env.production -f infra/docker/compose.prod.yml up -d
 ```
 
 If Prisma schema changed:
 
 ```bash
-docker compose -f infra/docker/compose.prod.yml run --rm migrate
+docker compose --env-file .env.production -f infra/docker/compose.prod.yml run --rm migrate
 ```
 
 Rebuild a single service:
 
 ```bash
-docker compose -f infra/docker/compose.prod.yml build marketing
-docker compose -f infra/docker/compose.prod.yml up -d marketing
+docker compose --env-file .env.production -f infra/docker/compose.prod.yml build marketing
+docker compose --env-file .env.production -f infra/docker/compose.prod.yml up -d marketing
 ```
 
 ## Rollback
 
 1. Check out the previous release: `git checkout <tag-or-commit>`
-2. Rebuild and restart: `docker compose -f infra/docker/compose.prod.yml up -d --build`
+2. Rebuild and restart: `docker compose --env-file .env.production -f infra/docker/compose.prod.yml up -d --build`
 3. If a migration broke the app, restore Postgres from backup (see below) before restarting.
 4. Re-import n8n workflow from [infra/n8n/workflows/demo-request.workflow.json](../infra/n8n/workflows/demo-request.workflow.json) if the workflow changed.
 
@@ -165,11 +165,11 @@ Automated helper (gzip + retention):
 Per-database dumps (manual):
 
 ```bash
-docker compose -f infra/docker/compose.prod.yml exec -T postgres \
+docker compose --env-file .env.production -f infra/docker/compose.prod.yml exec -T postgres \
   pg_dump -U columbus -Fc columbus > backup-columbus-$(date +%F).dump
-docker compose -f infra/docker/compose.prod.yml exec -T postgres \
+docker compose --env-file .env.production -f infra/docker/compose.prod.yml exec -T postgres \
   pg_dump -U columbus -Fc columbus_vectors > backup-vectors-$(date +%F).dump
-docker compose -f infra/docker/compose.prod.yml exec -T postgres \
+docker compose --env-file .env.production -f infra/docker/compose.prod.yml exec -T postgres \
   pg_dump -U columbus -Fc n8n > backup-n8n-$(date +%F).dump
 ```
 
@@ -178,7 +178,7 @@ Copy dumps off the VPS (object storage, rsync, etc.).
 ### Restore (staging first)
 
 ```bash
-docker compose -f infra/docker/compose.prod.yml exec -T postgres \
+docker compose --env-file .env.production -f infra/docker/compose.prod.yml exec -T postgres \
   pg_restore -U columbus -d columbus --clean < backup-columbus-YYYY-MM-DD.dump
 ```
 
@@ -248,7 +248,7 @@ Compose sets `N8N_HOST`, `WEBHOOK_URL`, and Postgres `DB_POSTGRESDB_*` for self-
 ## Legacy app during cutover
 
 ```bash
-docker compose -f infra/docker/compose.prod.yml --profile legacy up -d web
+docker compose --env-file .env.production -f infra/docker/compose.prod.yml --profile legacy up -d web
 ```
 
 Serves `app.columbusai.tech` until marketing is confirmed as primary.

@@ -49,11 +49,27 @@ check() {
 }
 
 echo "==> Smoke test (local dev stack)"
-check "API health" "$API_URL/api/health" "200"
+
+health_body=$(curl -sS --connect-timeout 5 "$API_URL/api/health" || echo "")
+if [[ "$health_body" == *'"ok":true'* && "$health_body" == *'"database":"up"'* ]]; then
+  echo "  OK   API health + Postgres ($health_body)"
+else
+  echo "  FAIL API health + Postgres (body: ${health_body:-empty})"
+  fail=1
+fi
+
 check "Marketing" "$MARKETING_URL/" "200" true
-check "Portal" "$PORTAL_URL/" "redirect"
-check "Admin" "$ADMIN_URL/" "redirect"
-check "n8n" "$N8N_URL/" "200"
+check "Portal" "$PORTAL_URL/" "redirect" true
+check "Admin" "$ADMIN_URL/" "redirect" true
+check "n8n" "$N8N_URL/" "200" true
+
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+if docker compose --env-file "$REPO_ROOT/.env.local" -f "$REPO_ROOT/infra/docker/compose.dev.yml" exec -T redis redis-cli ping 2>/dev/null | grep -q PONG; then
+  echo "  OK   Redis (PONG)"
+else
+  echo "  FAIL Redis (redis-cli ping)"
+  fail=1
+fi
 
 if [[ "$fail" -ne 0 ]]; then
   echo ""

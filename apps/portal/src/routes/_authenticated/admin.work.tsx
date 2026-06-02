@@ -52,8 +52,7 @@ function AdminWorkCenter() {
       if (view === "waiting" && w.status !== "waiting_on_client") return false;
       if (view === "completed" && w.status !== "completed") return false;
       if (view === "mine") {
-        const mine =
-          w.primaryAssigneeId === currentUserId || w.assigneeIds.includes(currentUserId);
+        const mine = w.primaryAssigneeId === currentUserId || w.assigneeIds.includes(currentUserId);
         const closed: WorkStatus[] = ["completed", "cancelled"];
         if (!mine || closed.includes(w.status)) return false;
       }

@@ -18,9 +18,9 @@ export function envFilePath(profile: EnvProfile): string {
   return path.join(repoRoot, LIVE_FILES[profile]);
 }
 
-/** Load a single repo-root env file (no merge). */
+/** Load a single repo-root env file (no merge). File values win over pre-set shell env. */
 export function loadEnvFile(profile: EnvProfile): void {
-  loadEnv({ path: envFilePath(profile) });
+  loadEnv({ path: envFilePath(profile), override: true });
 }
 
 /** Profile used by n8n CLI scripts on a developer laptop. */

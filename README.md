@@ -11,14 +11,16 @@
 | **Web (legacy)** | `apps/web` | http://localhost:3010 (Docker profile `legacy`) | Previous Next.js marketing site |
 | **n8n** | docker service `n8n` | http://localhost:5678 | Automation workflow builder |
 
-Copy [`.env.local.example`](.env.local.example) to [`.env.local`](.env.local) at repo root (see [docs/env.md](docs/env.md)). `make up-dev` uses `.env.local` with `compose.dev.yml`.
+Copy [`.env.local.example`](.env.local.example) to [`.env.local`](.env.local) at repo root (see [docs/env.md](docs/env.md) and [docs/local-development.md](docs/local-development.md)).
 
 ```bash
 # From repo root (Node 26+, pnpm via Corepack)
 corepack enable && corepack prepare pnpm@10.12.4 --activate
 pnpm install
-make up-dev          # marketing + portal + admin + api + postgres + redis
-make dev-marketing   # host-only marketing
+make up              # full stack detached (.env.local + compose.dev.yml)
+make smoke           # verify API, marketing, portal, admin, n8n
+make up-dev          # same stack, foreground logs (debug)
+make dev-marketing   # host-only marketing (no Docker)
 ```
 
 **Marketing** uses TanStack Start (Vite). Chat calls `VITE_API_URL` (default `http://localhost:4000`). Demo requests POST to `POST /api/leads/demo` on the API (`@columbusai/leads` shared package). See [docs/demo-request-workflow.md](docs/demo-request-workflow.md).

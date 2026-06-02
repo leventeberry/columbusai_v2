@@ -182,10 +182,7 @@ export function GlobalSearch({
       {/* Hidden host for the "Create work item" action */}
       {newOpen && (
         <div className="hidden">
-          <NewWorkItemDialog
-            clientId={activeClientId ?? ""}
-            createdBy={actor.userId}
-          />
+          <NewWorkItemDialog clientId={activeClientId ?? ""} createdBy={actor.userId} />
         </div>
       )}
     </>

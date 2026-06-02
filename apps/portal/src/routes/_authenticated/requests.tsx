@@ -54,9 +54,7 @@ function WorkCenterPage() {
       <PageHeader
         title="Work Center"
         description="Submit requests and follow every change Columbus AI ships for your business."
-        actions={
-          <NewWorkItemDialog clientId={activeClientId} createdBy={currentUserId} />
-        }
+        actions={<NewWorkItemDialog clientId={activeClientId} createdBy={currentUserId} />}
       />
 
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
