@@ -1,23 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import {
-  Coins,
-  Users,
-  Inbox,
-  Workflow,
-  MessageSquare,
-  Percent,
-} from "lucide-react";
-import { KpiCard } from "@/components/dashboard/kpi-card";
 import { LeadPipeline } from "@/components/dashboard/lead-pipeline";
 import { ClientsTable } from "@/components/dashboard/clients-table";
+import { SalesKpis } from "@/components/dashboard/sales-kpis";
 import { WorkflowMonitoring } from "@/components/dashboard/workflow-monitoring";
 import { AgentControl } from "@/components/dashboard/agent-control";
 import { SystemHealth } from "@/components/dashboard/system-health";
 import { PageHeader, Section } from "@/components/dashboard/page-header";
 import { Button } from "@/components/ui/button";
-import { kpis } from "@/lib/mock/data";
-
-const ICONS = [Coins, Users, Inbox, Workflow, MessageSquare, Percent];
+import { useSalesStats } from "@/hooks/use-sales";
 
 export const Route = createFileRoute("/_app/dashboard")({
   head: () => ({
@@ -30,6 +20,9 @@ export const Route = createFileRoute("/_app/dashboard")({
 });
 
 function DashboardPage() {
+  const { data: stats } = useSalesStats();
+  const clientCount = stats?.activeClients ?? 0;
+
   return (
     <div className="space-y-8">
       <PageHeader
@@ -45,17 +38,16 @@ function DashboardPage() {
         }
       />
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-        {kpis.map((k, i) => (
-          <KpiCard key={k.label} {...k} icon={ICONS[i]} />
-        ))}
-      </div>
+      <SalesKpis />
 
       <Section title="Lead pipeline" subtitle="Drag cards across stages to update.">
         <LeadPipeline />
       </Section>
 
-      <Section title="Active clients" subtitle="147 paying clients · sorted by recent activity.">
+      <Section
+        title="Active clients"
+        subtitle={`${clientCount} sales clients · sorted by recent activity.`}
+      >
         <ClientsTable />
       </Section>
 

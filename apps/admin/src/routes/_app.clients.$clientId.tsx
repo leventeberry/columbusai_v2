@@ -399,7 +399,7 @@ function ClientDetail() {
           </Card>
           <Card title="Environment">
             <KV k="Region" v={m.region} />
-            <KV k="Runtime" v="Node 20" mono />
+            <KV k="Runtime" v="Node 26" mono />
             <KV k="Container" v="ghcr.io/columbus/stack:11.4" mono />
             <KV k="Provisioned" v="Sep 14, 2024" />
             <KV k="Last sync" v="2m ago" />

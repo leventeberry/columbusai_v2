@@ -41,6 +41,9 @@ import { Route as AppAdminTeamRouteImport } from './routes/_app.admin.team'
 import { Route as AppAdminSettingsRouteImport } from './routes/_app.admin.settings'
 import { Route as AppAdminBillingRouteImport } from './routes/_app.admin.billing'
 import { Route as AppAdminAuditRouteImport } from './routes/_app.admin.audit'
+import { Route as AppSalesOpportunitiesOpportunityIdRouteImport } from './routes/_app.sales.opportunities.$opportunityId'
+import { Route as AppSalesLeadsLeadIdRouteImport } from './routes/_app.sales.leads.$leadId'
+import { Route as AppSalesClientsSalesClientIdRouteImport } from './routes/_app.sales.clients.$salesClientId'
 
 const UnauthorizedRoute = UnauthorizedRouteImport.update({
   id: '/unauthorized',
@@ -204,6 +207,23 @@ const AppAdminAuditRoute = AppAdminAuditRouteImport.update({
   path: '/admin/audit',
   getParentRoute: () => AppRoute,
 } as any)
+const AppSalesOpportunitiesOpportunityIdRoute =
+  AppSalesOpportunitiesOpportunityIdRouteImport.update({
+    id: '/$opportunityId',
+    path: '/$opportunityId',
+    getParentRoute: () => AppSalesOpportunitiesRoute,
+  } as any)
+const AppSalesLeadsLeadIdRoute = AppSalesLeadsLeadIdRouteImport.update({
+  id: '/$leadId',
+  path: '/$leadId',
+  getParentRoute: () => AppSalesLeadsRoute,
+} as any)
+const AppSalesClientsSalesClientIdRoute =
+  AppSalesClientsSalesClientIdRouteImport.update({
+    id: '/sales/clients/$salesClientId',
+    path: '/sales/clients/$salesClientId',
+    getParentRoute: () => AppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -234,9 +254,12 @@ export interface FileRoutesByFullPath {
   '/provisioning/secrets': typeof AppProvisioningSecretsRoute
   '/provisioning/templates': typeof AppProvisioningTemplatesRoute
   '/sales/conversations': typeof AppSalesConversationsRoute
-  '/sales/leads': typeof AppSalesLeadsRoute
-  '/sales/opportunities': typeof AppSalesOpportunitiesRoute
+  '/sales/leads': typeof AppSalesLeadsRouteWithChildren
+  '/sales/opportunities': typeof AppSalesOpportunitiesRouteWithChildren
   '/clients/': typeof AppClientsIndexRoute
+  '/sales/clients/$salesClientId': typeof AppSalesClientsSalesClientIdRoute
+  '/sales/leads/$leadId': typeof AppSalesLeadsLeadIdRoute
+  '/sales/opportunities/$opportunityId': typeof AppSalesOpportunitiesOpportunityIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -267,9 +290,12 @@ export interface FileRoutesByTo {
   '/provisioning/secrets': typeof AppProvisioningSecretsRoute
   '/provisioning/templates': typeof AppProvisioningTemplatesRoute
   '/sales/conversations': typeof AppSalesConversationsRoute
-  '/sales/leads': typeof AppSalesLeadsRoute
-  '/sales/opportunities': typeof AppSalesOpportunitiesRoute
+  '/sales/leads': typeof AppSalesLeadsRouteWithChildren
+  '/sales/opportunities': typeof AppSalesOpportunitiesRouteWithChildren
   '/clients': typeof AppClientsIndexRoute
+  '/sales/clients/$salesClientId': typeof AppSalesClientsSalesClientIdRoute
+  '/sales/leads/$leadId': typeof AppSalesLeadsLeadIdRoute
+  '/sales/opportunities/$opportunityId': typeof AppSalesOpportunitiesOpportunityIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -302,9 +328,12 @@ export interface FileRoutesById {
   '/_app/provisioning/secrets': typeof AppProvisioningSecretsRoute
   '/_app/provisioning/templates': typeof AppProvisioningTemplatesRoute
   '/_app/sales/conversations': typeof AppSalesConversationsRoute
-  '/_app/sales/leads': typeof AppSalesLeadsRoute
-  '/_app/sales/opportunities': typeof AppSalesOpportunitiesRoute
+  '/_app/sales/leads': typeof AppSalesLeadsRouteWithChildren
+  '/_app/sales/opportunities': typeof AppSalesOpportunitiesRouteWithChildren
   '/_app/clients/': typeof AppClientsIndexRoute
+  '/_app/sales/clients/$salesClientId': typeof AppSalesClientsSalesClientIdRoute
+  '/_app/sales/leads/$leadId': typeof AppSalesLeadsLeadIdRoute
+  '/_app/sales/opportunities/$opportunityId': typeof AppSalesOpportunitiesOpportunityIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -340,6 +369,9 @@ export interface FileRouteTypes {
     | '/sales/leads'
     | '/sales/opportunities'
     | '/clients/'
+    | '/sales/clients/$salesClientId'
+    | '/sales/leads/$leadId'
+    | '/sales/opportunities/$opportunityId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -373,6 +405,9 @@ export interface FileRouteTypes {
     | '/sales/leads'
     | '/sales/opportunities'
     | '/clients'
+    | '/sales/clients/$salesClientId'
+    | '/sales/leads/$leadId'
+    | '/sales/opportunities/$opportunityId'
   id:
     | '__root__'
     | '/'
@@ -407,6 +442,9 @@ export interface FileRouteTypes {
     | '/_app/sales/leads'
     | '/_app/sales/opportunities'
     | '/_app/clients/'
+    | '/_app/sales/clients/$salesClientId'
+    | '/_app/sales/leads/$leadId'
+    | '/_app/sales/opportunities/$opportunityId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -643,8 +681,55 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminAuditRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/sales/opportunities/$opportunityId': {
+      id: '/_app/sales/opportunities/$opportunityId'
+      path: '/$opportunityId'
+      fullPath: '/sales/opportunities/$opportunityId'
+      preLoaderRoute: typeof AppSalesOpportunitiesOpportunityIdRouteImport
+      parentRoute: typeof AppSalesOpportunitiesRoute
+    }
+    '/_app/sales/leads/$leadId': {
+      id: '/_app/sales/leads/$leadId'
+      path: '/$leadId'
+      fullPath: '/sales/leads/$leadId'
+      preLoaderRoute: typeof AppSalesLeadsLeadIdRouteImport
+      parentRoute: typeof AppSalesLeadsRoute
+    }
+    '/_app/sales/clients/$salesClientId': {
+      id: '/_app/sales/clients/$salesClientId'
+      path: '/sales/clients/$salesClientId'
+      fullPath: '/sales/clients/$salesClientId'
+      preLoaderRoute: typeof AppSalesClientsSalesClientIdRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
+
+interface AppSalesLeadsRouteChildren {
+  AppSalesLeadsLeadIdRoute: typeof AppSalesLeadsLeadIdRoute
+}
+
+const AppSalesLeadsRouteChildren: AppSalesLeadsRouteChildren = {
+  AppSalesLeadsLeadIdRoute: AppSalesLeadsLeadIdRoute,
+}
+
+const AppSalesLeadsRouteWithChildren = AppSalesLeadsRoute._addFileChildren(
+  AppSalesLeadsRouteChildren,
+)
+
+interface AppSalesOpportunitiesRouteChildren {
+  AppSalesOpportunitiesOpportunityIdRoute: typeof AppSalesOpportunitiesOpportunityIdRoute
+}
+
+const AppSalesOpportunitiesRouteChildren: AppSalesOpportunitiesRouteChildren = {
+  AppSalesOpportunitiesOpportunityIdRoute:
+    AppSalesOpportunitiesOpportunityIdRoute,
+}
+
+const AppSalesOpportunitiesRouteWithChildren =
+  AppSalesOpportunitiesRoute._addFileChildren(
+    AppSalesOpportunitiesRouteChildren,
+  )
 
 interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
@@ -671,9 +756,10 @@ interface AppRouteChildren {
   AppProvisioningSecretsRoute: typeof AppProvisioningSecretsRoute
   AppProvisioningTemplatesRoute: typeof AppProvisioningTemplatesRoute
   AppSalesConversationsRoute: typeof AppSalesConversationsRoute
-  AppSalesLeadsRoute: typeof AppSalesLeadsRoute
-  AppSalesOpportunitiesRoute: typeof AppSalesOpportunitiesRoute
+  AppSalesLeadsRoute: typeof AppSalesLeadsRouteWithChildren
+  AppSalesOpportunitiesRoute: typeof AppSalesOpportunitiesRouteWithChildren
   AppClientsIndexRoute: typeof AppClientsIndexRoute
+  AppSalesClientsSalesClientIdRoute: typeof AppSalesClientsSalesClientIdRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -701,9 +787,10 @@ const AppRouteChildren: AppRouteChildren = {
   AppProvisioningSecretsRoute: AppProvisioningSecretsRoute,
   AppProvisioningTemplatesRoute: AppProvisioningTemplatesRoute,
   AppSalesConversationsRoute: AppSalesConversationsRoute,
-  AppSalesLeadsRoute: AppSalesLeadsRoute,
-  AppSalesOpportunitiesRoute: AppSalesOpportunitiesRoute,
+  AppSalesLeadsRoute: AppSalesLeadsRouteWithChildren,
+  AppSalesOpportunitiesRoute: AppSalesOpportunitiesRouteWithChildren,
   AppClientsIndexRoute: AppClientsIndexRoute,
+  AppSalesClientsSalesClientIdRoute: AppSalesClientsSalesClientIdRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

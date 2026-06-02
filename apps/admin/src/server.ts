@@ -42,7 +42,18 @@ export default {
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
-      return await normalizeCatastrophicSsrResponse(response);
+      const normalized = await normalizeCatastrophicSsrResponse(response);
+      const g = globalThis as typeof globalThis & { __columbusSetCookie?: string };
+      const setCookie = g.__columbusSetCookie;
+      if (!setCookie) return normalized;
+      delete g.__columbusSetCookie;
+      const headers = new Headers(normalized.headers);
+      headers.append("Set-Cookie", setCookie);
+      return new Response(normalized.body, {
+        status: normalized.status,
+        statusText: normalized.statusText,
+        headers,
+      });
     } catch (error) {
       console.error(error);
       return new Response(renderErrorPage(), {

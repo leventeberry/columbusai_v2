@@ -1,14 +1,33 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageHeader } from "@/components/dashboard/page-header";
-import { leads } from "@/lib/mock/data";
+import { useSalesOpportunities } from "@/hooks/use-sales";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/_app/sales/opportunities")({
   head: () => ({ meta: [{ title: "Opportunities — Columbus AI" }] }),
-  component: () => {
-    const open = leads.filter((l) => l.stage !== "lost");
-    return (
-      <div>
-        <PageHeader title="Opportunities" subtitle={`${open.length} active opportunities worth $${(open.reduce((s, l) => s + l.value, 0) / 1000).toFixed(0)}k.`} />
+  component: OpportunitiesPage,
+});
+
+function OpportunitiesPage() {
+  const { data: opportunities, isLoading, isError } = useSalesOpportunities();
+  const open = (opportunities ?? []).filter((o) => o.stage !== "lost");
+  const totalValue = open.reduce((s, o) => s + (o.value ?? 0), 0);
+
+  return (
+    <div>
+      <PageHeader
+        title="Opportunities"
+        subtitle={
+          isLoading
+            ? "Loading…"
+            : `${open.length} active opportunities worth $${(totalValue / 1000).toFixed(0)}k.`
+        }
+      />
+      {isLoading && <Skeleton className="h-64 w-full rounded-xl" />}
+      {isError && (
+        <p className="text-sm text-destructive">Could not load opportunities from the API.</p>
+      )}
+      {!isLoading && !isError && (
         <div className="overflow-hidden rounded-xl border border-border/60 bg-card/40">
           <table className="w-full text-sm">
             <thead>
@@ -22,20 +41,35 @@ export const Route = createFileRoute("/_app/sales/opportunities")({
               </tr>
             </thead>
             <tbody className="divide-y divide-border/50">
-              {open.map((l) => (
-                <tr key={l.id} className="hover:bg-accent/30">
-                  <td className="px-4 py-3 font-medium">{l.company}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{l.contact}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{l.service}</td>
-                  <td className="px-4 py-3 capitalize">{l.stage}</td>
-                  <td className="px-4 py-3 font-mono">{l.score}</td>
-                  <td className="px-4 py-3 text-right font-mono">${l.value.toLocaleString()}</td>
+              {open.map((o) => (
+                <tr key={o.id} className="hover:bg-accent/30">
+                  <td className="px-4 py-3 font-medium">
+                    <Link
+                      to="/sales/opportunities/$opportunityId"
+                      params={{ opportunityId: o.id }}
+                      className="hover:text-primary"
+                    >
+                      {o.company}
+                    </Link>
+                  </td>
+                  <td className="px-4 py-3 text-muted-foreground">{o.contact}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{o.service}</td>
+                  <td className="px-4 py-3 capitalize">{o.stage}</td>
+                  <td className="px-4 py-3 font-mono">{o.score}</td>
+                  <td className="px-4 py-3 text-right font-mono">${o.value.toLocaleString()}</td>
                 </tr>
               ))}
+              {open.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
+                    No opportunities yet. Convert a qualified lead to get started.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
-      </div>
-    );
-  },
-});
+      )}
+    </div>
+  );
+}

@@ -1,8 +1,22 @@
-import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors, useDroppable, useDraggable, type DragEndEvent, type DragStartEvent } from "@dnd-kit/core";
-import { useState } from "react";
-import { leads as seed, type Lead, type LeadStage } from "@/lib/mock/data";
+import {
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  useDroppable,
+  useDraggable,
+  type DragEndEvent,
+  type DragStartEvent,
+} from "@dnd-kit/core";
+import { useMemo, useState } from "react";
+import { Link } from "@tanstack/react-router";
+import { useSalesPipeline, useUpdatePipelineStage } from "@/hooks/use-sales";
+import type { LeadStage, PipelineLeadCard } from "@/lib/sales-types";
+import { pipelineCardToLeadCard } from "@/lib/sales-types";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const COLUMNS: { id: LeadStage; title: string; accent: string }[] = [
   { id: "new", title: "New", accent: "bg-info/40" },
@@ -13,13 +27,24 @@ const COLUMNS: { id: LeadStage; title: string; accent: string }[] = [
   { id: "lost", title: "Lost", accent: "bg-destructive/40" },
 ];
 
-function LeadCard({ lead, dragging }: { lead: Lead; dragging?: boolean }) {
+function LeadCard({ lead, dragging }: { lead: PipelineLeadCard; dragging?: boolean }) {
   const scoreTone =
     lead.score >= 85 ? "text-success" : lead.score >= 70 ? "text-warning" : "text-muted-foreground";
+  const detailTo =
+    lead.entityType === "opportunity"
+      ? "/sales/opportunities/$opportunityId"
+      : "/sales/leads/$leadId";
+  const detailParams =
+    lead.entityType === "opportunity"
+      ? { opportunityId: lead.id }
+      : { leadId: lead.id };
+
   return (
-    <div
+    <Link
+      to={detailTo}
+      params={detailParams}
       className={cn(
-        "rounded-lg border border-border/60 bg-card/80 p-3 text-sm shadow-card transition-colors hover:border-primary/40",
+        "block rounded-lg border border-border/60 bg-card/80 p-3 text-sm shadow-card transition-colors hover:border-primary/40",
         dragging && "rotate-1 ring-1 ring-primary/40",
       )}
     >
@@ -30,17 +55,17 @@ function LeadCard({ lead, dragging }: { lead: Lead; dragging?: boolean }) {
       <div className="mt-0.5 text-xs text-muted-foreground">{lead.contact}</div>
       <div className="mt-2 flex items-center justify-between">
         <Badge variant="outline" className="border-border/60 bg-background/40 text-[10px] font-normal">
-          {lead.service}
+          {lead.service.length > 28 ? `${lead.service.slice(0, 28)}…` : lead.service}
         </Badge>
         <span className="font-mono text-xs text-foreground/90">
           ${(lead.value / 1000).toFixed(0)}k
         </span>
       </div>
-    </div>
+    </Link>
   );
 }
 
-function DraggableLead({ lead }: { lead: Lead }) {
+function DraggableLead({ lead }: { lead: PipelineLeadCard }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: lead.id });
   return (
     <div
@@ -59,7 +84,7 @@ function Column({
   leads,
 }: {
   col: (typeof COLUMNS)[number];
-  leads: Lead[];
+  leads: PipelineLeadCard[];
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: col.id });
   const total = leads.reduce((s, l) => s + l.value, 0);
@@ -81,7 +106,7 @@ function Column({
       </div>
       <div className="flex flex-1 flex-col gap-2 p-2">
         {leads.map((l) => (
-          <DraggableLead key={l.id} lead={l} />
+          <DraggableLead key={`${l.entityType}-${l.id}`} lead={l} />
         ))}
         {leads.length === 0 && (
           <div className="grid h-16 place-items-center rounded-md border border-dashed border-border/50 text-xs text-muted-foreground">
@@ -94,18 +119,48 @@ function Column({
 }
 
 export function LeadPipeline() {
-  const [items, setItems] = useState<Lead[]>(seed);
-  const [active, setActive] = useState<Lead | null>(null);
+  const { data: cards, isLoading, isError } = useSalesPipeline();
+  const updateStage = useUpdatePipelineStage();
+  const items = useMemo(
+    () => (cards ?? []).map(pipelineCardToLeadCard),
+    [cards],
+  );
+  const [active, setActive] = useState<PipelineLeadCard | null>(null);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
   function onDragStart(e: DragStartEvent) {
     setActive(items.find((i) => i.id === e.active.id) ?? null);
   }
+
   function onDragEnd(e: DragEndEvent) {
     setActive(null);
     const over = e.over?.id as LeadStage | undefined;
     if (!over) return;
-    setItems((prev) => prev.map((l) => (l.id === e.active.id ? { ...l, stage: over } : l)));
+    const card = items.find((i) => i.id === e.active.id);
+    if (!card || card.stage === over) return;
+    updateStage.mutate({
+      id: card.id,
+      pipelineStage: over,
+      entityType: card.entityType,
+    });
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex gap-3 overflow-x-auto pb-1">
+        {COLUMNS.map((c) => (
+          <Skeleton key={c.id} className="h-64 w-72 shrink-0 rounded-xl" />
+        ))}
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <p className="text-sm text-destructive">
+        Could not load pipeline. Check API connectivity and ADMIN_API_TOKEN.
+      </p>
+    );
   }
 
   return (

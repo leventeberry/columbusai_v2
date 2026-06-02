@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import type { Session, User } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
+import { authLogin, authLogout, authMe, type AuthMeUser } from "@/lib/auth.functions";
 
 export type AppRole = "admin" | "member" | "viewer";
 
@@ -15,8 +14,7 @@ export interface Profile {
 export interface AuthState {
   isLoading: boolean;
   isAuthenticated: boolean;
-  user: User | null;
-  session: Session | null;
+  user: { id: string; email: string } | null;
   profile: Profile | null;
   roles: AppRole[];
   hasRole: (role: AppRole) => boolean;
@@ -30,56 +28,34 @@ export interface AuthState {
 
 const AuthContext = createContext<AuthState | undefined>(undefined);
 
-async function loadUserData(userId: string): Promise<{ profile: Profile | null; roles: AppRole[] }> {
-  const [{ data: profile }, { data: rolesRows }] = await Promise.all([
-    supabase.from("profiles").select("id, email, display_name, avatar_url, job_title").eq("id", userId).maybeSingle(),
-    supabase.from("user_roles").select("role").eq("user_id", userId),
-  ]);
+function userToProfile(user: AuthMeUser): Profile {
   return {
-    profile: (profile as Profile | null) ?? null,
-    roles: (rolesRows ?? []).map((r) => r.role as AppRole),
+    id: user.id,
+    email: user.email,
+    display_name: user.display_name,
+    avatar_url: user.avatar_url,
+    job_title: user.job_title,
   };
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
-  const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const loadMe = async () => {
+    const me = await authMe();
+    if (!me) {
+      setProfile(null);
+      setRoles([]);
+      return;
+    }
+    setProfile(userToProfile(me.user));
+    setRoles(me.user.roles);
+  };
+
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
-      setSession(newSession);
-      setUser(newSession?.user ?? null);
-      if (newSession?.user) {
-        setTimeout(() => {
-          loadUserData(newSession.user.id).then(({ profile, roles }) => {
-            setProfile(profile);
-            setRoles(roles);
-          });
-        }, 0);
-      } else {
-        setProfile(null);
-        setRoles([]);
-      }
-    });
-
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setUser(data.session?.user ?? null);
-      if (data.session?.user) {
-        loadUserData(data.session.user.id).then(({ profile, roles }) => {
-          setProfile(profile);
-          setRoles(roles);
-          setIsLoading(false);
-        });
-      } else {
-        setIsLoading(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    loadMe().finally(() => setIsLoading(false));
   }, []);
 
   const hasRole = (role: AppRole) => roles.includes(role);
@@ -87,39 +63,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const value: AuthState = {
     isLoading,
-    isAuthenticated: !!session,
-    user,
-    session,
+    isAuthenticated: !!profile,
+    user: profile ? { id: profile.id, email: profile.email } : null,
     profile,
     roles,
     hasRole,
     hasAnyRole,
     canMutate: hasAnyRole(["admin", "member"]),
     signIn: async (email, password) => {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      return { error: error?.message ?? null };
-    },
-    signUp: async (email, password, displayName) => {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`,
-          data: displayName ? { display_name: displayName } : undefined,
-        },
-      });
-      return { error: error?.message ?? null };
-    },
-    signOut: async () => {
-      await supabase.auth.signOut();
-    },
-    refresh: async () => {
-      if (user) {
-        const { profile, roles } = await loadUserData(user.id);
-        setProfile(profile);
-        setRoles(roles);
+      try {
+        const result = await authLogin({ data: { email, password } });
+        setProfile(userToProfile(result.user));
+        setRoles(result.roles);
+        return { error: null };
+      } catch (e) {
+        return { error: e instanceof Error ? e.message : "Login failed" };
       }
     },
+    signUp: async () => ({
+      error: "Sign up is disabled. Ask an admin to invite you from Team settings.",
+    }),
+    signOut: async () => {
+      await authLogout();
+      setProfile(null);
+      setRoles([]);
+    },
+    refresh: loadMe,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
