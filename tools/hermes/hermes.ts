@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { config as loadEnv } from "dotenv";
+import { loadEnvFile } from "../../scripts/env/load-env-file.js";
 import { Agent, CursorAgentError } from "@cursor/sdk";
 import { parseFlags, getHermesPaths } from "./config";
 import { appendNdjson, ensureDir } from "./logger";
@@ -45,7 +45,7 @@ async function main() {
 
   const flags = parseFlags(args);
   const cwd = process.cwd();
-  loadEnv({ path: path.join(cwd, ".env") });
+  loadEnvFile("local");
   const paths = getHermesPaths(cwd);
   ensureDir(paths.stateDir);
 

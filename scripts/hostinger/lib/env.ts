@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { config as loadEnv } from "dotenv";
+import { loadEnvFile, resolveEnvProfile } from "../../env/load-env-file.js";
 
 export const DEFAULT_VPS_IP = "147.93.113.58";
 export const DEFAULT_DOMAIN = "columbusai.tech";
@@ -56,9 +56,9 @@ function normalizeApiToken(raw: string): string {
   return token;
 }
 
-/** Load repo-root .env and return Hostinger automation settings. */
+/** Load repo-root .env.production (or COLUMBUS_ENV) and return Hostinger automation settings. */
 export function loadHostingerEnv(): HostingerEnv {
-  loadEnv({ path: path.join(process.cwd(), ".env") });
+  loadEnvFile(resolveEnvProfile());
 
   return {
     apiToken: normalizeApiToken(requireVar("HOSTINGER_API_TOKEN")),

@@ -1,8 +1,8 @@
-# Production stack — single VPS, Traefik TLS, Columbus AI v2 apps.
+# Staging stack — single VPS, Traefik TLS, Columbus AI v2 apps.
 # From repo root:
-#   docker compose --env-file .env.production -f infra/docker/compose.prod.yml up -d --build
+#   docker compose --env-file .env.staging -f infra/docker/compose.staging.yml up -d --build
 #
-# Required in .env.production: DOMAIN, ACME_EMAIL, POSTGRES_PASSWORD, OPENAI_API_KEY,
+# Required in .env.staging: DOMAIN, ACME_EMAIL, POSTGRES_PASSWORD, OPENAI_API_KEY,
 #   CORS_ORIGIN, VITE_API_URL (build arg), SESSION_SECRET, ADMIN_API_TOKEN (optional).
 # Compose overrides: DATABASE_URL, internal n8n webhooks, NODE_ENV, API_URL for portal/admin.
 
@@ -10,7 +10,7 @@ services:
   traefik:
     image: traefik:v3.6.6
     environment:
-      ACME_EMAIL: ${ACME_EMAIL:-admin@columbusai.tech}
+      ACME_EMAIL: ${ACME_EMAIL:-admin@staging.columbusai.tech}
     entrypoint: ["/bin/sh", "/etc/traefik/entrypoint.sh"]
     ports:
       - "80:80"
@@ -22,22 +22,22 @@ services:
         read_only: true
       - ../traefik/traefik.yml.tpl:/etc/traefik/traefik.yml.tpl:ro
       - ../traefik/entrypoint.sh:/etc/traefik/entrypoint.sh:ro
-      - columbus_prod_traefik_acme:/acme
+      - columbus_staging_traefik_acme:/acme
     networks:
-      - columbus-prod
+      - columbus-staging
     restart: unless-stopped
 
   redis:
     image: redis:7-alpine
     volumes:
-      - columbus_prod_redis_data:/data
+      - columbus_staging_redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
       retries: 5
     networks:
-      - columbus-prod
+      - columbus-staging
     restart: unless-stopped
 
   postgres:
@@ -47,7 +47,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-columbus}
       POSTGRES_DB: columbus
     volumes:
-      - columbus_prod_pgdata:/var/lib/postgresql/data
+      - columbus_staging_pgdata:/var/lib/postgresql/data
       - ./init-databases.sh:/docker-entrypoint-initdb.d/01-init-databases.sh:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U columbus"]
@@ -55,7 +55,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - columbus-prod
+      - columbus-staging
     restart: unless-stopped
 
   ensure-databases:
@@ -71,7 +71,7 @@ services:
       postgres:
         condition: service_healthy
     networks:
-      - columbus-prod
+      - columbus-staging
     restart: "no"
 
   migrate:
@@ -84,16 +84,16 @@ services:
       ensure-databases:
         condition: service_completed_successfully
     networks:
-      - columbus-prod
+      - columbus-staging
     restart: "no"
 
   n8n:
     image: n8nio/n8n:latest
     environment:
-      N8N_HOST: n8n.${DOMAIN:-columbusai.tech}
+      N8N_HOST: n8n.${DOMAIN:-staging.columbusai.tech}
       N8N_PORT: "5678"
       N8N_PROTOCOL: https
-      WEBHOOK_URL: https://n8n.${DOMAIN:-columbusai.tech}/
+      WEBHOOK_URL: https://n8n.${DOMAIN:-staging.columbusai.tech}/
       N8N_SECURE_COOKIE: "true"
       N8N_BASIC_AUTH_ACTIVE: ${N8N_BASIC_AUTH_ACTIVE:-true}
       N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER:-admin}
@@ -101,8 +101,8 @@ services:
       GENERIC_TIMEZONE: ${GENERIC_TIMEZONE:-America/New_York}
       COLUMBUS_API_URL: http://api:4000
       ADMIN_API_TOKEN: ${ADMIN_API_TOKEN:-}
-      FOLLOWUP_WAIT_1_MINUTES: ${FOLLOWUP_WAIT_1_MINUTES:-1440}
-      FOLLOWUP_WAIT_2_MINUTES: ${FOLLOWUP_WAIT_2_MINUTES:-2880}
+      FOLLOWUP_WAIT_1_MINUTES: ${FOLLOWUP_WAIT_1_MINUTES:-60}
+      FOLLOWUP_WAIT_2_MINUTES: ${FOLLOWUP_WAIT_2_MINUTES:-120}
       DB_TYPE: postgresdb
       DB_POSTGRESDB_HOST: postgres
       DB_POSTGRESDB_PORT: "5432"
@@ -110,16 +110,16 @@ services:
       DB_POSTGRESDB_USER: columbus
       DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD:-columbus}
     volumes:
-      - n8n_prod_data:/home/node/.n8n
+      - n8n_staging_data:/home/node/.n8n
     depends_on:
       ensure-databases:
         condition: service_completed_successfully
     networks:
-      - columbus-prod
+      - columbus-staging
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.n8n.rule=Host(`n8n.${DOMAIN:-columbusai.tech}`)"
+      - "traefik.http.routers.n8n.rule=Host(`n8n.${DOMAIN:-staging.columbusai.tech}`)"
       - "traefik.http.routers.n8n.entrypoints=websecure"
       - "traefik.http.routers.n8n.tls=true"
       - "traefik.http.routers.n8n.tls.certresolver=letsencrypt"
@@ -130,14 +130,14 @@ services:
       context: ../..
       dockerfile: apps/api/Dockerfile
     env_file:
-      - ../../.env.production
+      - ../../.env.staging
     environment:
       NODE_ENV: production
       PORT: "4000"
       DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres:5432/columbus
       VECTOR_DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres:5432/columbus_vectors
       REDIS_URL: redis://redis:6379
-      CORS_ORIGIN: ${CORS_ORIGIN:-https://columbusai.tech,https://www.columbusai.tech,https://admin.columbusai.tech,https://portal.columbusai.tech}
+      CORS_ORIGIN: ${CORS_ORIGIN:-https://staging.columbusai.tech,https://www.staging.columbusai.tech,https://admin.staging.columbusai.tech,https://portal.staging.columbusai.tech}
       SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET must be set in production}
       N8N_DEMO_WEBHOOK_URL: http://n8n:5678/webhook/f7ceff32-3922-4ac8-a522-2b83995e5f04
       N8N_DEMO_FOLLOWUP_WEBHOOK_URL: http://n8n:5678/webhook/demo-follow-up
@@ -158,11 +158,11 @@ services:
       retries: 3
       start_period: 15s
     networks:
-      - columbus-prod
+      - columbus-staging
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.api.rule=Host(`api.${DOMAIN:-columbusai.tech}`)"
+      - "traefik.http.routers.api.rule=Host(`api.${DOMAIN:-staging.columbusai.tech}`)"
       - "traefik.http.routers.api.entrypoints=websecure"
       - "traefik.http.routers.api.tls=true"
       - "traefik.http.routers.api.tls.certresolver=letsencrypt"
@@ -174,12 +174,12 @@ services:
       dockerfile: apps/marketing/Dockerfile
       target: runtime
       args:
-        VITE_API_URL: ${VITE_API_URL:-https://api.columbusai.tech}
-        VITE_CONTACT_EMAIL: ${VITE_CONTACT_EMAIL:-contact@columbusai.tech}
+        VITE_API_URL: ${VITE_API_URL:-https://api.staging.columbusai.tech}
+        VITE_CONTACT_EMAIL: ${VITE_CONTACT_EMAIL:-contact@staging.columbusai.tech}
         VITE_BOOKING_LINK: ${BOOKING_LINK:-https://cal.com/columbus-ai/30min}
         VITE_CHAT_TITLE: ${VITE_CHAT_TITLE:-Chexi AI}
         VITE_CHAT_WELCOME: ${VITE_CHAT_WELCOME:-I'm Chexi, your Columbus AI assistant. Ask me anything!}
-        VITE_ADMIN_URL: ${VITE_ADMIN_URL:-https://admin.${DOMAIN:-columbusai.tech}}
+        VITE_ADMIN_URL: ${VITE_ADMIN_URL:-https://admin.${DOMAIN:-staging.columbusai.tech}}
     environment:
       NODE_ENV: production
       PORT: "3000"
@@ -187,23 +187,23 @@ services:
       api:
         condition: service_healthy
     networks:
-      - columbus-prod
+      - columbus-staging
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.marketing.rule=Host(`${DOMAIN:-columbusai.tech}`)"
+      - "traefik.http.routers.marketing.rule=Host(`${DOMAIN:-staging.columbusai.tech}`)"
       - "traefik.http.routers.marketing.entrypoints=websecure"
       - "traefik.http.routers.marketing.tls=true"
       - "traefik.http.routers.marketing.tls.certresolver=letsencrypt"
       - "traefik.http.services.marketing.loadbalancer.server.port=3000"
-      - "traefik.http.routers.marketing-www.rule=Host(`www.${DOMAIN:-columbusai.tech}`)"
+      - "traefik.http.routers.marketing-www.rule=Host(`www.${DOMAIN:-staging.columbusai.tech}`)"
       - "traefik.http.routers.marketing-www.entrypoints=websecure"
       - "traefik.http.routers.marketing-www.tls=true"
       - "traefik.http.routers.marketing-www.tls.certresolver=letsencrypt"
       - "traefik.http.routers.marketing-www.middlewares=marketing-www-to-apex"
       - "traefik.http.routers.marketing-www.service=marketing"
-      - "traefik.http.middlewares.marketing-www-to-apex.redirectregex.regex=^https://www\\.${DOMAIN:-columbusai.tech}/(.*)"
-      - "traefik.http.middlewares.marketing-www-to-apex.redirectregex.replacement=https://${DOMAIN:-columbusai.tech}/$${1}"
+      - "traefik.http.middlewares.marketing-www-to-apex.redirectregex.regex=^https://www\\.${DOMAIN:-staging.columbusai.tech}/(.*)"
+      - "traefik.http.middlewares.marketing-www-to-apex.redirectregex.replacement=https://${DOMAIN:-staging.columbusai.tech}/$${1}"
       - "traefik.http.middlewares.marketing-www-to-apex.redirectregex.permanent=true"
 
   admin:
@@ -212,7 +212,7 @@ services:
       dockerfile: apps/admin/Dockerfile
       target: runtime
     env_file:
-      - ../../.env.production
+      - ../../.env.staging
     environment:
       NODE_ENV: production
       PORT: "3002"
@@ -222,11 +222,11 @@ services:
       api:
         condition: service_healthy
     networks:
-      - columbus-prod
+      - columbus-staging
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.admin.rule=Host(`admin.${DOMAIN:-columbusai.tech}`)"
+      - "traefik.http.routers.admin.rule=Host(`admin.${DOMAIN:-staging.columbusai.tech}`)"
       - "traefik.http.routers.admin.entrypoints=websecure"
       - "traefik.http.routers.admin.tls=true"
       - "traefik.http.routers.admin.tls.certresolver=letsencrypt"
@@ -238,7 +238,7 @@ services:
       dockerfile: apps/portal/Dockerfile
       target: runtime
     env_file:
-      - ../../.env.production
+      - ../../.env.staging
     environment:
       NODE_ENV: production
       PORT: "3001"
@@ -247,11 +247,11 @@ services:
       api:
         condition: service_healthy
     networks:
-      - columbus-prod
+      - columbus-staging
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.portal.rule=Host(`portal.${DOMAIN:-columbusai.tech}`)"
+      - "traefik.http.routers.portal.rule=Host(`portal.${DOMAIN:-staging.columbusai.tech}`)"
       - "traefik.http.routers.portal.entrypoints=websecure"
       - "traefik.http.routers.portal.tls=true"
       - "traefik.http.routers.portal.tls.certresolver=letsencrypt"
@@ -265,13 +265,13 @@ services:
       context: ../..
       dockerfile: apps/web/Dockerfile
     env_file:
-      - ../../.env.production
+      - ../../.env.staging
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres:5432/columbus
       VECTOR_DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres:5432/columbus_vectors
       REDIS_URL: redis://redis:6379
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://api.columbusai.tech}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://api.staging.columbusai.tech}
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -286,22 +286,22 @@ services:
       retries: 3
       start_period: 30s
     networks:
-      - columbus-prod
+      - columbus-staging
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.web-legacy.rule=Host(`app.${DOMAIN:-columbusai.tech}`)"
+      - "traefik.http.routers.web-legacy.rule=Host(`app.${DOMAIN:-staging.columbusai.tech}`)"
       - "traefik.http.routers.web-legacy.entrypoints=websecure"
       - "traefik.http.routers.web-legacy.tls=true"
       - "traefik.http.routers.web-legacy.tls.certresolver=letsencrypt"
       - "traefik.http.services.web-legacy.loadbalancer.server.port=3000"
 
 networks:
-  columbus-prod:
-    name: columbus-prod
+  columbus-staging:
+    name: columbus-staging
 
 volumes:
-  columbus_prod_pgdata:
-  columbus_prod_redis_data:
-  columbus_prod_traefik_acme:
-  n8n_prod_data:
+  columbus_staging_pgdata:
+  columbus_staging_redis_data:
+  columbus_staging_traefik_acme:
+  n8n_staging_data:

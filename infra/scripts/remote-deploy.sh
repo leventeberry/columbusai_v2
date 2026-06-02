@@ -27,14 +27,15 @@ fi
 
 cd "$ROOT"
 
-if [[ ! -f .env ]]; then
-  echo "Missing .env in $ROOT"
+ENV_FILE="${ENV_FILE:-.env.production}"
+if [[ ! -f "$ENV_FILE" ]]; then
+  echo "Missing $ENV_FILE in $ROOT (copy from .env.production.example)"
   exit 1
 fi
 
-# VPS_HOST from env, or HOSTINGER_VPS_IP in .env, or default prod IP
-if [[ -z "${VPS_HOST:-}" ]] && [[ -f .env ]]; then
-  VPS_HOST="$(grep -E '^HOSTINGER_VPS_IP=' .env | head -1 | cut -d= -f2- | tr -d '\r' | xargs || true)"
+# VPS_HOST from env, or HOSTINGER_VPS_IP in .env.production, or default prod IP
+if [[ -z "${VPS_HOST:-}" ]]; then
+  VPS_HOST="$(grep -E '^HOSTINGER_VPS_IP=' "$ENV_FILE" | head -1 | cut -d= -f2- | tr -d '\r' | xargs || true)"
 fi
 VPS_HOST="${VPS_HOST:-147.93.113.58}"
 
@@ -96,11 +97,11 @@ rsync -az --delete -e "${RSYNC_SSH}" \
   --exclude .next \
   "$ROOT/" "${RSYNC_TARGET}:${REPO_DIR}/"
 
-echo "==> Copy .env"
-scp "${SSH_OPTS[@]}" "$ROOT/.env" "${RSYNC_TARGET}:${REPO_DIR}/.env"
+echo "==> Copy ${ENV_FILE}"
+scp "${SSH_OPTS[@]}" "$ROOT/${ENV_FILE}" "${RSYNC_TARGET}:${REPO_DIR}/${ENV_FILE}"
 
 echo "==> Start production stack"
-ssh "${SSH_OPTS[@]}" "${SSH_TARGET}" "cd ${REPO_DIR} && docker compose -f infra/docker/compose.prod.yml up -d --build"
+ssh "${SSH_OPTS[@]}" "${SSH_TARGET}" "cd ${REPO_DIR} && docker compose --env-file ${ENV_FILE} -f infra/docker/compose.prod.yml up -d --build"
 
 echo "==> Done. Verify:"
 echo "  curl -sf https://api.columbusai.tech/api/health"

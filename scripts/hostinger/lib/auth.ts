@@ -33,15 +33,15 @@ export async function assertHostingerApiAuth(env: HostingerEnv): Promise<void> {
       console.error(`Correlation ID (for Hostinger support): ${correlationId}`);
     }
     console.error("");
-    console.error("Your token is present in .env but Hostinger rejected it. Common causes:");
+    console.error("Your token is present in .env.production but Hostinger rejected it. Common causes:");
     console.error("  • Token was deleted or expired in hPanel");
     console.error("  • Token copied from a different Hostinger account");
-    console.error("  • Old token left in .env after creating a new one");
+    console.error("  • Old token left in .env.production after creating a new one");
     console.error("");
     console.error("Fix:");
     console.error("  1. Open https://hpanel.hostinger.com/profile/api");
     console.error("  2. Create a new API token (copy it immediately — shown once)");
-    console.error("  3. Set HOSTINGER_API_TOKEN=<paste> in repo-root .env (no quotes, no Bearer prefix)");
+    console.error("  3. Set HOSTINGER_API_TOKEN=<paste> in repo-root .env.production (no quotes, no Bearer prefix)");
     console.error("  4. Run: npm run hostinger:check-auth");
     process.exit(1);
   }

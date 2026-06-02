@@ -39,6 +39,6 @@ fi
 
 echo "==> Create app directory"
 mkdir -p /opt/columbusai_v2
-echo "Clone your repo into /opt/columbusai_v2, copy .env, then: cd /opt/columbusai_v2 && make up-prod"
+echo "Clone your repo into /opt/columbusai_v2, copy .env.production, then: cd /opt/columbusai_v2 && make up-prod"
 
-echo "==> Done. Next: DNS A records → this IP, .env on VPS, make up-prod"
+echo "==> Done. Next: DNS A records → this IP, .env.production on VPS, make up-prod"

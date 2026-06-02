@@ -1,5 +1,4 @@
-import path from "node:path";
-import { config as loadEnv } from "dotenv";
+import { loadEnvFile, resolveEnvProfile } from "../../env/load-env-file.js";
 
 /** Keys passed to Hostinger Docker Manager `environment` (max ~8KB total). */
 export const DOCKER_ENV_ALLOWLIST = [
@@ -17,7 +16,9 @@ export const DOCKER_ENV_ALLOWLIST = [
   "VITE_BOOKING_LINK",
   "VITE_CHAT_TITLE",
   "VITE_CHAT_WELCOME",
+  "VITE_ADMIN_URL",
   "SESSION_SECRET",
+  "SEED_ADMIN_PASSWORD",
   "SEED_ADMIN_EMAIL",
   "ADMIN_API_TOKEN",
   "N8N_BASIC_AUTH_ACTIVE",
@@ -34,7 +35,7 @@ export const DOCKER_ENV_ALLOWLIST = [
 const MAX_ENV_BYTES = 8192;
 
 export function buildDockerEnvironmentString(): string {
-  loadEnv({ path: path.join(process.cwd(), ".env") });
+  loadEnvFile(resolveEnvProfile());
 
   const lines: string[] = [];
   for (const key of DOCKER_ENV_ALLOWLIST) {
@@ -47,14 +48,14 @@ export function buildDockerEnvironmentString(): string {
   const body = lines.join("\n");
   if (body.length > MAX_ENV_BYTES) {
     throw new Error(
-      `Docker environment string is ${body.length} bytes (max ${MAX_ENV_BYTES}). Remove unused keys from .env or shorten values.`
+      `Docker environment string is ${body.length} bytes (max ${MAX_ENV_BYTES}). Remove unused keys from .env.production or shorten values.`
     );
   }
   if (!process.env.POSTGRES_PASSWORD?.trim()) {
-    console.warn("Warning: POSTGRES_PASSWORD not set in .env");
+    console.warn("Warning: POSTGRES_PASSWORD not set in .env.production");
   }
   if (!process.env.OPENAI_API_KEY?.trim()) {
-    console.warn("Warning: OPENAI_API_KEY not set in .env");
+    console.warn("Warning: OPENAI_API_KEY not set in .env.production");
   }
   return body;
 }

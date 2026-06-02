@@ -30,15 +30,15 @@ Run these commands from your laptop (with SSH access to ${env.vpsIp}):
   # 1) Bootstrap Docker on the VPS (once)
   ssh root@${env.vpsIp} 'bash -s' < infra/scripts/vps-bootstrap.sh
 
-  # 2) Copy repo + .env
+  # 2) Copy repo + .env.production
   rsync -az --exclude node_modules --exclude .git ./ root@${env.vpsIp}:${repoDir}/
-  scp .env root@${env.vpsIp}:${repoDir}/.env
+  scp .env.production root@${env.vpsIp}:${repoDir}/.env.production
 
   # 3) Start production stack
-  ssh root@${env.vpsIp} 'cd ${repoDir} && docker compose -f infra/docker/compose.prod.yml up -d --build'
+  ssh root@${env.vpsIp} 'cd ${repoDir} && docker compose --env-file .env.production -f infra/docker/compose.prod.yml up -d --build'
 
   # 4) Push demo workflow (after n8n is up)
-  # Set N8N_API_URL=https://n8n.columbusai.tech and N8N_API_KEY in .env first
+  # Set N8N_API_URL and N8N_API_KEY in .env.production (COLUMBUS_ENV=production pnpm n8n:push:demo)
   npm run n8n:push:demo && npm run n8n:activate:demo
 
   # 5) Verify
