@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import { routeParam } from "../../lib/route-params.js";
 import * as sales from "../../lib/sales/repository.js";
 
 export async function getSalesClients(_req: Request, res: Response): Promise<void> {
@@ -7,7 +8,7 @@ export async function getSalesClients(_req: Request, res: Response): Promise<voi
 }
 
 export async function getSalesClient(req: Request, res: Response): Promise<void> {
-  const client = await sales.getSalesClientById(req.params.id);
+  const client = await sales.getSalesClientById(routeParam(req.params.id));
   if (!client) {
     res.status(404).json({ error: "Sales client not found" });
     return;

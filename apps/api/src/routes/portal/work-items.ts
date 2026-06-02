@@ -1,6 +1,7 @@
 import type { Response } from "express";
 import { z } from "zod";
 import { prisma } from "../../lib/prisma.js";
+import { routeParam } from "../../lib/route-params.js";
 import type { RequestWithAuth } from "../../middleware/requireSession.js";
 import {
   allowedClientIds,
@@ -41,7 +42,7 @@ export async function getPortalWorkItems(req: RequestWithAuth, res: Response): P
 }
 
 export async function getPortalWorkItem(req: RequestWithAuth, res: Response): Promise<void> {
-  const id = req.params.id;
+  const id = routeParam(req.params.id);
   const item = await prisma.portalWorkItem.findUnique({ where: { id } });
   if (!item) {
     res.status(404).json({ error: "Not found" });
@@ -164,7 +165,7 @@ export async function patchPortalWorkItem(req: RequestWithAuth, res: Response): 
     return;
   }
 
-  const id = req.params.id;
+  const id = routeParam(req.params.id);
   const existing = await prisma.portalWorkItem.findUnique({ where: { id } });
   if (!existing) {
     res.status(404).json({ error: "Not found" });
@@ -243,7 +244,7 @@ export async function postPortalWorkComment(req: RequestWithAuth, res: Response)
     return;
   }
 
-  const id = req.params.id;
+  const id = routeParam(req.params.id);
   const existing = await prisma.portalWorkItem.findUnique({ where: { id } });
   if (!existing) {
     res.status(404).json({ error: "Not found" });

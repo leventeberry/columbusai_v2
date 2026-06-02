@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import { SalesLeadStatus } from "@columbusai/db";
+import { routeParam } from "../../lib/route-params.js";
 import { z } from "zod";
 import * as sales from "../../lib/sales/repository.js";
 
@@ -11,7 +12,7 @@ export async function getLeads(_req: Request, res: Response): Promise<void> {
 }
 
 export async function getLead(req: Request, res: Response): Promise<void> {
-  const lead = await sales.getLeadById(req.params.id);
+  const lead = await sales.getLeadById(routeParam(req.params.id));
   if (!lead) {
     res.status(404).json({ error: "Lead not found" });
     return;
@@ -32,9 +33,10 @@ export async function patchLeadStatus(req: Request, res: Response): Promise<void
     return;
   }
 
+  const id = routeParam(req.params.id);
   const result = body.data.pipelineStage
-    ? await sales.updateLeadPipelineStage(req.params.id, body.data.pipelineStage)
-    : await sales.updateLeadStatus(req.params.id, body.data.status!);
+    ? await sales.updateLeadPipelineStage(id, body.data.pipelineStage)
+    : await sales.updateLeadStatus(id, body.data.status!);
 
   if (!result) {
     res.status(404).json({ error: "Lead not found" });
@@ -54,7 +56,7 @@ export async function postConvertLead(req: Request, res: Response): Promise<void
     res.status(400).json({ error: "Invalid body" });
     return;
   }
-  const opportunity = await sales.convertLeadToOpportunity(req.params.id, {
+  const opportunity = await sales.convertLeadToOpportunity(routeParam(req.params.id), {
     stage: body.data.stage,
     estimatedValue: body.data.estimatedValue,
   });

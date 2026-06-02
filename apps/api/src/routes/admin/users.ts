@@ -1,4 +1,5 @@
 import type { Response } from "express";
+import { routeParam } from "../../lib/route-params.js";
 import { z } from "zod";
 import { AppUserRole } from "@columbusai/db";
 import { prisma } from "../../lib/prisma.js";
@@ -85,7 +86,7 @@ export async function postAdminUsers(req: RequestWithAuth, res: Response): Promi
 }
 
 export async function patchAdminUserRole(req: RequestWithAuth, res: Response): Promise<void> {
-  const userId = req.params.id;
+  const userId = routeParam(req.params.id);
   const parsed = roleSchema.safeParse(req.body);
   if (!parsed.success || !userId) {
     res.status(400).json({ error: "Invalid input" });
@@ -121,7 +122,7 @@ export async function patchAdminUserRole(req: RequestWithAuth, res: Response): P
 }
 
 export async function deleteAdminUser(req: RequestWithAuth, res: Response): Promise<void> {
-  const userId = req.params.id;
+  const userId = routeParam(req.params.id);
   if (!userId) {
     res.status(400).json({ error: "Invalid user id" });
     return;

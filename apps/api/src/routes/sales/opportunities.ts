@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import { SalesOpportunityStage } from "@columbusai/db";
+import { routeParam } from "../../lib/route-params.js";
 import { z } from "zod";
 import * as sales from "../../lib/sales/repository.js";
 
@@ -11,7 +12,7 @@ export async function getOpportunities(_req: Request, res: Response): Promise<vo
 }
 
 export async function getOpportunity(req: Request, res: Response): Promise<void> {
-  const opportunity = await sales.getOpportunityById(req.params.id);
+  const opportunity = await sales.getOpportunityById(routeParam(req.params.id));
   if (!opportunity) {
     res.status(404).json({ error: "Opportunity not found" });
     return;
@@ -36,7 +37,7 @@ export async function patchOpportunity(req: Request, res: Response): Promise<voi
     return;
   }
   const stage = body.data.stage ?? body.data.pipelineStage;
-  const opportunity = await sales.updateOpportunity(req.params.id, {
+  const opportunity = await sales.updateOpportunity(routeParam(req.params.id), {
     stage,
     title: body.data.title,
     estimatedValue: body.data.estimatedValue,
@@ -52,7 +53,7 @@ export async function patchOpportunity(req: Request, res: Response): Promise<voi
 }
 
 export async function postConvertOpportunity(req: Request, res: Response): Promise<void> {
-  const client = await sales.convertOpportunityToClient(req.params.id);
+  const client = await sales.convertOpportunityToClient(routeParam(req.params.id));
   if (!client) {
     res.status(404).json({ error: "Opportunity not found" });
     return;
