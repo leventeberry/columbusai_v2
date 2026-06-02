@@ -8,8 +8,7 @@ export const Route = createFileRoute("/unsubscribe/$token")({
       { title: "Unsubscribed — Columbus AI" },
       {
         name: "description",
-        content:
-          "You have been unsubscribed from Columbus AI Automation Solutions communications.",
+        content: "You have been unsubscribed from Columbus AI Automation Solutions communications.",
       },
     ],
   }),
@@ -27,14 +26,11 @@ function UnsubscribePage() {
           You are now unsubscribed!
         </h1>
         <p className="text-muted-foreground">
-          You will no longer receive marketing emails from Columbus AI Automation
-          Solutions. If you change your mind, you can contact us anytime.
+          You will no longer receive marketing emails from Columbus AI Automation Solutions. If you
+          change your mind, you can contact us anytime.
         </p>
         <p>
-          <Link
-            to="/"
-            className="text-sm text-foreground underline-offset-4 hover:underline"
-          >
+          <Link to="/" className="text-sm text-foreground underline-offset-4 hover:underline">
             ← Back to home
           </Link>
         </p>

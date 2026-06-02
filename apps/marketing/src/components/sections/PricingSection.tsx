@@ -7,19 +7,39 @@ const tiers = [
   {
     name: "Launch",
     desc: "For businesses starting with a website and simple automation.",
-    features: ["Website hosting", "Lead capture", "Basic analytics", "1–2 automations", "Monthly support"],
+    features: [
+      "Website hosting",
+      "Lead capture",
+      "Basic analytics",
+      "1–2 automations",
+      "Monthly support",
+    ],
     featured: false,
   },
   {
     name: "Growth",
     desc: "For businesses that need connected workflows and reporting.",
-    features: ["Website management", "Workflow automation", "CRM / calendar / email integrations", "Client portal", "Monthly reports", "Support requests"],
+    features: [
+      "Website management",
+      "Workflow automation",
+      "CRM / calendar / email integrations",
+      "Client portal",
+      "Monthly reports",
+      "Support requests",
+    ],
     featured: true,
   },
   {
     name: "Scale",
     desc: "For businesses needing custom AI, advanced automations, and managed operations.",
-    features: ["Custom portals", "AI assistant workflows", "Multi-system integrations", "Advanced reporting", "Priority support", "Custom infrastructure"],
+    features: [
+      "Custom portals",
+      "AI assistant workflows",
+      "Multi-system integrations",
+      "Advanced reporting",
+      "Priority support",
+      "Custom infrastructure",
+    ],
     featured: false,
   },
 ];
@@ -28,7 +48,8 @@ export function PricingSection() {
   const navigate = useNavigate();
   const { location } = useRouterState();
   const goContact = () => {
-    if (location.pathname === "/") document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
+    if (location.pathname === "/")
+      document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
     else navigate({ to: "/contact" });
   };
   return (
@@ -45,7 +66,9 @@ export function PricingSection() {
             <div
               key={t.name}
               className={`relative rounded-2xl border p-8 surface-1 transition-all ${
-                t.featured ? "border-strong shadow-glow lg:-translate-y-2" : "border-subtle hover:border-strong"
+                t.featured
+                  ? "border-strong shadow-glow lg:-translate-y-2"
+                  : "border-subtle hover:border-strong"
               }`}
             >
               {t.featured && (

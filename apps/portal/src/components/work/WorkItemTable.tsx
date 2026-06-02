@@ -53,10 +53,7 @@ export function WorkItemTable({ items, detailBase, showClient = false }: WorkIte
         {items.map((w) => {
           const assignee = getUser(w.primaryAssigneeId);
           const cl = getClient(w.clientId);
-          const href =
-            detailBase === "/requests"
-              ? `/requests/${w.id}`
-              : `/admin/work/${w.id}`;
+          const href = detailBase === "/requests" ? `/requests/${w.id}` : `/admin/work/${w.id}`;
           return (
             <TableRow key={w.id} className="hover:bg-surface-elevated/40">
               <TableCell>
@@ -68,9 +65,15 @@ export function WorkItemTable({ items, detailBase, showClient = false }: WorkIte
               {showClient && (
                 <TableCell className="text-sm text-muted-foreground">{cl?.name ?? "—"}</TableCell>
               )}
-              <TableCell><WorkTypeBadge type={w.type} /></TableCell>
-              <TableCell><WorkPriorityChip priority={w.priority} /></TableCell>
-              <TableCell><WorkStatusPill status={w.status} /></TableCell>
+              <TableCell>
+                <WorkTypeBadge type={w.type} />
+              </TableCell>
+              <TableCell>
+                <WorkPriorityChip priority={w.priority} />
+              </TableCell>
+              <TableCell>
+                <WorkStatusPill status={w.status} />
+              </TableCell>
               <TableCell className="text-sm text-muted-foreground">
                 {assignee ? (
                   <span className="inline-flex items-center gap-2">
@@ -85,8 +88,12 @@ export function WorkItemTable({ items, detailBase, showClient = false }: WorkIte
                   <span className="text-muted-foreground/60">Unassigned</span>
                 )}
               </TableCell>
-              <TableCell className="text-sm text-muted-foreground">{formatRelative(w.createdAt)}</TableCell>
-              <TableCell className="text-sm text-muted-foreground">{formatRelative(w.updatedAt)}</TableCell>
+              <TableCell className="text-sm text-muted-foreground">
+                {formatRelative(w.createdAt)}
+              </TableCell>
+              <TableCell className="text-sm text-muted-foreground">
+                {formatRelative(w.updatedAt)}
+              </TableCell>
               <TableCell>
                 <Link to={href} className="text-muted-foreground hover:text-foreground inline-flex">
                   <ChevronRight className="h-4 w-4" />

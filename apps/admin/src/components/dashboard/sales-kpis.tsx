@@ -80,7 +80,14 @@ export function SalesKpis() {
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
       {liveKpis.map((k) => (
-        <KpiCard key={k.label} label={k.label} value={k.value} delta={k.delta} data={k.data} icon={k.icon} />
+        <KpiCard
+          key={k.label}
+          label={k.label}
+          value={k.value}
+          delta={k.delta}
+          data={k.data}
+          icon={k.icon}
+        />
       ))}
     </div>
   );

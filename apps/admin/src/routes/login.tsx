@@ -56,7 +56,9 @@ function LoginPage() {
 
         <div>
           <h1 className="text-xl font-semibold tracking-tight">Sign in</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Access the Columbus AI command center.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Access the Columbus AI command center.
+          </p>
         </div>
 
         <form onSubmit={onSubmit} className="space-y-4">

@@ -6,7 +6,8 @@ const styles: Record<WorkPriority, string> = {
   low: "text-muted-foreground border-border",
   medium: "text-foreground border-border",
   high: "text-[color:var(--status-attention)] border-[color:var(--status-attention)]/40",
-  critical: "text-[color:var(--status-issue,oklch(0.6_0.2_25))] border-[color:var(--status-issue,oklch(0.6_0.2_25))]/40",
+  critical:
+    "text-[color:var(--status-issue,oklch(0.6_0.2_25))] border-[color:var(--status-issue,oklch(0.6_0.2_25))]/40",
 };
 
 const icons: Record<WorkPriority, typeof ChevronDown> = {
@@ -16,7 +17,13 @@ const icons: Record<WorkPriority, typeof ChevronDown> = {
   critical: ChevronsUp,
 };
 
-export function WorkPriorityChip({ priority, className }: { priority: WorkPriority; className?: string }) {
+export function WorkPriorityChip({
+  priority,
+  className,
+}: {
+  priority: WorkPriority;
+  className?: string;
+}) {
   const Icon = icons[priority];
   return (
     <span

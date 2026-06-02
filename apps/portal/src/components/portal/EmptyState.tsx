@@ -26,7 +26,9 @@ export function EmptyState({
       </div>
       <div>
         <p className="font-medium">{title}</p>
-        {description ? <p className="mt-1 text-sm text-muted-foreground max-w-sm">{description}</p> : null}
+        {description ? (
+          <p className="mt-1 text-sm text-muted-foreground max-w-sm">{description}</p>
+        ) : null}
       </div>
       {action}
     </div>

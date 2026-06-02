@@ -50,15 +50,22 @@ export function ActivityTimeline({ activity }: { activity: WorkActivity[] }) {
         if (a.kind === "status_changed") {
           detail = (
             <>
-              <span className="font-medium text-foreground/80">{workStatusLabel[a.from as WorkStatus]}</span>
+              <span className="font-medium text-foreground/80">
+                {workStatusLabel[a.from as WorkStatus]}
+              </span>
               <ArrowRight className="inline h-3 w-3 mx-1" />
-              <span className="font-medium text-foreground">{workStatusLabel[a.to as WorkStatus]}</span>
+              <span className="font-medium text-foreground">
+                {workStatusLabel[a.to as WorkStatus]}
+              </span>
             </>
           );
         } else if (a.kind === "assignee_changed") {
           detail = (
             <>
-              Assigned to <span className="font-medium text-foreground">{getUser(a.to)?.name ?? "Unassigned"}</span>
+              Assigned to{" "}
+              <span className="font-medium text-foreground">
+                {getUser(a.to)?.name ?? "Unassigned"}
+              </span>
             </>
           );
         } else if (a.kind === "priority_changed") {
@@ -66,7 +73,9 @@ export function ActivityTimeline({ activity }: { activity: WorkActivity[] }) {
             <>
               <span>{workPriorityLabel[a.from as WorkPriority]}</span>
               <ArrowRight className="inline h-3 w-3 mx-1" />
-              <span className="font-medium text-foreground">{workPriorityLabel[a.to as WorkPriority]}</span>
+              <span className="font-medium text-foreground">
+                {workPriorityLabel[a.to as WorkPriority]}
+              </span>
             </>
           );
         } else if (a.kind === "attachment_added" && a.to) {

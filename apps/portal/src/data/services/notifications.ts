@@ -1,12 +1,7 @@
 // Notification service. Owns recipient computation + describe text.
 // Only the work-center service should call `notify()`.
 
-import type {
-  Notification,
-  User,
-  WorkActivity,
-  WorkItem,
-} from "@/data/entities";
+import type { Notification, User, WorkActivity, WorkItem } from "@/data/entities";
 import { workStatusLabel } from "@/data/entities";
 import * as notificationsRepo from "@/data/repositories/notifications";
 import * as usersRepo from "@/data/repositories/users";
@@ -22,16 +17,19 @@ function describe(activity: WorkActivity, item: WorkItem): { title: string; body
         title: "Status updated",
         body: `${actor} moved "${title}" → ${
           activity.to
-            ? (workStatusLabel as Record<string, string>)[activity.to] ?? activity.to
+            ? ((workStatusLabel as Record<string, string>)[activity.to] ?? activity.to)
             : ""
         }`,
       };
     case "assignee_changed": {
-      const to = activity.to ? usersRepo.get(activity.to)?.name ?? "someone" : "unassigned";
+      const to = activity.to ? (usersRepo.get(activity.to)?.name ?? "someone") : "unassigned";
       return { title: "Assignment changed", body: `${actor} assigned "${title}" to ${to}` };
     }
     case "priority_changed":
-      return { title: "Priority changed", body: `${actor} set "${title}" priority to ${activity.to}` };
+      return {
+        title: "Priority changed",
+        body: `${actor} set "${title}" priority to ${activity.to}`,
+      };
     case "watcher_added":
       return { title: "New watcher", body: `${actor} is now watching "${title}"` };
     case "watcher_removed":
@@ -44,7 +42,10 @@ function describe(activity: WorkActivity, item: WorkItem): { title: string; body
         body: `${actor} added ${activity.to ?? "a file"} to "${title}"`,
       };
     case "attachment_removed":
-      return { title: "Attachment removed", body: `${actor} removed an attachment from "${title}"` };
+      return {
+        title: "Attachment removed",
+        body: `${actor} removed an attachment from "${title}"`,
+      };
     case "archived":
       return { title: "Work archived", body: `${actor} archived "${title}"` };
     case "completed":

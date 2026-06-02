@@ -9,12 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/portal/PageHeader";
 import { WorkStatusPill } from "./WorkStatusPill";
 import { WorkPriorityChip } from "./WorkPriorityChip";
@@ -63,9 +58,14 @@ export function WorkItemDetail({
   if (!item) {
     return (
       <div className="space-y-4">
-        <PageHeader title="Work item not found" description="That item doesn't exist or has been removed." />
+        <PageHeader
+          title="Work item not found"
+          description="That item doesn't exist or has been removed."
+        />
         <Button asChild variant="outline">
-          <Link to={backHref}><ArrowLeft className="mr-2 h-4 w-4" /> Back</Link>
+          <Link to={backHref}>
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back
+          </Link>
         </Button>
       </div>
     );
@@ -79,7 +79,9 @@ export function WorkItemDetail({
     <div className="space-y-6">
       <div>
         <Button asChild variant="ghost" size="sm" className="text-muted-foreground mb-2">
-          <Link to={backHref}><ArrowLeft className="mr-1.5 h-3.5 w-3.5" /> Back to Work Center</Link>
+          <Link to={backHref}>
+            <ArrowLeft className="mr-1.5 h-3.5 w-3.5" /> Back to Work Center
+          </Link>
         </Button>
         <PageHeader
           title={item.title}
@@ -135,10 +137,14 @@ export function WorkItemDetail({
                       toast.success(`Status → ${workStatusLabel[v as WorkStatus]}`);
                     }}
                   >
-                    <SelectTrigger className="bg-background h-8 text-xs"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="bg-background h-8 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       {WORK_STATUSES.map((s) => (
-                        <SelectItem key={s} value={s}>{workStatusLabel[s]}</SelectItem>
+                        <SelectItem key={s} value={s}>
+                          {workStatusLabel[s]}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -155,10 +161,14 @@ export function WorkItemDetail({
                       toast.success(`Priority → ${workPriorityLabel[v as WorkPriority]}`);
                     }}
                   >
-                    <SelectTrigger className="bg-background h-8 text-xs"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="bg-background h-8 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       {WORK_PRIORITIES.map((p) => (
-                        <SelectItem key={p} value={p}>{workPriorityLabel[p]}</SelectItem>
+                        <SelectItem key={p} value={p}>
+                          {workPriorityLabel[p]}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -166,8 +176,12 @@ export function WorkItemDetail({
                   <WorkPriorityChip priority={item.priority} />
                 )}
               </Row>
-              <Row label="Type"><WorkTypeBadge type={item.type} /></Row>
-              <Row label="Client"><span className="font-medium">{cl?.name ?? "—"}</span></Row>
+              <Row label="Type">
+                <WorkTypeBadge type={item.type} />
+              </Row>
+              <Row label="Client">
+                <span className="font-medium">{cl?.name ?? "—"}</span>
+              </Row>
               <Row label="Last update">
                 <span className="font-medium">{formatRelative(item.updatedAt)}</span>
               </Row>
@@ -184,18 +198,24 @@ export function WorkItemDetail({
                   toast.success("Assignee updated");
                 }}
               >
-                <SelectTrigger className="bg-background h-9"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="bg-background h-9">
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="_none">Unassigned</SelectItem>
                   {agencyUsers.map((u) => (
-                    <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
+                    <SelectItem key={u.id} value={u.id}>
+                      {u.name}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             ) : assignee ? (
               <div className="flex items-center gap-2 text-sm">
                 <Avatar className="h-7 w-7">
-                  <AvatarFallback className="text-[10px] bg-surface-elevated">{assignee.initials}</AvatarFallback>
+                  <AvatarFallback className="text-[10px] bg-surface-elevated">
+                    {assignee.initials}
+                  </AvatarFallback>
                 </Avatar>
                 <div>
                   <p className="font-medium">{assignee.name}</p>
@@ -208,7 +228,9 @@ export function WorkItemDetail({
 
             {item.assigneeIds.length > 1 && (
               <>
-                <p className="mt-4 text-[11px] uppercase tracking-wider text-muted-foreground">Additional</p>
+                <p className="mt-4 text-[11px] uppercase tracking-wider text-muted-foreground">
+                  Additional
+                </p>
                 <div className="mt-2 flex -space-x-1.5">
                   {item.assigneeIds.slice(1).map((uid) => {
                     const u = getUser(uid);
@@ -240,9 +262,13 @@ export function WorkItemDetail({
                 }}
               >
                 {item.watcherIds.includes(currentUserId) ? (
-                  <><UserMinus className="mr-1 h-3 w-3" /> Unwatch</>
+                  <>
+                    <UserMinus className="mr-1 h-3 w-3" /> Unwatch
+                  </>
                 ) : (
-                  <><UserPlus className="mr-1 h-3 w-3" /> Watch</>
+                  <>
+                    <UserPlus className="mr-1 h-3 w-3" /> Watch
+                  </>
                 )}
               </Button>
             </div>

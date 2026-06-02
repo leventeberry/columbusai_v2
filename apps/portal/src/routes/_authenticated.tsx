@@ -11,9 +11,10 @@ import { hydrateSession } from "@/lib/portal-auth";
 
 const hasSessionCookie = createIsomorphicFn()
   .server(() => !!getCookie(SESSION_COOKIE))
-  .client(() =>
-    typeof document !== "undefined" &&
-    document.cookie.split("; ").some((c) => c.startsWith(`${SESSION_COOKIE}=`)),
+  .client(
+    () =>
+      typeof document !== "undefined" &&
+      document.cookie.split("; ").some((c) => c.startsWith(`${SESSION_COOKIE}=`)),
   );
 
 export const Route = createFileRoute("/_authenticated")({

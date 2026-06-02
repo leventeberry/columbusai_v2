@@ -1,4 +1,12 @@
-import { AlertTriangle, CheckCircle2, GitCommit, Globe, Plug, ShieldCheck, Workflow } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  GitCommit,
+  Globe,
+  Plug,
+  ShieldCheck,
+  Workflow,
+} from "lucide-react";
 import type { TimelineEvent } from "@/lib/mock/platform";
 
 const ICONS = {

@@ -1,12 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Bot, Loader2, Send, Sparkles, User, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  CHAT_TITLE,
-  CHAT_WELCOME,
-  CHEXI_AVATAR_URL,
-  getApiBaseUrl,
-} from "@/lib/env";
+import { CHAT_TITLE, CHAT_WELCOME, CHEXI_AVATAR_URL, getApiBaseUrl } from "@/lib/env";
 import { evaluateGuardrails } from "@/lib/guardrails";
 
 type ChatMessage = {
@@ -15,8 +10,7 @@ type ChatMessage = {
   content: string;
 };
 
-const FALLBACK_ERROR_MESSAGE =
-  "Sorry, I'm having trouble connecting to the AI.";
+const FALLBACK_ERROR_MESSAGE = "Sorry, I'm having trouble connecting to the AI.";
 const HISTORY_CACHE_KEY = "chatbot-history";
 const CONVERSATION_ID_KEY = "chatbot-conversation-id";
 
@@ -79,7 +73,7 @@ export function ChatWidget() {
       try {
         const res = await fetch(
           `${apiBase}/api/messages?conversationId=${encodeURIComponent(conversationId)}`,
-          { credentials: "include" }
+          { credentials: "include" },
         );
         if (!res.ok) throw new Error("Failed to fetch chat history.");
         const data = (await res.json()) as {
@@ -144,10 +138,7 @@ export function ChatWidget() {
     setIsSending(true);
 
     const assistantId = Date.now() + 1;
-    setMessages((prev) => [
-      ...prev,
-      { id: assistantId, role: "assistant", content: "" },
-    ]);
+    setMessages((prev) => [...prev, { id: assistantId, role: "assistant", content: "" }]);
 
     try {
       const res = await fetch(`${apiBase}/api/chat`, {
@@ -167,12 +158,9 @@ export function ChatWidget() {
       };
 
       if (!res.ok) {
-        const errMsg =
-          typeof data.error === "string" ? data.error : FALLBACK_ERROR_MESSAGE;
+        const errMsg = typeof data.error === "string" ? data.error : FALLBACK_ERROR_MESSAGE;
         setMessages((prev) =>
-          prev.map((m) =>
-            m.id === assistantId ? { ...m, content: errMsg } : m
-          )
+          prev.map((m) => (m.id === assistantId ? { ...m, content: errMsg } : m)),
         );
         if (data.conversationId) {
           setConversationId(data.conversationId);
@@ -181,24 +169,15 @@ export function ChatWidget() {
         return;
       }
 
-      const text =
-        typeof data.text === "string" ? data.text : FALLBACK_ERROR_MESSAGE;
-      setMessages((prev) =>
-        prev.map((m) =>
-          m.id === assistantId ? { ...m, content: text } : m
-        )
-      );
+      const text = typeof data.text === "string" ? data.text : FALLBACK_ERROR_MESSAGE;
+      setMessages((prev) => prev.map((m) => (m.id === assistantId ? { ...m, content: text } : m)));
       if (data.conversationId) {
         setConversationId(data.conversationId);
         sessionStorage.setItem(CONVERSATION_ID_KEY, data.conversationId);
       }
     } catch {
       setMessages((prev) =>
-        prev.map((m) =>
-          m.id === assistantId
-            ? { ...m, content: FALLBACK_ERROR_MESSAGE }
-            : m
-        )
+        prev.map((m) => (m.id === assistantId ? { ...m, content: FALLBACK_ERROR_MESSAGE } : m)),
       );
     } finally {
       setIsSending(false);
@@ -236,11 +215,7 @@ export function ChatWidget() {
             <div className="flex items-center gap-2.5">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-foreground/10 overflow-hidden">
                 {CHEXI_AVATAR_URL ? (
-                  <img
-                    src={CHEXI_AVATAR_URL}
-                    alt=""
-                    className="h-full w-full object-cover"
-                  />
+                  <img src={CHEXI_AVATAR_URL} alt="" className="h-full w-full object-cover" />
                 ) : (
                   <Bot className="h-4.5 w-4.5 text-foreground" />
                 )}
@@ -253,7 +228,7 @@ export function ChatWidget() {
                   <span
                     className={cn(
                       "h-1.5 w-1.5 rounded-full",
-                      online ? "bg-green-400 animate-pulse" : "bg-muted-foreground/60"
+                      online ? "bg-green-400 animate-pulse" : "bg-muted-foreground/60",
                     )}
                   />
                   {online ? "Online" : "Unavailable"}
@@ -288,16 +263,12 @@ export function ChatWidget() {
               </div>
             ) : (
               messages.map((msg) => {
-                const isAi =
-                  msg.role === "assistant" || msg.role === "system";
+                const isAi = msg.role === "assistant" || msg.role === "system";
                 if (isAi && msg.content === "" && isSending) return null;
                 return (
                   <div
                     key={msg.id}
-                    className={cn(
-                      "flex w-full gap-2",
-                      isAi ? "justify-start" : "justify-end"
-                    )}
+                    className={cn("flex w-full gap-2", isAi ? "justify-start" : "justify-end")}
                   >
                     {isAi && (
                       <div className="w-7 h-7 rounded-full bg-foreground/10 flex items-center justify-center shrink-0">
@@ -309,12 +280,10 @@ export function ChatWidget() {
                         "max-w-[80%] rounded-2xl px-3 py-2 text-sm",
                         isAi
                           ? "bg-white dark:bg-card border border-subtle rounded-tl-none"
-                          : "bg-foreground text-background rounded-tr-none"
+                          : "bg-foreground text-background rounded-tr-none",
                       )}
                     >
-                      <p className="whitespace-pre-wrap leading-relaxed">
-                        {msg.content}
-                      </p>
+                      <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>
                     </div>
                     {!isAi && (
                       <div className="w-7 h-7 rounded-full bg-foreground/10 flex items-center justify-center shrink-0">
@@ -348,9 +317,7 @@ export function ChatWidget() {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 disabled={!online || isSending}
-                placeholder={
-                  online ? "Type a message…" : "Assistant unavailable…"
-                }
+                placeholder={online ? "Type a message…" : "Assistant unavailable…"}
                 className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none disabled:cursor-not-allowed disabled:opacity-60"
                 aria-label="Message input"
               />

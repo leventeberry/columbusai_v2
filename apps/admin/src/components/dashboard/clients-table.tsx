@@ -33,9 +33,7 @@ export function ClientsTable() {
   }
 
   if (isError) {
-    return (
-      <p className="text-sm text-destructive">Could not load sales clients from the API.</p>
-    );
+    return <p className="text-sm text-destructive">Could not load sales clients from the API.</p>;
   }
 
   if (rows.length === 0) {

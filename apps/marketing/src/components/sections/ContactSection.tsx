@@ -125,17 +125,23 @@ export function ContactSection() {
             <div className="rounded-xl border border-subtle surface-1 p-5">
               <div className="flex items-center gap-3">
                 <Mail className="h-4 w-4 text-[color:var(--brand-cyan)]" />
-                <a href={`mailto:${CONTACT_EMAIL}`} className="text-sm text-foreground hover:text-gradient">
+                <a
+                  href={`mailto:${CONTACT_EMAIL}`}
+                  className="text-sm text-foreground hover:text-gradient"
+                >
                   {CONTACT_EMAIL}
                 </a>
               </div>
               <div className="mt-3 flex items-center gap-3">
                 <Clock className="h-4 w-4 text-[color:var(--brand-cyan)]" />
-                <span className="text-sm text-muted-foreground">Response within 1 business day</span>
+                <span className="text-sm text-muted-foreground">
+                  Response within 1 business day
+                </span>
               </div>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Every request gets a real reply from someone who can scope and build. No bots, no chains of forms.
+              Every request gets a real reply from someone who can scope and build. No bots, no
+              chains of forms.
             </p>
           </div>
 
@@ -150,67 +156,116 @@ export function ContactSection() {
               >
                 <div className="grid sm:grid-cols-2 gap-4">
                   <TextField
-                    label="First Name" id="firstName" required
-                    value={values.firstName} onChange={(v) => set("firstName", v)}
-                    placeholder="John" error={errors.firstName} maxLength={80}
+                    label="First Name"
+                    id="firstName"
+                    required
+                    value={values.firstName}
+                    onChange={(v) => set("firstName", v)}
+                    placeholder="John"
+                    error={errors.firstName}
+                    maxLength={80}
                   />
                   <TextField
-                    label="Last Name" id="lastName" required
-                    value={values.lastName} onChange={(v) => set("lastName", v)}
-                    placeholder="Doe" error={errors.lastName} maxLength={80}
-                  />
-                </div>
-                <TextField
-                  label="Email" id="email" type="email" required
-                  value={values.email} onChange={(v) => set("email", v)}
-                  placeholder="john@company.com" error={errors.email} maxLength={255}
-                />
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <TextField
-                    label="Phone" id="phone" type="tel"
-                    value={values.phone ?? ""} onChange={(v) => set("phone", v)}
-                    placeholder="(555) 123-4567" error={errors.phone} maxLength={40}
-                  />
-                  <TextField
-                    label="Company" id="company" required
-                    value={values.company} onChange={(v) => set("company", v)}
-                    placeholder="Acme Inc." error={errors.company} maxLength={120}
+                    label="Last Name"
+                    id="lastName"
+                    required
+                    value={values.lastName}
+                    onChange={(v) => set("lastName", v)}
+                    placeholder="Doe"
+                    error={errors.lastName}
+                    maxLength={80}
                   />
                 </div>
                 <TextField
-                  label="Website" id="website" optional
-                  value={values.website ?? ""} onChange={(v) => set("website", v)}
-                  placeholder="example.com or https://example.com" error={errors.website} maxLength={255}
+                  label="Email"
+                  id="email"
+                  type="email"
+                  required
+                  value={values.email}
+                  onChange={(v) => set("email", v)}
+                  placeholder="john@company.com"
+                  error={errors.email}
+                  maxLength={255}
                 />
                 <div className="grid sm:grid-cols-2 gap-4">
                   <TextField
-                    label="Role" id="role"
-                    value={values.role ?? ""} onChange={(v) => set("role", v)}
-                    placeholder="Operations Manager" error={errors.role} maxLength={120}
+                    label="Phone"
+                    id="phone"
+                    type="tel"
+                    value={values.phone ?? ""}
+                    onChange={(v) => set("phone", v)}
+                    placeholder="(555) 123-4567"
+                    error={errors.phone}
+                    maxLength={40}
                   />
                   <TextField
-                    label="Industry" id="industry"
-                    value={values.industry ?? ""} onChange={(v) => set("industry", v)}
-                    placeholder="Healthcare" error={errors.industry} maxLength={120}
+                    label="Company"
+                    id="company"
+                    required
+                    value={values.company}
+                    onChange={(v) => set("company", v)}
+                    placeholder="Acme Inc."
+                    error={errors.company}
+                    maxLength={120}
+                  />
+                </div>
+                <TextField
+                  label="Website"
+                  id="website"
+                  optional
+                  value={values.website ?? ""}
+                  onChange={(v) => set("website", v)}
+                  placeholder="example.com or https://example.com"
+                  error={errors.website}
+                  maxLength={255}
+                />
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <TextField
+                    label="Role"
+                    id="role"
+                    value={values.role ?? ""}
+                    onChange={(v) => set("role", v)}
+                    placeholder="Operations Manager"
+                    error={errors.role}
+                    maxLength={120}
+                  />
+                  <TextField
+                    label="Industry"
+                    id="industry"
+                    value={values.industry ?? ""}
+                    onChange={(v) => set("industry", v)}
+                    placeholder="Healthcare"
+                    error={errors.industry}
+                    maxLength={120}
                   />
                 </div>
                 <div className="grid sm:grid-cols-3 gap-4">
                   <SelectField
-                    label="Team size" value={values.teamSize ?? ""}
-                    onChange={(v) => set("teamSize", v)} placeholder="Select team size" options={teamSizes}
+                    label="Team size"
+                    value={values.teamSize ?? ""}
+                    onChange={(v) => set("teamSize", v)}
+                    placeholder="Select team size"
+                    options={teamSizes}
                   />
                   <SelectField
-                    label="Timeline" value={values.timeline ?? ""}
-                    onChange={(v) => set("timeline", v)} placeholder="Select timeline" options={timelines}
+                    label="Timeline"
+                    value={values.timeline ?? ""}
+                    onChange={(v) => set("timeline", v)}
+                    placeholder="Select timeline"
+                    options={timelines}
                   />
                   <SelectField
-                    label="Budget" value={values.budget ?? ""}
-                    onChange={(v) => set("budget", v)} placeholder="Select budget range" options={budgets}
+                    label="Budget"
+                    value={values.budget ?? ""}
+                    onChange={(v) => set("budget", v)}
+                    placeholder="Select budget range"
+                    options={budgets}
                   />
                 </div>
                 <div>
                   <Label htmlFor="automate" className="text-sm">
-                    What do you want to automate? <span className="text-[color:var(--destructive)]">*</span>
+                    What do you want to automate?{" "}
+                    <span className="text-[color:var(--destructive)]">*</span>
                   </Label>
                   <Textarea
                     id="automate"
@@ -223,12 +278,14 @@ export function ContactSection() {
                     aria-invalid={!!errors.automate}
                   />
                   {errors.automate && (
-                    <p className="mt-1 text-xs text-[color:var(--destructive)]">{errors.automate}</p>
+                    <p className="mt-1 text-xs text-[color:var(--destructive)]">
+                      {errors.automate}
+                    </p>
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  By clicking "Request Demo" you agree to receive email communications from Columbus AI
-                  Automation Solutions. You can unsubscribe at any time.
+                  By clicking "Request Demo" you agree to receive email communications from Columbus
+                  AI Automation Solutions. You can unsubscribe at any time.
                 </p>
                 <Button
                   type="submit"
@@ -248,7 +305,16 @@ export function ContactSection() {
 }
 
 function TextField({
-  label, id, type = "text", required, optional, placeholder, value, onChange, error, maxLength,
+  label,
+  id,
+  type = "text",
+  required,
+  optional,
+  placeholder,
+  value,
+  onChange,
+  error,
+  maxLength,
 }: {
   label: string;
   id: string;
@@ -285,7 +351,11 @@ function TextField({
 }
 
 function SelectField({
-  label, value, onChange, placeholder, options,
+  label,
+  value,
+  onChange,
+  placeholder,
+  options,
 }: {
   label: string;
   value: string;
@@ -302,7 +372,9 @@ function SelectField({
         </SelectTrigger>
         <SelectContent>
           {options.map((o) => (
-            <SelectItem key={o} value={o}>{o}</SelectItem>
+            <SelectItem key={o} value={o}>
+              {o}
+            </SelectItem>
           ))}
         </SelectContent>
       </Select>
@@ -310,24 +382,19 @@ function SelectField({
   );
 }
 
-function Confirmation({
-  values,
-  onReset,
-}: {
-  values: RequestData;
-  onReset: () => void;
-}) {
+function Confirmation({ values, onReset }: { values: RequestData; onReset: () => void }) {
   const bookingHref = BOOKING_LINK;
   return (
     <div className="rounded-2xl border border-strong surface-1 p-8 sm:p-10 text-center relative overflow-hidden">
-      <div className="absolute inset-0 opacity-60 pointer-events-none" style={{ background: "var(--gradient-glow)" }} />
+      <div
+        className="absolute inset-0 opacity-60 pointer-events-none"
+        style={{ background: "var(--gradient-glow)" }}
+      />
       <div className="relative">
         <div className="mx-auto h-14 w-14 rounded-2xl bg-gradient-primary shadow-glow flex items-center justify-center">
           <CheckCircle2 className="h-7 w-7 text-primary-foreground" />
         </div>
-        <h3 className="mt-6 text-2xl font-semibold tracking-tight">
-          Thank you for your request.
-        </h3>
+        <h3 className="mt-6 text-2xl font-semibold tracking-tight">Thank you for your request.</h3>
         <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">
           A Columbus AI team member will reach out shortly. Check{" "}
           <span className="text-foreground">{values.email}</span> for next steps.

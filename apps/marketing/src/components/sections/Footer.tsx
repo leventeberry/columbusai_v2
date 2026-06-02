@@ -37,8 +37,13 @@ export function Footer() {
           </Col>
         </div>
         <div className="mt-12 pt-8 border-t border-subtle flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-xs text-muted-foreground">© 2026 Columbus AI Automation Solutions LLC. All rights reserved.</p>
-          <a href={`mailto:${CONTACT_EMAIL}`} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+          <p className="text-xs text-muted-foreground">
+            © 2026 Columbus AI Automation Solutions LLC. All rights reserved.
+          </p>
+          <a
+            href={`mailto:${CONTACT_EMAIL}`}
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
             {CONTACT_EMAIL}
           </a>
         </div>
@@ -59,7 +64,10 @@ function Col({ title, children }: { title: string; children: React.ReactNode }) 
 function FLink({ to, children }: { to: string; children: React.ReactNode }) {
   return (
     <li>
-      <Link to={to} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+      <Link
+        to={to}
+        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+      >
         {children}
       </Link>
     </li>

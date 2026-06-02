@@ -13,7 +13,11 @@ export function DateRangeToggle({
     <Tabs value={value} onValueChange={onChange}>
       <TabsList className="bg-surface border border-border">
         {options.map((o) => (
-          <TabsTrigger key={o} value={o} className="text-xs data-[state=active]:bg-surface-elevated">
+          <TabsTrigger
+            key={o}
+            value={o}
+            className="text-xs data-[state=active]:bg-surface-elevated"
+          >
             {o}
           </TabsTrigger>
         ))}

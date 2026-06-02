@@ -21,10 +21,10 @@ Prisma ORM **v7** package for Columbus AI (Postgres, multi-schema).
 
 ```bash
 cd packages/db
-npm run generate        # prisma generate
-npm run migrate:deploy  # production migrations
-npm run migrate:status
-npx prisma db seed
+pnpm db:generate           # prisma generate
+pnpm db:migrate:deploy     # production migrations
+pnpm db:migrate:status
+pnpm db:seed
 ```
 
 ## App usage

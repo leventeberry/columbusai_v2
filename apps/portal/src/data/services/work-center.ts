@@ -93,11 +93,7 @@ export function changeStatus(workItemId: string, status: WorkStatus, actorId: st
   }
 }
 
-export function changePriority(
-  workItemId: string,
-  priority: WorkPriority,
-  actorId: string,
-): void {
+export function changePriority(workItemId: string, priority: WorkPriority, actorId: string): void {
   const before = workItemsRepo.get(workItemId);
   if (!before || before.priority === priority) return;
   const after = workItemsRepo.update(workItemId, { priority });
@@ -112,11 +108,7 @@ export function changePriority(
   notify(ev, after);
 }
 
-export function assignWorkItem(
-  workItemId: string,
-  userId: string | null,
-  actorId: string,
-): void {
+export function assignWorkItem(workItemId: string, userId: string | null, actorId: string): void {
   const before = workItemsRepo.get(workItemId);
   if (!before) return;
   const assigneeIds = userId ? Array.from(new Set([userId, ...before.assigneeIds])) : [];

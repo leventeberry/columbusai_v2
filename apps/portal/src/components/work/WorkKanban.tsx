@@ -81,9 +81,7 @@ function Column({
       ref={setNodeRef}
       className={cn(
         "w-[280px] shrink-0 rounded-xl border bg-surface/40 p-3 transition",
-        isOver
-          ? "border-[color:var(--accent)]/60 bg-[color:var(--accent)]/5"
-          : "border-border",
+        isOver ? "border-[color:var(--accent)]/60 bg-[color:var(--accent)]/5" : "border-border",
       )}
     >
       <div className="mb-3 flex items-center justify-between">
@@ -157,7 +155,9 @@ function Card({
           ) : (
             <span className="text-[10px] text-muted-foreground/60">Unassigned</span>
           )}
-          <span className="text-[10px] text-muted-foreground">{formatRelative(item.updatedAt)}</span>
+          <span className="text-[10px] text-muted-foreground">
+            {formatRelative(item.updatedAt)}
+          </span>
         </div>
       </Link>
     </div>

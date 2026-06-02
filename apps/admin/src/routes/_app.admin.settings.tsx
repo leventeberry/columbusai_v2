@@ -7,7 +7,12 @@ export const Route = createFileRoute("/_app/admin/settings")({
   head: () => ({ meta: [{ title: "Settings — Columbus AI" }] }),
   component: () => (
     <RequireRole roles={["admin"]}>
-      <ComingSoon title="Settings" subtitle="Workspace, security, and branding configuration." icon={Settings} message="Settings panel is being polished." />
+      <ComingSoon
+        title="Settings"
+        subtitle="Workspace, security, and branding configuration."
+        icon={Settings}
+        message="Settings panel is being polished."
+      />
     </RequireRole>
   ),
 });

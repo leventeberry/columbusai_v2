@@ -37,7 +37,10 @@ function ReportsPage() {
 
       <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {featured.map((r) => (
-          <article key={r.id} className={`surface-card p-5 bg-gradient-to-br ${typeAccent[r.type]}`}>
+          <article
+            key={r.id}
+            className={`surface-card p-5 bg-gradient-to-br ${typeAccent[r.type]}`}
+          >
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <FileBarChart2 className="h-3.5 w-3.5" />
               {r.type}
@@ -45,10 +48,18 @@ function ReportsPage() {
             <h3 className="mt-2 text-base font-semibold leading-tight">{r.title}</h3>
             <p className="mt-1 text-xs text-muted-foreground">{r.summary}</p>
             <div className="mt-4 flex items-center gap-2">
-              <Button size="sm" variant="outline" onClick={() => toast.success(`Opening ${r.title}`)}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => toast.success(`Opening ${r.title}`)}
+              >
                 <Eye className="mr-1.5 h-3.5 w-3.5" /> View
               </Button>
-              <Button size="sm" variant="ghost" onClick={() => toast.success(`Downloading ${r.fileName}`)}>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => toast.success(`Downloading ${r.fileName}`)}
+              >
                 <Download className="mr-1.5 h-3.5 w-3.5" /> PDF
               </Button>
             </div>
@@ -75,12 +86,22 @@ function ReportsPage() {
                 <TableCell className="text-sm text-muted-foreground">{r.type}</TableCell>
                 <TableCell className="text-sm text-muted-foreground">{r.period}</TableCell>
                 <TableCell className="text-sm text-muted-foreground">{r.generatedAt}</TableCell>
-                <TableCell className="text-sm text-muted-foreground max-w-md truncate">{r.summary}</TableCell>
+                <TableCell className="text-sm text-muted-foreground max-w-md truncate">
+                  {r.summary}
+                </TableCell>
                 <TableCell className="text-right">
-                  <Button size="sm" variant="ghost" onClick={() => toast.success(`Opening ${r.title}`)}>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => toast.success(`Opening ${r.title}`)}
+                  >
                     <Eye className="mr-1 h-3.5 w-3.5" /> View
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={() => toast.success(`Downloading ${r.fileName}`)}>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => toast.success(`Downloading ${r.fileName}`)}
+                  >
                     <Download className="mr-1 h-3.5 w-3.5" /> PDF
                   </Button>
                 </TableCell>

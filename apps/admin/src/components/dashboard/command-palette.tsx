@@ -78,25 +78,57 @@ export function CommandPalette({
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup heading="Actions">
-          <CommandItem onSelect={() => action(api.redeployEnvironment({ environmentId: "current", envLabel: "Production" }))}>
+          <CommandItem
+            onSelect={() =>
+              action(api.redeployEnvironment({ environmentId: "current", envLabel: "Production" }))
+            }
+          >
             <RotateCw className="mr-2 h-4 w-4" /> Redeploy current environment
           </CommandItem>
           <CommandItem onSelect={() => action(api.openServiceLogs({ environmentId: "current" }))}>
             <ScrollText className="mr-2 h-4 w-4" /> Open logs
           </CommandItem>
-          <CommandItem onSelect={() => action(api.restartService({ serviceId: "redis", serviceName: "Redis" }))}>
+          <CommandItem
+            onSelect={() =>
+              action(api.restartService({ serviceId: "redis", serviceName: "Redis" }))
+            }
+          >
             <RotateCw className="mr-2 h-4 w-4" /> Restart Redis
           </CommandItem>
-          <CommandItem onSelect={() => action(api.createClientWorkspace({ clientId: clients[0]?.id ?? "c1", name: "New Client" }))}>
+          <CommandItem
+            onSelect={() =>
+              action(
+                api.createClientWorkspace({ clientId: clients[0]?.id ?? "c1", name: "New Client" }),
+              )
+            }
+          >
             <Plus className="mr-2 h-4 w-4" /> Create client
           </CommandItem>
-          <CommandItem onSelect={() => action(api.provisionClientStack({ clientId: clients[0]?.id ?? "c1", templateId: "tpl-ai", workspaceId: `ws-${clients[0]?.id ?? "c1"}` }))}>
+          <CommandItem
+            onSelect={() =>
+              action(
+                api.provisionClientStack({
+                  clientId: clients[0]?.id ?? "c1",
+                  templateId: "tpl-ai",
+                  workspaceId: `ws-${clients[0]?.id ?? "c1"}`,
+                }),
+              )
+            }
+          >
             <Rocket className="mr-2 h-4 w-4" /> Provision new stack
           </CommandItem>
-          <CommandItem onSelect={() => action(api.addDomain({ host: "new.example.io", environmentId: "current" }))}>
+          <CommandItem
+            onSelect={() =>
+              action(api.addDomain({ host: "new.example.io", environmentId: "current" }))
+            }
+          >
             <Globe className="mr-2 h-4 w-4" /> Add domain
           </CommandItem>
-          <CommandItem onSelect={() => action(api.rotateSecret({ secretId: "current", key: "OPENAI_API_KEY" }))}>
+          <CommandItem
+            onSelect={() =>
+              action(api.rotateSecret({ secretId: "current", key: "OPENAI_API_KEY" }))
+            }
+          >
             <KeyRound className="mr-2 h-4 w-4" /> Rotate secret
           </CommandItem>
           <CommandItem onSelect={() => action(api.openN8n({}))}>

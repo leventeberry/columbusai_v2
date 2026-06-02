@@ -88,7 +88,11 @@ export function useSalesStats() {
 export function useUpdatePipelineStage() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (vars: { id: string; pipelineStage: LeadStage; entityType: "lead" | "opportunity" }) =>
+    mutationFn: (vars: {
+      id: string;
+      pipelineStage: LeadStage;
+      entityType: "lead" | "opportunity";
+    }) =>
       vars.entityType === "opportunity"
         ? updateOpportunityStage({ data: { id: vars.id, stage: vars.pipelineStage } })
         : updateLeadPipelineStage({ data: { id: vars.id, pipelineStage: vars.pipelineStage } }),

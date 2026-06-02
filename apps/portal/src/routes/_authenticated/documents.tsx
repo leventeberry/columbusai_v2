@@ -43,7 +43,9 @@ function DocumentsPage() {
       <div className="space-y-6">
         {Object.entries(grouped).map(([group, items]) => (
           <section key={group}>
-            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">{group}</h2>
+            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+              {group}
+            </h2>
             <div className="surface-card divide-y divide-border">
               {items.map((d) => (
                 <div key={d.id} className="flex items-center gap-4 p-4">

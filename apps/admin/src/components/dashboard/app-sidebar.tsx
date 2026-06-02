@@ -37,9 +37,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import type { LucideIcon } from "lucide-react";
 import { useAuth, type AppRole } from "@/hooks/use-auth";
 
-type NavItem = { title: string; url: string; icon: any };
+type NavItem = { title: string; url: string; icon: LucideIcon };
 type NavGroup = { label: string; items: NavItem[]; requiresRole?: AppRole[] };
 
 const NAV: NavGroup[] = [
@@ -57,9 +58,7 @@ const NAV: NavGroup[] = [
   },
   {
     label: "Clients",
-    items: [
-      { title: "Active Clients", url: "/clients", icon: Users },
-    ],
+    items: [{ title: "Active Clients", url: "/clients", icon: Users }],
   },
   {
     label: "Provisioning",

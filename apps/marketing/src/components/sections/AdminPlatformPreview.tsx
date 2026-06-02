@@ -21,8 +21,14 @@ export function AdminPlatformPreview() {
 
         <div className="mt-14 rounded-2xl border border-strong surface-1 shadow-elevated overflow-hidden">
           <div className="flex items-center gap-2 px-4 py-3 border-b border-subtle surface-2">
-            <div className="flex gap-1.5">{[0, 1, 2].map((i) => <div key={i} className="h-2.5 w-2.5 rounded-full bg-muted-foreground/30" />)}</div>
-            <div className="flex-1 text-center text-xs text-muted-foreground font-mono">{adminHostLabel()}</div>
+            <div className="flex gap-1.5">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="h-2.5 w-2.5 rounded-full bg-muted-foreground/30" />
+              ))}
+            </div>
+            <div className="flex-1 text-center text-xs text-muted-foreground font-mono">
+              {adminHostLabel()}
+            </div>
           </div>
           <div className="grid lg:grid-cols-4 gap-4 p-6">
             {[
@@ -39,29 +45,76 @@ export function AdminPlatformPreview() {
             ))}
 
             <div className="lg:col-span-2 rounded-xl border border-subtle surface-2 p-5">
-              <div className="text-xs text-muted-foreground uppercase tracking-wider mb-3">Logs · Last 5 min</div>
+              <div className="text-xs text-muted-foreground uppercase tracking-wider mb-3">
+                Logs · Last 5 min
+              </div>
               <div className="font-mono text-xs space-y-1 text-muted-foreground">
-                <div><span className="text-[color:var(--success)]">[OK]</span> automation.lead_route → routed in 412ms</div>
-                <div><span className="text-[color:var(--success)]">[OK]</span> deploy.client_acme → v1.42.3 healthy</div>
-                <div><span className="text-[color:var(--warning)]">[WARN]</span> integration.hubspot → retry 1/3</div>
-                <div><span className="text-[color:var(--success)]">[OK]</span> integration.hubspot → recovered</div>
-                <div><span className="text-[color:var(--success)]">[OK]</span> report.weekly → delivered (12 clients)</div>
+                <div>
+                  <span className="text-[color:var(--success)]">[OK]</span> automation.lead_route →
+                  routed in 412ms
+                </div>
+                <div>
+                  <span className="text-[color:var(--success)]">[OK]</span> deploy.client_acme →
+                  v1.42.3 healthy
+                </div>
+                <div>
+                  <span className="text-[color:var(--warning)]">[WARN]</span> integration.hubspot →
+                  retry 1/3
+                </div>
+                <div>
+                  <span className="text-[color:var(--success)]">[OK]</span> integration.hubspot →
+                  recovered
+                </div>
+                <div>
+                  <span className="text-[color:var(--success)]">[OK]</span> report.weekly →
+                  delivered (12 clients)
+                </div>
               </div>
             </div>
             <div className="rounded-xl border border-subtle surface-2 p-5">
-              <div className="text-xs text-muted-foreground uppercase tracking-wider mb-3">Automations</div>
+              <div className="text-xs text-muted-foreground uppercase tracking-wider mb-3">
+                Automations
+              </div>
               <ul className="space-y-2 text-sm">
-                <li className="flex justify-between"><span>Lead → CRM</span><span className="text-[color:var(--success)] text-xs">live</span></li>
-                <li className="flex justify-between"><span>Missed call → SMS</span><span className="text-[color:var(--success)] text-xs">live</span></li>
-                <li className="flex justify-between"><span>Review request</span><span className="text-[color:var(--success)] text-xs">live</span></li>
-                <li className="flex justify-between"><span>Onboarding flow</span><span className="text-[color:var(--warning)] text-xs">draft</span></li>
+                <li className="flex justify-between">
+                  <span>Lead → CRM</span>
+                  <span className="text-[color:var(--success)] text-xs">live</span>
+                </li>
+                <li className="flex justify-between">
+                  <span>Missed call → SMS</span>
+                  <span className="text-[color:var(--success)] text-xs">live</span>
+                </li>
+                <li className="flex justify-between">
+                  <span>Review request</span>
+                  <span className="text-[color:var(--success)] text-xs">live</span>
+                </li>
+                <li className="flex justify-between">
+                  <span>Onboarding flow</span>
+                  <span className="text-[color:var(--warning)] text-xs">draft</span>
+                </li>
               </ul>
             </div>
             <div className="rounded-xl border border-subtle surface-2 p-5">
-              <div className="text-xs text-muted-foreground uppercase tracking-wider mb-3">Integrations</div>
+              <div className="text-xs text-muted-foreground uppercase tracking-wider mb-3">
+                Integrations
+              </div>
               <div className="flex flex-wrap gap-2">
-                {["Google", "Gmail", "Stripe", "HubSpot", "GoHighLevel", "Twilio", "Slack", "SendGrid"].map((i) => (
-                  <span key={i} className="px-2.5 py-1 text-xs rounded-md border border-subtle surface-3">{i}</span>
+                {[
+                  "Google",
+                  "Gmail",
+                  "Stripe",
+                  "HubSpot",
+                  "GoHighLevel",
+                  "Twilio",
+                  "Slack",
+                  "SendGrid",
+                ].map((i) => (
+                  <span
+                    key={i}
+                    className="px-2.5 py-1 text-xs rounded-md border border-subtle surface-3"
+                  >
+                    {i}
+                  </span>
                 ))}
               </div>
             </div>

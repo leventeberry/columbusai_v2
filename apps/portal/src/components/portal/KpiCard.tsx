@@ -32,7 +32,9 @@ export function KpiCard({
       )}
     >
       <div className="flex items-center justify-between">
-        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
+        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          {label}
+        </p>
         {Icon ? <Icon className="h-4 w-4 text-muted-foreground" /> : null}
       </div>
       <div className={cn("text-2xl font-semibold tracking-tight", accentColor)}>{value}</div>

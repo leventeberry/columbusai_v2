@@ -5,9 +5,10 @@ import { SESSION_COOKIE } from "@/lib/auth-middleware";
 
 const hasSessionCookie = createIsomorphicFn()
   .server(() => !!getCookie(SESSION_COOKIE))
-  .client(() =>
-    typeof document !== "undefined" &&
-    document.cookie.split("; ").some((c) => c.startsWith(`${SESSION_COOKIE}=`)),
+  .client(
+    () =>
+      typeof document !== "undefined" &&
+      document.cookie.split("; ").some((c) => c.startsWith(`${SESSION_COOKIE}=`)),
   );
 
 export const Route = createFileRoute("/")({

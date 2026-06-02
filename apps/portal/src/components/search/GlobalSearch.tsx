@@ -19,11 +19,7 @@ import {
   UserCheck,
 } from "lucide-react";
 
-import {
-  CURRENT_AGENCY_USER_ID,
-  CURRENT_CLIENT_ID,
-  CURRENT_CLIENT_USER_ID,
-} from "@/data/mock/db";
+import { CURRENT_AGENCY_USER_ID, CURRENT_CLIENT_ID, CURRENT_CLIENT_USER_ID } from "@/data/mock/db";
 import { useGlobalSearch } from "@/hooks/useWorkItems";
 import { getRole, isAgency } from "@/lib/portal-auth";
 import { NewWorkItemDialog } from "@/components/work/NewWorkItemDialog";
@@ -63,8 +59,7 @@ export function GlobalSearch({
     navigate({ to: href });
   };
 
-  const itemHref = (id: string) =>
-    agency ? `/admin/work/${id}` : `/requests/${id}`;
+  const itemHref = (id: string) => (agency ? `/admin/work/${id}` : `/requests/${id}`);
 
   return (
     <>

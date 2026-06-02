@@ -4,15 +4,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "npm run build --prefix ../../packages/leads && tsc",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
     "start": "node dist/index.js",
     "dev": "tsx watch src/index.ts",
-    "typecheck": "tsc --noEmit",
-    "postinstall": "node -e \"const fs=require('fs');const path=require('path');const p=path.join(process.cwd(),'node_modules','@types');fs.mkdirSync(p,{recursive:true});const t=path.join(p,'express');try{fs.unlinkSync(t);}catch(e){}; if(!fs.existsSync(t))fs.symlinkSync(path.join(process.cwd(),'../../node_modules/@types/express'),t);\""
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@columbusai/db": "file:../../packages/db",
-    "@columbusai/leads": "file:../../packages/leads",
+    "@columbusai/db": "workspace:*",
+    "@columbusai/leads": "workspace:*",
     "bcryptjs": "^3.0.2",
     "express": "^4.21",
     "openai": "^4",
@@ -23,12 +23,12 @@
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/express": "^4.17",
-    "@types/node": "^20",
+    "@types/node": "^22.16.5",
     "@types/pg": "^8.16.0",
     "tsx": "^4",
     "typescript": "^5"
   },
   "engines": {
-    "node": ">=24"
+    "node": ">=26"
   }
 }

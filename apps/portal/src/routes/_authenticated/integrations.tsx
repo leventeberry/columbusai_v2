@@ -36,7 +36,9 @@ function IntegrationsPage() {
             </div>
 
             <div className="rounded-lg border border-[color:var(--accent)]/25 bg-[color:var(--accent)]/10 px-3 py-2.5">
-              <p className="text-[10px] uppercase tracking-wider text-[color:var(--accent)] font-semibold">Business impact</p>
+              <p className="text-[10px] uppercase tracking-wider text-[color:var(--accent)] font-semibold">
+                Business impact
+              </p>
               <p className="mt-0.5 text-sm font-medium">{i.businessImpact}</p>
             </div>
 
@@ -50,7 +52,6 @@ function IntegrationsPage() {
                 <div className="font-medium text-foreground/90 truncate">{i.account}</div>
               </div>
             </div>
-
 
             {i.tone !== "online" && (
               <Button

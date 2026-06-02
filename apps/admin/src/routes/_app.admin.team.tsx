@@ -34,7 +34,13 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useAuth, type AppRole } from "@/hooks/use-auth";
-import { listTeam, inviteUser, setUserRole, removeUser } from "@/lib/admin.functions";
+import {
+  listTeam,
+  inviteUser,
+  setUserRole,
+  removeUser,
+  type TeamMember,
+} from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_app/admin/team")({
   head: () => ({ meta: [{ title: "Team & Roles — Columbus AI" }] }),
@@ -56,7 +62,7 @@ function TeamPage() {
   const setRoleFn = useServerFn(setUserRole);
   const removeFn = useServerFn(removeUser);
 
-  const { data: team, isLoading: teamLoading } = useQuery({
+  const { data: team, isLoading: teamLoading } = useQuery<TeamMember[]>({
     queryKey: ["admin", "team"],
     queryFn: () => listFn(),
     enabled: !isLoading && hasRole("admin"),
@@ -65,8 +71,7 @@ function TeamPage() {
   const invalidate = () => qc.invalidateQueries({ queryKey: ["admin", "team"] });
 
   const setRoleMut = useMutation({
-    mutationFn: (vars: { user_id: string; role: AppRole }) =>
-      setRoleFn({ data: vars }),
+    mutationFn: (vars: { user_id: string; role: AppRole }) => setRoleFn({ data: vars }),
     onSuccess: () => {
       toast.success("Role updated");
       invalidate();
@@ -219,7 +224,8 @@ function InviteDialog({
         <DialogHeader>
           <DialogTitle>Invite team member</DialogTitle>
           <DialogDescription>
-            Create an account with a temporary password. Share it securely — the user can change it after signing in.
+            Create an account with a temporary password. Share it securely — the user can change it
+            after signing in.
           </DialogDescription>
         </DialogHeader>
         <form
@@ -243,11 +249,22 @@ function InviteDialog({
         >
           <div className="space-y-1.5">
             <Label htmlFor="dn">Display name</Label>
-            <Input id="dn" required value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
+            <Input
+              id="dn"
+              required
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+            />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="em">Email</Label>
-            <Input id="em" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+            <Input
+              id="em"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="pw">Temporary password</Label>

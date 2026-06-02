@@ -5,11 +5,19 @@ import { assertAdminRole, requireApiSession } from "@/lib/auth-middleware";
 
 const APP_ROLES = ["admin", "member", "viewer"] as const;
 
+export type TeamMember = {
+  id: string;
+  email: string;
+  display_name: string | null;
+  job_title: string | null;
+  roles: string[];
+};
+
 export const listTeam = createServerFn({ method: "GET" })
   .middleware([requireApiSession])
   .handler(async ({ context }) => {
     await assertAdminRole(context.roles);
-    const data = await apiFetch<{ users: unknown[] }>("/api/admin/users");
+    const data = await apiFetch<{ users: TeamMember[] }>("/api/admin/users");
     return data.users;
   });
 

@@ -79,10 +79,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Columbus AI — Automate the busywork. Operate with clarity." },
-      { name: "description", content: "Columbus AI builds and manages automations, websites, client portals, and integrations so businesses respond faster and scale without chaos." },
+      {
+        name: "description",
+        content:
+          "Columbus AI builds and manages automations, websites, client portals, and integrations so businesses respond faster and scale without chaos.",
+      },
       { name: "author", content: "Columbus AI" },
       { property: "og:title", content: "Columbus AI — Managed AI Operations Platform" },
-      { property: "og:description", content: "Automations, websites, portals, and integrations — managed end-to-end." },
+      {
+        property: "og:description",
+        content: "Automations, websites, portals, and integrations — managed end-to-end.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@ColumbusAI" },

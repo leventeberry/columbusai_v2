@@ -26,8 +26,12 @@ export function AgentControl() {
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium">{a.name}</span>
-                <span className={`ml-auto inline-flex items-center gap-1 text-[11px] ${a.enabled ? "text-success" : "text-muted-foreground"}`}>
-                  <span className={`h-1.5 w-1.5 rounded-full ${a.enabled ? "bg-success" : "bg-muted-foreground"}`} />
+                <span
+                  className={`ml-auto inline-flex items-center gap-1 text-[11px] ${a.enabled ? "text-success" : "text-muted-foreground"}`}
+                >
+                  <span
+                    className={`h-1.5 w-1.5 rounded-full ${a.enabled ? "bg-success" : "bg-muted-foreground"}`}
+                  />
                   {a.enabled ? "Active" : "Disabled"}
                 </span>
               </div>

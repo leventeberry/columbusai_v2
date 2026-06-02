@@ -21,7 +21,13 @@ function AnalyticsPage() {
       <PageHeader
         title="Analytics"
         description="A unified view of your website, leads, automations, and AI activity."
-        actions={<DateRangeToggle value={range} onChange={setRange} options={["7d", "30d", "90d", "Year"]} />}
+        actions={
+          <DateRangeToggle
+            value={range}
+            onChange={setRange}
+            options={["7d", "30d", "90d", "Year"]}
+          />
+        }
       />
 
       <div className="surface-card p-6 bg-gradient-to-br from-[color:var(--accent)]/10 to-[color:var(--chart-4)]/10 border-[color:var(--accent)]/20">
@@ -30,7 +36,9 @@ function AnalyticsPage() {
             <Sparkles className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">Estimated time saved</p>
+            <p className="text-xs uppercase tracking-wider text-muted-foreground">
+              Estimated time saved
+            </p>
             <p className="text-3xl font-semibold mt-1">142 hours</p>
             <p className="text-sm text-muted-foreground mt-1">
               That's how much front-desk work your automations handled this month.

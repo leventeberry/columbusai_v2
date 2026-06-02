@@ -12,7 +12,8 @@ export function TrustStrip() {
     <section className="border-y border-subtle surface-1">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
         <p className="text-center text-sm text-muted-foreground max-w-2xl mx-auto">
-          Built for businesses that rely on repeatable operations, fast response times, and connected systems.
+          Built for businesses that rely on repeatable operations, fast response times, and
+          connected systems.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           {badges.map((b) => (

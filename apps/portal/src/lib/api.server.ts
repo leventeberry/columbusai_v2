@@ -1,11 +1,10 @@
 import { getRequest } from "@tanstack/react-start/server";
 
 export function getApiBaseUrl(): string {
-  return (
-    process.env.API_URL ??
-    process.env.VITE_API_URL ??
-    "http://localhost:4000"
-  ).replace(/\/$/, "");
+  return (process.env.API_URL ?? process.env.VITE_API_URL ?? "http://localhost:4000").replace(
+    /\/$/,
+    "",
+  );
 }
 
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {

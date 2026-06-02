@@ -63,9 +63,7 @@ export function ConfirmDialog({
             }}
             disabled={busy}
             className={
-              variant === "danger"
-                ? "bg-rose-500 text-white hover:bg-rose-500/90"
-                : undefined
+              variant === "danger" ? "bg-rose-500 text-white hover:bg-rose-500/90" : undefined
             }
           >
             {busy ? "Working…" : confirmLabel}

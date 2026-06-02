@@ -70,7 +70,9 @@ export function TopBar() {
                   {currentUser.initials}
                 </AvatarFallback>
               </Avatar>
-              <span className="hidden sm:block text-xs font-medium">{currentUser.name.split(" ")[0]}</span>
+              <span className="hidden sm:block text-xs font-medium">
+                {currentUser.name.split(" ")[0]}
+              </span>
               <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
             </button>
           </DropdownMenuTrigger>
@@ -78,7 +80,9 @@ export function TopBar() {
             <DropdownMenuLabel>
               <div className="flex flex-col">
                 <span className="text-sm">{currentUser.name}</span>
-                <span className="text-xs text-muted-foreground font-normal">{currentUser.email}</span>
+                <span className="text-xs text-muted-foreground font-normal">
+                  {currentUser.email}
+                </span>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />

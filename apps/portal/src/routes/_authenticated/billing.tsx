@@ -22,7 +22,8 @@ export const Route = createFileRoute("/_authenticated/billing")({
 const statusStyles = {
   Paid: "bg-[color:var(--status-online)]/15 text-[color:var(--status-online)] border-[color:var(--status-online)]/25",
   Open: "bg-[color:var(--status-attention)]/15 text-[color:var(--status-attention)] border-[color:var(--status-attention)]/25",
-  Overdue: "bg-[color:var(--status-issue)]/15 text-[color:var(--status-issue)] border-[color:var(--status-issue)]/25",
+  Overdue:
+    "bg-[color:var(--status-issue)]/15 text-[color:var(--status-issue)] border-[color:var(--status-issue)]/25",
 };
 
 function BillingPage() {
@@ -33,7 +34,10 @@ function BillingPage() {
         description="Your plan, payment method, and invoice history."
         actions={
           <>
-            <Button variant="outline" onClick={() => toast.success("We'll email you a payment update link")}>
+            <Button
+              variant="outline"
+              onClick={() => toast.success("We'll email you a payment update link")}
+            >
               <CreditCard className="mr-2 h-4 w-4" /> Update payment method
             </Button>
             <Button onClick={() => toast.success("Plan change request sent")}>
@@ -49,7 +53,12 @@ function BillingPage() {
             <p className="text-xs uppercase tracking-wider text-muted-foreground">Current plan</p>
             <h2 className="mt-1 text-xl font-semibold">{client.plan}</h2>
             <p className="text-sm text-muted-foreground mt-1">
-              Renews on {new Date(client.renewalDate).toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" })}
+              Renews on{" "}
+              {new Date(client.renewalDate).toLocaleDateString(undefined, {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })}
             </p>
           </div>
           <div className="text-left md:text-right">
@@ -98,12 +107,21 @@ function BillingPage() {
                   <TableCell className="text-muted-foreground">{i.date}</TableCell>
                   <TableCell className="font-medium">{i.amount}</TableCell>
                   <TableCell>
-                    <span className={cn("inline-flex rounded-full border px-2 py-0.5 text-xs", statusStyles[i.status])}>
+                    <span
+                      className={cn(
+                        "inline-flex rounded-full border px-2 py-0.5 text-xs",
+                        statusStyles[i.status],
+                      )}
+                    >
                       {i.status}
                     </span>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="sm" onClick={() => toast.success(`Downloading ${i.id}`)}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toast.success(`Downloading ${i.id}`)}
+                    >
                       <Download className="h-3.5 w-3.5" />
                     </Button>
                   </TableCell>

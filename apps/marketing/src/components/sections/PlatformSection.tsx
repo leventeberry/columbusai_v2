@@ -2,11 +2,31 @@ import { Globe, Workflow, Plug, LayoutDashboard, ShieldCheck } from "lucide-reac
 import { SectionHeading } from "./SectionHeading";
 
 const layers = [
-  { icon: Globe, title: "Website Layer", desc: "Fast hosted websites, lead capture pages, booking flows, and conversion-focused updates." },
-  { icon: Workflow, title: "Automation Layer", desc: "Automations for leads, reminders, reviews, follow-ups, internal tasks, and CRM updates." },
-  { icon: Plug, title: "Integration Layer", desc: "Connect tools like Google Calendar, Gmail, Stripe, HubSpot, GoHighLevel, Twilio, Slack, and SendGrid." },
-  { icon: LayoutDashboard, title: "Client Portal Layer", desc: "Clients can view results, leads, reports, requests, billing, documents, and business impact." },
-  { icon: ShieldCheck, title: "Admin Operations Layer", desc: "Columbus AI manages services, deployments, automations, health, requests, and support from an internal ops console." },
+  {
+    icon: Globe,
+    title: "Website Layer",
+    desc: "Fast hosted websites, lead capture pages, booking flows, and conversion-focused updates.",
+  },
+  {
+    icon: Workflow,
+    title: "Automation Layer",
+    desc: "Automations for leads, reminders, reviews, follow-ups, internal tasks, and CRM updates.",
+  },
+  {
+    icon: Plug,
+    title: "Integration Layer",
+    desc: "Connect tools like Google Calendar, Gmail, Stripe, HubSpot, GoHighLevel, Twilio, Slack, and SendGrid.",
+  },
+  {
+    icon: LayoutDashboard,
+    title: "Client Portal Layer",
+    desc: "Clients can view results, leads, reports, requests, billing, documents, and business impact.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Admin Operations Layer",
+    desc: "Columbus AI manages services, deployments, automations, health, requests, and support from an internal ops console.",
+  },
 ];
 
 export function PlatformSection() {

@@ -42,9 +42,12 @@ export const Route = createFileRoute("/_authenticated/support")({
 
 const statusStyles: Record<TicketStatus, string> = {
   Open: "bg-[color:var(--accent)]/15 text-[color:var(--accent)] border-[color:var(--accent)]/25",
-  "In Progress": "bg-[color:var(--chart-4)]/15 text-[color:var(--chart-4)] border-[color:var(--chart-4)]/25",
-  "Waiting on Client": "bg-[color:var(--status-attention)]/15 text-[color:var(--status-attention)] border-[color:var(--status-attention)]/25",
-  Resolved: "bg-[color:var(--status-online)]/15 text-[color:var(--status-online)] border-[color:var(--status-online)]/25",
+  "In Progress":
+    "bg-[color:var(--chart-4)]/15 text-[color:var(--chart-4)] border-[color:var(--chart-4)]/25",
+  "Waiting on Client":
+    "bg-[color:var(--status-attention)]/15 text-[color:var(--status-attention)] border-[color:var(--status-attention)]/25",
+  Resolved:
+    "bg-[color:var(--status-online)]/15 text-[color:var(--status-online)] border-[color:var(--status-online)]/25",
 };
 
 function SupportPage() {
@@ -75,15 +78,28 @@ function SupportPage() {
                   <div className="font-medium">{t.request}</div>
                   <div className="text-xs text-muted-foreground font-mono">{t.id}</div>
                 </TableCell>
-                <TableCell className="hidden md:table-cell text-muted-foreground">{t.type}</TableCell>
-                <TableCell className="hidden lg:table-cell text-muted-foreground">{t.priority}</TableCell>
+                <TableCell className="hidden md:table-cell text-muted-foreground">
+                  {t.type}
+                </TableCell>
+                <TableCell className="hidden lg:table-cell text-muted-foreground">
+                  {t.priority}
+                </TableCell>
                 <TableCell>
-                  <span className={cn("inline-flex rounded-full border px-2 py-0.5 text-xs whitespace-nowrap", statusStyles[t.status])}>
+                  <span
+                    className={cn(
+                      "inline-flex rounded-full border px-2 py-0.5 text-xs whitespace-nowrap",
+                      statusStyles[t.status],
+                    )}
+                  >
                     {t.status}
                   </span>
                 </TableCell>
-                <TableCell className="hidden sm:table-cell text-muted-foreground">{t.created}</TableCell>
-                <TableCell className="hidden sm:table-cell text-muted-foreground">{t.updated}</TableCell>
+                <TableCell className="hidden sm:table-cell text-muted-foreground">
+                  {t.created}
+                </TableCell>
+                <TableCell className="hidden sm:table-cell text-muted-foreground">
+                  {t.updated}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -109,19 +125,28 @@ function CreateTicketDialog() {
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Create a support request</DialogTitle>
-          <DialogDescription>
-            We typically respond within 2 business hours.
-          </DialogDescription>
+          <DialogDescription>We typically respond within 2 business hours.</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Type</Label>
               <Select value={type} onValueChange={setType}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
-                  {["Website Update","Automation Change","Integration Issue","Billing Question","New Feature Request","General Support"].map(t => (
-                    <SelectItem key={t} value={t}>{t}</SelectItem>
+                  {[
+                    "Website Update",
+                    "Automation Change",
+                    "Integration Issue",
+                    "Billing Question",
+                    "New Feature Request",
+                    "General Support",
+                  ].map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {t}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -129,7 +154,9 @@ function CreateTicketDialog() {
             <div className="space-y-1.5">
               <Label>Priority</Label>
               <Select value={priority} onValueChange={setPriority}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Low">Low</SelectItem>
                   <SelectItem value="Normal">Normal</SelectItem>
@@ -140,11 +167,22 @@ function CreateTicketDialog() {
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="subject">Subject</Label>
-            <Input id="subject" value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Brief summary" />
+            <Input
+              id="subject"
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              placeholder="Brief summary"
+            />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="msg">Details</Label>
-            <Textarea id="msg" rows={5} value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Tell us what you need…" />
+            <Textarea
+              id="msg"
+              rows={5}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Tell us what you need…"
+            />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="attach">Attachment (optional)</Label>
@@ -152,9 +190,17 @@ function CreateTicketDialog() {
           </div>
         </div>
         <DialogFooter>
-          <DialogClose asChild><Button variant="ghost">Cancel</Button></DialogClose>
           <DialogClose asChild>
-            <Button onClick={() => { toast.success("Support request submitted"); setSubject(""); setMessage(""); }}>
+            <Button variant="ghost">Cancel</Button>
+          </DialogClose>
+          <DialogClose asChild>
+            <Button
+              onClick={() => {
+                toast.success("Support request submitted");
+                setSubject("");
+                setMessage("");
+              }}
+            >
               Submit request
             </Button>
           </DialogClose>

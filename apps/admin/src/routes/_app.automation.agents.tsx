@@ -12,7 +12,10 @@ export const Route = createFileRoute("/_app/automation/agents")({
         title="AI Agent control center"
         subtitle="Manage, monitor, and configure every production AI agent."
         actions={
-          <Button size="sm" className="bg-gradient-to-r from-primary to-chart-2 text-primary-foreground">
+          <Button
+            size="sm"
+            className="bg-gradient-to-r from-primary to-chart-2 text-primary-foreground"
+          >
             <Plus className="mr-1 h-4 w-4" /> New agent
           </Button>
         }

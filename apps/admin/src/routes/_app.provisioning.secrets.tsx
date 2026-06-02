@@ -58,7 +58,10 @@ function SecretsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <PageHeader title="Secrets" subtitle="Environment-scoped secrets. Values are masked by default." />
+        <PageHeader
+          title="Secrets"
+          subtitle="Environment-scoped secrets. Values are masked by default."
+        />
         <div className="flex items-center gap-2">
           <Select value={clientId} onValueChange={setClientId}>
             <SelectTrigger className="h-8 w-[220px] text-xs">
@@ -72,7 +75,17 @@ function SecretsPage() {
               ))}
             </SelectContent>
           </Select>
-          <Button size="sm" onClick={() => run(api.createSecret({ environmentId: envList[0]?.id ?? "", key: `NEW_SECRET_${Date.now() % 1000}` }))}>
+          <Button
+            size="sm"
+            onClick={() =>
+              run(
+                api.createSecret({
+                  environmentId: envList[0]?.id ?? "",
+                  key: `NEW_SECRET_${Date.now() % 1000}`,
+                }),
+              )
+            }
+          >
             <Plus className="mr-1.5 h-3.5 w-3.5" /> Add secret
           </Button>
         </div>
@@ -82,7 +95,22 @@ function SecretsPage() {
           icon={KeyRound}
           title="No secrets for this client"
           description="Secrets are environment-scoped and masked by default. Add API keys, tokens, or credentials needed at runtime."
-          action={<Button size="sm" onClick={() => run(api.createSecret({ environmentId: envList[0]?.id ?? "", key: `NEW_SECRET_${Date.now() % 1000}` }))}><Plus className="mr-1.5 h-3.5 w-3.5" />Add secret</Button>}
+          action={
+            <Button
+              size="sm"
+              onClick={() =>
+                run(
+                  api.createSecret({
+                    environmentId: envList[0]?.id ?? "",
+                    key: `NEW_SECRET_${Date.now() % 1000}`,
+                  }),
+                )
+              }
+            >
+              <Plus className="mr-1.5 h-3.5 w-3.5" />
+              Add secret
+            </Button>
+          }
         />
       ) : (
         <div className="rounded-xl border border-border/60 bg-card/40">
@@ -103,27 +131,60 @@ function SecretsPage() {
                 return (
                   <TableRow key={s.id}>
                     <TableCell className="font-mono text-xs">{s.key}</TableCell>
-                    <TableCell><EnvBadge kind={env.kind} /></TableCell>
+                    <TableCell>
+                      <EnvBadge kind={env.kind} />
+                    </TableCell>
                     <TableCell className="font-mono text-xs text-muted-foreground">
                       {isOpen ? "sk_live_4f9aB2tQrV7nC1hLmZ8x" : s.masked}
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">{s.rotatedAt}</TableCell>
                     <TableCell className="text-right">
                       <Button size="sm" variant="ghost" onClick={() => toggle(s.id)}>
-                        {isOpen ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                        {isOpen ? (
+                          <EyeOff className="h-3.5 w-3.5" />
+                        ) : (
+                          <Eye className="h-3.5 w-3.5" />
+                        )}
                       </Button>
-                      <Button size="sm" variant="ghost" onClick={() => run(api.rotateSecret({ secretId: s.id, key: s.key, clientId: env.clientId }))}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() =>
+                          run(
+                            api.rotateSecret({
+                              secretId: s.id,
+                              key: s.key,
+                              clientId: env.clientId,
+                            }),
+                          )
+                        }
+                      >
                         <RotateCw className="h-3.5 w-3.5" />
                       </Button>
                       <ConfirmDialog
                         title={`Revoke ${s.key}?`}
                         description="Services using this secret will start failing immediately."
-                        impact={["Active sessions may fail", "Rotation should be coordinated with the consumer"]}
+                        impact={[
+                          "Active sessions may fail",
+                          "Rotation should be coordinated with the consumer",
+                        ]}
                         confirmLabel="Revoke"
                         variant="danger"
-                        onConfirm={() => run(api.revokeSecret({ secretId: s.id, key: s.key, clientId: env.clientId }))}
+                        onConfirm={() =>
+                          run(
+                            api.revokeSecret({
+                              secretId: s.id,
+                              key: s.key,
+                              clientId: env.clientId,
+                            }),
+                          )
+                        }
                         trigger={
-                          <Button size="sm" variant="ghost" className="text-rose-400 hover:text-rose-300">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-rose-400 hover:text-rose-300"
+                          >
                             <Trash2 className="h-3.5 w-3.5" />
                           </Button>
                         }

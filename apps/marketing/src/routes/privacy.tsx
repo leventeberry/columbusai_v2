@@ -15,9 +15,12 @@ export const Route = createFileRoute("/privacy")({
       <section className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-24">
         <h1 className="text-4xl font-semibold tracking-tight">Privacy Policy</h1>
         <p className="mt-4 text-muted-foreground">
-          Columbus AI Automation Solutions LLC respects your privacy. This page is a
-          placeholder — the full policy will live here. For questions, email{" "}
-          <a className="text-foreground underline" href="mailto:contact@columbusai.tech">contact@columbusai.tech</a>.
+          Columbus AI Automation Solutions LLC respects your privacy. This page is a placeholder —
+          the full policy will live here. For questions, email{" "}
+          <a className="text-foreground underline" href="mailto:contact@columbusai.tech">
+            contact@columbusai.tech
+          </a>
+          .
         </p>
       </section>
     </SiteLayout>

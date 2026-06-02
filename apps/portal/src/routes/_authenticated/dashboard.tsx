@@ -21,13 +21,7 @@ import {
 import { PageHeader } from "@/components/portal/PageHeader";
 import { KpiCard } from "@/components/portal/KpiCard";
 import { StatusPill } from "@/components/portal/StatusPill";
-import {
-  activity,
-  businessImpact,
-  client,
-  monthInReview,
-  services,
-} from "@/lib/mock/portal";
+import { activity, businessImpact, client, monthInReview, services } from "@/lib/mock/portal";
 import { useWorkItems } from "@/hooks/useWorkItems";
 import { CURRENT_CLIENT_ID } from "@/data/mock/db";
 import { formatRelative } from "@/data/utils";
@@ -60,9 +54,21 @@ const impactCards = [
 
 const roiRows = [
   { label: "Leads Generated", value: businessImpact.leadsCaptured.toString(), icon: Users },
-  { label: "Appointments Scheduled", value: businessImpact.appointmentsBooked.toString(), icon: CalendarCheck },
-  { label: "Estimated Revenue Influenced", value: `$${businessImpact.revenueInfluenced.toLocaleString()}`, icon: DollarSign },
-  { label: "Follow-Ups Automated", value: businessImpact.followUpsAutomated.toString(), icon: Workflow },
+  {
+    label: "Appointments Scheduled",
+    value: businessImpact.appointmentsBooked.toString(),
+    icon: CalendarCheck,
+  },
+  {
+    label: "Estimated Revenue Influenced",
+    value: `$${businessImpact.revenueInfluenced.toLocaleString()}`,
+    icon: DollarSign,
+  },
+  {
+    label: "Follow-Ups Automated",
+    value: businessImpact.followUpsAutomated.toString(),
+    icon: Workflow,
+  },
   { label: "Hours Saved", value: `${businessImpact.hoursSaved}h`, icon: Clock },
 ];
 
@@ -105,7 +111,9 @@ function Dashboard() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold tracking-tight">Business Impact This Month</h2>
-            <p className="text-xs text-muted-foreground">What Columbus AI delivered for {client.name} in {monthInReview.period}.</p>
+            <p className="text-xs text-muted-foreground">
+              What Columbus AI delivered for {client.name} in {monthInReview.period}.
+            </p>
           </div>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -120,9 +128,13 @@ function Dashboard() {
         <div className="lg:col-span-2 surface-card p-6 bg-gradient-to-br from-[color:var(--accent)]/8 to-transparent">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-xs uppercase tracking-wider text-[color:var(--accent)] font-semibold">Your Month In Review</p>
+              <p className="text-xs uppercase tracking-wider text-[color:var(--accent)] font-semibold">
+                Your Month In Review
+              </p>
               <h3 className="mt-1 text-xl font-semibold">{monthInReview.period}</h3>
-              <p className="text-xs text-muted-foreground">Compared to {monthInReview.comparedTo}</p>
+              <p className="text-xs text-muted-foreground">
+                Compared to {monthInReview.comparedTo}
+              </p>
             </div>
             <Button asChild variant="outline" size="sm">
               <Link to="/reports">
@@ -134,13 +146,23 @@ function Dashboard() {
             {monthInReview.metrics.map((m) => {
               const d = delta(m.current, m.previous);
               return (
-                <div key={m.label} className="rounded-lg border border-border bg-surface-elevated/40 p-3">
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{m.label}</p>
+                <div
+                  key={m.label}
+                  className="rounded-lg border border-border bg-surface-elevated/40 p-3"
+                >
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                    {m.label}
+                  </p>
                   <p className="mt-1 text-lg font-semibold">{formatValue(m.current, m.format)}</p>
-                  <p className={`mt-1 inline-flex items-center gap-1 text-[11px] font-medium ${d.up ? "text-[color:var(--status-online)]" : "text-[color:var(--status-issue)]"}`}>
+                  <p
+                    className={`mt-1 inline-flex items-center gap-1 text-[11px] font-medium ${d.up ? "text-[color:var(--status-online)]" : "text-[color:var(--status-issue)]"}`}
+                  >
                     <ArrowUpRight className={`h-3 w-3 ${d.up ? "" : "rotate-180"}`} />
                     {d.up ? "+" : ""}
-                    {m.format === "number" ? d.abs.toLocaleString() : formatValue(d.abs, m.format)} ({d.pct >= 0 ? "+" : ""}
+                    {m.format === "number"
+                      ? d.abs.toLocaleString()
+                      : formatValue(d.abs, m.format)}{" "}
+                    ({d.pct >= 0 ? "+" : ""}
                     {d.pct}%)
                   </p>
                 </div>
@@ -150,7 +172,9 @@ function Dashboard() {
         </div>
 
         <div className="surface-card p-6">
-          <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Estimated Business Impact</p>
+          <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+            Estimated Business Impact
+          </p>
           <h3 className="mt-1 text-base font-semibold">Value delivered</h3>
           <ul className="mt-4 space-y-3">
             {roiRows.map((r) => (
@@ -229,7 +253,9 @@ function Dashboard() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
                       <p className="text-sm font-medium">{a.title}</p>
-                      <span className="text-xs text-muted-foreground whitespace-nowrap">{a.at}</span>
+                      <span className="text-xs text-muted-foreground whitespace-nowrap">
+                        {a.at}
+                      </span>
                     </div>
                     <p className="text-xs text-muted-foreground">{a.detail}</p>
                   </div>
@@ -244,7 +270,9 @@ function Dashboard() {
       <section>
         <div className="flex items-center justify-between mb-3">
           <div>
-            <h2 className="text-lg font-semibold tracking-tight">What Columbus AI is doing for you</h2>
+            <h2 className="text-lg font-semibold tracking-tight">
+              What Columbus AI is doing for you
+            </h2>
             <p className="text-xs text-muted-foreground">Included in your {client.plan}.</p>
           </div>
           <Button asChild variant="outline" size="sm">
@@ -255,7 +283,10 @@ function Dashboard() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
           {services.map((s) => (
-            <div key={s.id} className="surface-card p-4 flex flex-col gap-2 hover:border-[color:var(--accent)]/40 transition">
+            <div
+              key={s.id}
+              className="surface-card p-4 flex flex-col gap-2 hover:border-[color:var(--accent)]/40 transition"
+            >
               <div className="flex items-start justify-between gap-2">
                 <h4 className="text-sm font-semibold leading-tight">{s.name}</h4>
                 <StatusPill tone="online">{s.status}</StatusPill>

@@ -1,34 +1,63 @@
 {
   "name": "columbusai",
   "private": true,
+  "packageManager": "pnpm@10.12.4",
   "engines": {
-    "node": ">=24.0.0"
+    "node": ">=26.0.0"
   },
-  "workspaces": [
-    "packages/*",
-    "apps/*"
-  ],
+  "pnpm": {
+    "overrides": {
+      "@types/react": "^19.2.7",
+      "@types/react-dom": "^19.2.3"
+    },
+    "onlyBuiltDependencies": [
+      "@prisma/engines",
+      "prisma",
+      "esbuild",
+      "sharp",
+      "msw",
+      "sqlite3",
+      "unrs-resolver"
+    ]
+  },
   "scripts": {
-    "hermes": "npx tsx tools/hermes/hermes.ts",
-    "n8n:list": "npx tsx scripts/n8n/list-workflows.ts",
-    "n8n:pull:demo": "npx tsx scripts/n8n/pull-workflow.ts",
-    "n8n:push:demo": "npx tsx scripts/n8n/push-workflow.ts",
-    "n8n:activate:demo": "npx tsx scripts/n8n/activate-workflow.ts",
-    "hostinger:list-vms": "npx tsx scripts/hostinger/list-vms.ts",
-    "hostinger:provision": "npx tsx scripts/hostinger/provision-vps.ts",
-    "hostinger:provision:firewall": "npx tsx scripts/hostinger/provision-firewall.ts",
-    "hostinger:provision:ssh": "npx tsx scripts/hostinger/provision-ssh-key.ts",
-    "hostinger:provision:dns": "npx tsx scripts/hostinger/provision-dns.ts",
-    "hostinger:deploy": "npx tsx scripts/hostinger/deploy-docker.ts",
-    "hostinger:verify-env": "npx tsx scripts/hostinger/verify-env.ts",
-    "hostinger:dns:dump": "npx tsx scripts/hostinger/dump-dns.ts",
-    "hostinger:check-auth": "npx tsx scripts/hostinger/check-auth.ts",
-    "hostinger:deploy:all": "npx tsx scripts/hostinger/deploy-all.ts"
+    "db:generate": "pnpm --filter @columbusai/db generate",
+    "db:build": "pnpm --filter @columbusai/db build",
+    "db:migrate:deploy": "pnpm --filter @columbusai/db migrate:deploy",
+    "db:migrate:status": "pnpm --filter @columbusai/db migrate:status",
+    "db:seed": "pnpm --filter @columbusai/db exec prisma db seed",
+    "build": "pnpm -r --if-present build",
+    "lint": "pnpm -r --if-present lint",
+    "typecheck": "pnpm db:build && pnpm --filter @columbusai/leads build && pnpm -r --if-present typecheck",
+    "test": "pnpm -r --if-present test",
+    "docker:up": "docker compose -f infra/docker/compose.dev.yml up -d --build",
+    "docker:down": "docker compose -f infra/docker/compose.dev.yml down",
+    "docker:build": "docker compose -f infra/docker/compose.dev.yml build",
+    "dev:marketing": "pnpm --filter marketing dev",
+    "dev:admin": "pnpm --filter admin dev",
+    "dev:portal": "pnpm --filter portal dev",
+    "dev:api": "pnpm --filter api dev",
+    "hermes": "pnpm exec tsx tools/hermes/hermes.ts",
+    "n8n:list": "pnpm exec tsx scripts/n8n/list-workflows.ts",
+    "n8n:pull:demo": "pnpm exec tsx scripts/n8n/pull-workflow.ts",
+    "n8n:push:demo": "pnpm exec tsx scripts/n8n/push-workflow.ts",
+    "n8n:activate:demo": "pnpm exec tsx scripts/n8n/activate-workflow.ts",
+    "hostinger:list-vms": "pnpm exec tsx scripts/hostinger/list-vms.ts",
+    "hostinger:provision": "pnpm exec tsx scripts/hostinger/provision-vps.ts",
+    "hostinger:provision:firewall": "pnpm exec tsx scripts/hostinger/provision-firewall.ts",
+    "hostinger:provision:ssh": "pnpm exec tsx scripts/hostinger/provision-ssh-key.ts",
+    "hostinger:provision:dns": "pnpm exec tsx scripts/hostinger/provision-dns.ts",
+    "hostinger:deploy": "pnpm exec tsx scripts/hostinger/deploy-docker.ts",
+    "hostinger:verify-env": "pnpm exec tsx scripts/hostinger/verify-env.ts",
+    "hostinger:dns:dump": "pnpm exec tsx scripts/hostinger/dump-dns.ts",
+    "hostinger:check-auth": "pnpm exec tsx scripts/hostinger/check-auth.ts",
+    "hostinger:deploy:all": "pnpm exec tsx scripts/hostinger/deploy-all.ts"
   },
   "devDependencies": {
     "@cursor/sdk": "latest",
     "dotenv": "^17.4.2",
-    "tsx": "latest"
+    "tsx": "^4.20.5",
+    "typescript": "^5.8.3"
   },
   "dependencies": {
     "hostinger-api-sdk": "^0.0.17"

@@ -23,7 +23,13 @@ export function AreaTrend({ data, color = "var(--accent)" }: { data: Point[]; co
           </linearGradient>
         </defs>
         <CartesianGrid stroke="oklch(1 0 0 / 0.06)" vertical={false} />
-        <XAxis dataKey="label" stroke="oklch(1 0 0 / 0.4)" fontSize={11} tickLine={false} axisLine={false} />
+        <XAxis
+          dataKey="label"
+          stroke="oklch(1 0 0 / 0.4)"
+          fontSize={11}
+          tickLine={false}
+          axisLine={false}
+        />
         <YAxis stroke="oklch(1 0 0 / 0.4)" fontSize={11} tickLine={false} axisLine={false} />
         <Tooltip
           cursor={{ stroke: "oklch(1 0 0 / 0.15)" }}
@@ -34,7 +40,13 @@ export function AreaTrend({ data, color = "var(--accent)" }: { data: Point[]; co
             fontSize: 12,
           }}
         />
-        <Area type="monotone" dataKey="value" stroke={color} strokeWidth={2} fill={`url(#grad-${color})`} />
+        <Area
+          type="monotone"
+          dataKey="value"
+          stroke={color}
+          strokeWidth={2}
+          fill={`url(#grad-${color})`}
+        />
       </AreaChart>
     </ResponsiveContainer>
   );
@@ -45,7 +57,13 @@ export function BarTrend({ data, color = "var(--chart-2)" }: { data: Point[]; co
     <ResponsiveContainer width="100%" height={180}>
       <BarChart data={data} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
         <CartesianGrid stroke="oklch(1 0 0 / 0.06)" vertical={false} />
-        <XAxis dataKey="label" stroke="oklch(1 0 0 / 0.4)" fontSize={11} tickLine={false} axisLine={false} />
+        <XAxis
+          dataKey="label"
+          stroke="oklch(1 0 0 / 0.4)"
+          fontSize={11}
+          tickLine={false}
+          axisLine={false}
+        />
         <YAxis stroke="oklch(1 0 0 / 0.4)" fontSize={11} tickLine={false} axisLine={false} />
         <Tooltip
           cursor={{ fill: "oklch(1 0 0 / 0.05)" }}

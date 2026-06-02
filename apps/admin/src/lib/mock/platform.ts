@@ -188,12 +188,7 @@ export const domains: Domain[] = environments.map((e, i) => ({
 }));
 
 // ---- Env vars ----
-const COMMON_VARS = [
-  "NEXT_PUBLIC_API_URL",
-  "NEXT_PUBLIC_SITE_URL",
-  "DATABASE_URL",
-  "REDIS_URL",
-];
+const COMMON_VARS = ["NEXT_PUBLIC_API_URL", "NEXT_PUBLIC_SITE_URL", "DATABASE_URL", "REDIS_URL"];
 export const envVars: EnvVar[] = environments.flatMap((e) =>
   COMMON_VARS.map<EnvVar>((key, i) => ({
     id: `ev-${e.id}-${key}`,
@@ -203,13 +198,13 @@ export const envVars: EnvVar[] = environments.flatMap((e) =>
       key === "NEXT_PUBLIC_SITE_URL"
         ? `https://${e.domain}`
         : key === "NEXT_PUBLIC_API_URL"
-        ? `https://api.${e.domain}`
-        : key === "DATABASE_URL"
-        ? `postgres://app:****@db.${e.domain}:5432/app`
-        : `redis://default:****@cache.${e.domain}:6379`,
+          ? `https://api.${e.domain}`
+          : key === "DATABASE_URL"
+            ? `postgres://app:****@db.${e.domain}:5432/app`
+            : `redis://default:****@cache.${e.domain}:6379`,
     scope: i < 2 ? "build" : "runtime",
     updatedAt: `${i + 2}d ago`,
-  }))
+  })),
 );
 
 // ---- Secrets ----
@@ -227,7 +222,7 @@ export const secrets: Secret[] = environments.flatMap((e) =>
     key,
     masked: "•••• •••• •••• " + (1000 + i).toString().slice(-4),
     rotatedAt: `${(i + 1) * 7}d ago`,
-  }))
+  })),
 );
 
 // ---- Provisioning jobs ----
@@ -309,11 +304,46 @@ export const provisioningJobs: ProvisioningJob[] = [
 
 // ---- Timeline events per client ----
 export const timeline: TimelineEvent[] = clients.flatMap((c) => [
-  { id: `tl-${c.id}-1`, clientId: c.id, kind: "deployment", severity: "success", message: "Deployment v2024.11.04 succeeded", ts: "Today · 09:14" },
-  { id: `tl-${c.id}-2`, clientId: c.id, kind: "workflow", severity: "info", message: "Workflow CRM Sync completed in 1.2s", ts: "2h ago" },
-  { id: `tl-${c.id}-3`, clientId: c.id, kind: "alert", severity: "warn", message: "Redis memory crossed 75% threshold", ts: "Yesterday · 14:02" },
-  { id: `tl-${c.id}-4`, clientId: c.id, kind: "ssl", severity: "success", message: "SSL certificate renewed", ts: "3 days ago" },
-  { id: `tl-${c.id}-5`, clientId: c.id, kind: "dns", severity: "success", message: "DNS configuration updated", ts: "5 days ago" },
+  {
+    id: `tl-${c.id}-1`,
+    clientId: c.id,
+    kind: "deployment",
+    severity: "success",
+    message: "Deployment v2024.11.04 succeeded",
+    ts: "Today · 09:14",
+  },
+  {
+    id: `tl-${c.id}-2`,
+    clientId: c.id,
+    kind: "workflow",
+    severity: "info",
+    message: "Workflow CRM Sync completed in 1.2s",
+    ts: "2h ago",
+  },
+  {
+    id: `tl-${c.id}-3`,
+    clientId: c.id,
+    kind: "alert",
+    severity: "warn",
+    message: "Redis memory crossed 75% threshold",
+    ts: "Yesterday · 14:02",
+  },
+  {
+    id: `tl-${c.id}-4`,
+    clientId: c.id,
+    kind: "ssl",
+    severity: "success",
+    message: "SSL certificate renewed",
+    ts: "3 days ago",
+  },
+  {
+    id: `tl-${c.id}-5`,
+    clientId: c.id,
+    kind: "dns",
+    severity: "success",
+    message: "DNS configuration updated",
+    ts: "5 days ago",
+  },
 ]);
 
 // ---- Usage events ----

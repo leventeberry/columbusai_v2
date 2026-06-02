@@ -2,9 +2,12 @@ import { cn } from "@/lib/utils";
 import type { StatusTone } from "@/lib/mock/portal";
 
 const toneClasses: Record<StatusTone, string> = {
-  online: "bg-[color:var(--status-online)]/15 text-[color:var(--status-online)] border-[color:var(--status-online)]/25",
-  attention: "bg-[color:var(--status-attention)]/15 text-[color:var(--status-attention)] border-[color:var(--status-attention)]/25",
-  issue: "bg-[color:var(--status-issue)]/15 text-[color:var(--status-issue)] border-[color:var(--status-issue)]/25",
+  online:
+    "bg-[color:var(--status-online)]/15 text-[color:var(--status-online)] border-[color:var(--status-online)]/25",
+  attention:
+    "bg-[color:var(--status-attention)]/15 text-[color:var(--status-attention)] border-[color:var(--status-attention)]/25",
+  issue:
+    "bg-[color:var(--status-issue)]/15 text-[color:var(--status-issue)] border-[color:var(--status-issue)]/25",
   muted: "bg-muted text-muted-foreground border-border",
 };
 

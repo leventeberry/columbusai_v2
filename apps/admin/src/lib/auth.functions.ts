@@ -18,9 +18,15 @@ export type AuthMeUser = {
   roles: ("admin" | "member" | "viewer")[];
 };
 
+export type AuthMeClientMembership = {
+  client_id: string;
+  client_name: string | null;
+  role: string;
+};
+
 export type AuthMeResponse = {
   user: AuthMeUser;
-  client_memberships: unknown[];
+  client_memberships: AuthMeClientMembership[];
 };
 
 function appendSessionCookie(token: string): void {

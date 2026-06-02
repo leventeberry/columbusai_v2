@@ -1,9 +1,4 @@
-export type Role =
-  | "owner"
-  | "admin"
-  | "viewer"
-  | "agency_admin"
-  | "agency_member";
+export type Role = "owner" | "admin" | "viewer" | "agency_admin" | "agency_member";
 
 export type StatusTone = "online" | "attention" | "issue" | "muted";
 
@@ -46,9 +41,7 @@ export const services: ServiceCatalogItem[] = [
     features: ["Real-time availability", "Calendar sync", "Auto-confirmations", "Reschedule links"],
     status: "Active",
     lastUpdated: "3 days ago",
-    recentActivity: [
-      { id: "s3", title: "17 appointments booked this week", at: "Today" },
-    ],
+    recentActivity: [{ id: "s3", title: "17 appointments booked this week", at: "Today" }],
     relatedRequestIds: ["R-1041"],
   },
   {
@@ -170,12 +163,48 @@ export type ActivityItem = {
 };
 
 export const activity: ActivityItem[] = [
-  { id: "a1", kind: "website", title: "Website update deployed", detail: "Booking page refresh published", at: "2h ago" },
-  { id: "a2", kind: "automation", title: "Review Request automation completed", detail: "12 review requests sent", at: "5h ago" },
-  { id: "a3", kind: "lead", title: "New lead captured", detail: "Maria S. via Booking Form", at: "6h ago" },
-  { id: "a4", kind: "invoice", title: "Invoice paid", detail: "INV-2026-005 · $1,500.00", at: "Yesterday" },
-  { id: "a5", kind: "integration", title: "Google Calendar reconnected", detail: "Sync restored", at: "2d ago" },
-  { id: "a6", kind: "support", title: "Support request updated", detail: "Website Update · In Progress", at: "3d ago" },
+  {
+    id: "a1",
+    kind: "website",
+    title: "Website update deployed",
+    detail: "Booking page refresh published",
+    at: "2h ago",
+  },
+  {
+    id: "a2",
+    kind: "automation",
+    title: "Review Request automation completed",
+    detail: "12 review requests sent",
+    at: "5h ago",
+  },
+  {
+    id: "a3",
+    kind: "lead",
+    title: "New lead captured",
+    detail: "Maria S. via Booking Form",
+    at: "6h ago",
+  },
+  {
+    id: "a4",
+    kind: "invoice",
+    title: "Invoice paid",
+    detail: "INV-2026-005 · $1,500.00",
+    at: "Yesterday",
+  },
+  {
+    id: "a5",
+    kind: "integration",
+    title: "Google Calendar reconnected",
+    detail: "Sync restored",
+    at: "2d ago",
+  },
+  {
+    id: "a6",
+    kind: "support",
+    title: "Support request updated",
+    detail: "Website Update · In Progress",
+    at: "3d ago",
+  },
 ];
 
 export const website = {
@@ -219,7 +248,9 @@ export const websiteAnalytics = {
 export function trendSeries(points: number, base: number, jitter = 0.25) {
   return Array.from({ length: points }).map((_, i) => ({
     label: `D${i + 1}`,
-    value: Math.round(base * (1 + Math.sin(i / 2.2) * jitter + (Math.random() - 0.5) * jitter * 0.5)),
+    value: Math.round(
+      base * (1 + Math.sin(i / 2.2) * jitter + (Math.random() - 0.5) * jitter * 0.5),
+    ),
   }));
 }
 
@@ -238,12 +269,84 @@ export type Automation = {
 };
 
 export const automations: Automation[] = [
-  { id: "lead-capture", name: "Lead Capture Automation", status: "online", statusLabel: "Active", runsThisMonth: 42, successRate: 100, lastRun: "12 min ago", description: "Sends every new website inquiry into your CRM with full source details.", outcome: "Zero leads lost from your booking and contact forms.", outcomeCount: 42, outcomeLabel: "Leads Captured" },
-  { id: "appt-reminder", name: "Appointment Reminder", status: "online", statusLabel: "Active", runsThisMonth: 423, successRate: 99.4, lastRun: "1 hr ago", description: "SMS + email reminder 24h and 2h before each appointment.", outcome: "Fewer no-shows and rescheduling calls for your front desk.", outcomeCount: 91, outcomeLabel: "Appointments Confirmed" },
-  { id: "review-req", name: "Review Request Campaign", status: "online", statusLabel: "Active", runsThisMonth: 112, successRate: 98.7, lastRun: "5 hr ago", description: "Asks happy clients for a Google review the day after their visit.", outcome: "Steady stream of 5-star reviews without staff lift.", outcomeCount: 37, outcomeLabel: "Reviews Generated" },
-  { id: "crm-sync", name: "CRM Sync", status: "online", statusLabel: "Active", runsThisMonth: 1240, successRate: 99.9, lastRun: "Just now", description: "Keeps client records in sync between booking, email, and CRM.", outcome: "One reliable source of truth for every client.", outcomeCount: 1240, outcomeLabel: "Records Synced" },
-  { id: "missed-call", name: "Missed Call Text Back", status: "attention", statusLabel: "Needs Attention", runsThisMonth: 28, successRate: 92.1, lastRun: "3 hr ago", description: "Texts callers automatically if a call is missed during business hours.", outcome: "Recover bookings that would otherwise be lost.", outcomeCount: 9, outcomeLabel: "Calls Recovered" },
-  { id: "lead-followup", name: "Lead Follow-Up", status: "online", statusLabel: "Active", runsThisMonth: 87, successRate: 99.1, lastRun: "1 hr ago", description: "Multi-touch follow-up for leads that don't book on the first visit.", outcome: "Re-engages prospects without manual outreach.", outcomeCount: 12, outcomeLabel: "Bookings Scheduled" },
+  {
+    id: "lead-capture",
+    name: "Lead Capture Automation",
+    status: "online",
+    statusLabel: "Active",
+    runsThisMonth: 42,
+    successRate: 100,
+    lastRun: "12 min ago",
+    description: "Sends every new website inquiry into your CRM with full source details.",
+    outcome: "Zero leads lost from your booking and contact forms.",
+    outcomeCount: 42,
+    outcomeLabel: "Leads Captured",
+  },
+  {
+    id: "appt-reminder",
+    name: "Appointment Reminder",
+    status: "online",
+    statusLabel: "Active",
+    runsThisMonth: 423,
+    successRate: 99.4,
+    lastRun: "1 hr ago",
+    description: "SMS + email reminder 24h and 2h before each appointment.",
+    outcome: "Fewer no-shows and rescheduling calls for your front desk.",
+    outcomeCount: 91,
+    outcomeLabel: "Appointments Confirmed",
+  },
+  {
+    id: "review-req",
+    name: "Review Request Campaign",
+    status: "online",
+    statusLabel: "Active",
+    runsThisMonth: 112,
+    successRate: 98.7,
+    lastRun: "5 hr ago",
+    description: "Asks happy clients for a Google review the day after their visit.",
+    outcome: "Steady stream of 5-star reviews without staff lift.",
+    outcomeCount: 37,
+    outcomeLabel: "Reviews Generated",
+  },
+  {
+    id: "crm-sync",
+    name: "CRM Sync",
+    status: "online",
+    statusLabel: "Active",
+    runsThisMonth: 1240,
+    successRate: 99.9,
+    lastRun: "Just now",
+    description: "Keeps client records in sync between booking, email, and CRM.",
+    outcome: "One reliable source of truth for every client.",
+    outcomeCount: 1240,
+    outcomeLabel: "Records Synced",
+  },
+  {
+    id: "missed-call",
+    name: "Missed Call Text Back",
+    status: "attention",
+    statusLabel: "Needs Attention",
+    runsThisMonth: 28,
+    successRate: 92.1,
+    lastRun: "3 hr ago",
+    description: "Texts callers automatically if a call is missed during business hours.",
+    outcome: "Recover bookings that would otherwise be lost.",
+    outcomeCount: 9,
+    outcomeLabel: "Calls Recovered",
+  },
+  {
+    id: "lead-followup",
+    name: "Lead Follow-Up",
+    status: "online",
+    statusLabel: "Active",
+    runsThisMonth: 87,
+    successRate: 99.1,
+    lastRun: "1 hr ago",
+    description: "Multi-touch follow-up for leads that don't book on the first visit.",
+    outcome: "Re-engages prospects without manual outreach.",
+    outcomeCount: 12,
+    outcomeLabel: "Bookings Scheduled",
+  },
 ];
 
 export type Integration = {
@@ -258,15 +361,96 @@ export type Integration = {
 };
 
 export const integrations: Integration[] = [
-  { id: "gcal", name: "Google Calendar", status: "Connected", tone: "online", purpose: "Appointment scheduling", lastSync: "2 min ago", account: "bookings@kdmdermatherapy.com", businessImpact: "17 appointments scheduled this month" },
-  { id: "gmail", name: "Gmail", status: "Connected", tone: "online", purpose: "Client email notifications", lastSync: "12 min ago", account: "kira@kdmdermatherapy.com", businessImpact: "284 confirmation emails delivered" },
-  { id: "stripe", name: "Stripe", status: "Connected", tone: "online", purpose: "Payments and invoicing", lastSync: "30 min ago", account: "acct_••••8829", businessImpact: "$6,800 in revenue captured" },
-  { id: "hubspot", name: "HubSpot", status: "Needs Attention", tone: "attention", purpose: "CRM and contact management", lastSync: "2 days ago", account: "KDM Workspace", businessImpact: "Pending sync — 8 contacts queued" },
-  { id: "ghl", name: "GoHighLevel", status: "Connected", tone: "online", purpose: "Pipelines and outreach", lastSync: "1 hr ago", account: "KDM Sub-account", businessImpact: "42 leads routed through pipeline" },
-  { id: "twilio", name: "Twilio", status: "Connected", tone: "online", purpose: "SMS notifications", lastSync: "3 min ago", account: "+1 (480) ••• 0142", businessImpact: "412 SMS sent this month" },
-  { id: "sendgrid", name: "SendGrid", status: "Connected", tone: "online", purpose: "Transactional email delivery", lastSync: "20 min ago", account: "no-reply@kdmdermatherapy.com", businessImpact: "1,142 emails delivered, 0 bounces" },
-  { id: "slack", name: "Slack", status: "Disconnected", tone: "muted", purpose: "Internal team notifications", lastSync: "—", account: "Not connected", businessImpact: "Not yet active" },
-  { id: "openai", name: "OpenAI", status: "Connected", tone: "online", purpose: "AI chat and assistant features", lastSync: "Just now", account: "KDM Org", businessImpact: "Powers smart reply drafts" },
+  {
+    id: "gcal",
+    name: "Google Calendar",
+    status: "Connected",
+    tone: "online",
+    purpose: "Appointment scheduling",
+    lastSync: "2 min ago",
+    account: "bookings@kdmdermatherapy.com",
+    businessImpact: "17 appointments scheduled this month",
+  },
+  {
+    id: "gmail",
+    name: "Gmail",
+    status: "Connected",
+    tone: "online",
+    purpose: "Client email notifications",
+    lastSync: "12 min ago",
+    account: "kira@kdmdermatherapy.com",
+    businessImpact: "284 confirmation emails delivered",
+  },
+  {
+    id: "stripe",
+    name: "Stripe",
+    status: "Connected",
+    tone: "online",
+    purpose: "Payments and invoicing",
+    lastSync: "30 min ago",
+    account: "acct_••••8829",
+    businessImpact: "$6,800 in revenue captured",
+  },
+  {
+    id: "hubspot",
+    name: "HubSpot",
+    status: "Needs Attention",
+    tone: "attention",
+    purpose: "CRM and contact management",
+    lastSync: "2 days ago",
+    account: "KDM Workspace",
+    businessImpact: "Pending sync — 8 contacts queued",
+  },
+  {
+    id: "ghl",
+    name: "GoHighLevel",
+    status: "Connected",
+    tone: "online",
+    purpose: "Pipelines and outreach",
+    lastSync: "1 hr ago",
+    account: "KDM Sub-account",
+    businessImpact: "42 leads routed through pipeline",
+  },
+  {
+    id: "twilio",
+    name: "Twilio",
+    status: "Connected",
+    tone: "online",
+    purpose: "SMS notifications",
+    lastSync: "3 min ago",
+    account: "+1 (480) ••• 0142",
+    businessImpact: "412 SMS sent this month",
+  },
+  {
+    id: "sendgrid",
+    name: "SendGrid",
+    status: "Connected",
+    tone: "online",
+    purpose: "Transactional email delivery",
+    lastSync: "20 min ago",
+    account: "no-reply@kdmdermatherapy.com",
+    businessImpact: "1,142 emails delivered, 0 bounces",
+  },
+  {
+    id: "slack",
+    name: "Slack",
+    status: "Disconnected",
+    tone: "muted",
+    purpose: "Internal team notifications",
+    lastSync: "—",
+    account: "Not connected",
+    businessImpact: "Not yet active",
+  },
+  {
+    id: "openai",
+    name: "OpenAI",
+    status: "Connected",
+    tone: "online",
+    purpose: "AI chat and assistant features",
+    lastSync: "Just now",
+    account: "KDM Org",
+    businessImpact: "Powers smart reply drafts",
+  },
 ];
 
 export type LeadStatus = "New" | "Contacted" | "Booked" | "Closed" | "Lost";
@@ -282,14 +466,86 @@ export type Lead = {
 };
 
 export const leads: Lead[] = [
-  { id: "L-1042", name: "Maria Santos", email: "maria.s@email.com", phone: "(602) 555-0142", source: "Booking Form", status: "New", created: "Today", lastContacted: "—" },
-  { id: "L-1041", name: "Jordan Lee", email: "jordanl@email.com", phone: "(602) 555-0188", source: "Contact Form", status: "Contacted", created: "Today", lastContacted: "1h ago" },
-  { id: "L-1040", name: "Priya Patel", email: "priya.p@email.com", phone: "(480) 555-0119", source: "Instagram Ad", status: "Booked", created: "Yesterday", lastContacted: "Yesterday" },
-  { id: "L-1039", name: "Daniel Kim", email: "dkim@email.com", phone: "(480) 555-0177", source: "Google Search", status: "Booked", created: "Yesterday", lastContacted: "Yesterday" },
-  { id: "L-1038", name: "Emily Chen", email: "emily.c@email.com", phone: "(602) 555-0102", source: "Referral", status: "Closed", created: "3 days ago", lastContacted: "2 days ago" },
-  { id: "L-1037", name: "Marcus Hall", email: "marcus@email.com", phone: "(602) 555-0133", source: "Booking Form", status: "Lost", created: "4 days ago", lastContacted: "3 days ago" },
-  { id: "L-1036", name: "Sofia Reyes", email: "sofia.r@email.com", phone: "(602) 555-0166", source: "Facebook Ad", status: "Contacted", created: "5 days ago", lastContacted: "4 days ago" },
-  { id: "L-1035", name: "Ben Carter", email: "benc@email.com", phone: "(480) 555-0154", source: "Booking Form", status: "Booked", created: "6 days ago", lastContacted: "5 days ago" },
+  {
+    id: "L-1042",
+    name: "Maria Santos",
+    email: "maria.s@email.com",
+    phone: "(602) 555-0142",
+    source: "Booking Form",
+    status: "New",
+    created: "Today",
+    lastContacted: "—",
+  },
+  {
+    id: "L-1041",
+    name: "Jordan Lee",
+    email: "jordanl@email.com",
+    phone: "(602) 555-0188",
+    source: "Contact Form",
+    status: "Contacted",
+    created: "Today",
+    lastContacted: "1h ago",
+  },
+  {
+    id: "L-1040",
+    name: "Priya Patel",
+    email: "priya.p@email.com",
+    phone: "(480) 555-0119",
+    source: "Instagram Ad",
+    status: "Booked",
+    created: "Yesterday",
+    lastContacted: "Yesterday",
+  },
+  {
+    id: "L-1039",
+    name: "Daniel Kim",
+    email: "dkim@email.com",
+    phone: "(480) 555-0177",
+    source: "Google Search",
+    status: "Booked",
+    created: "Yesterday",
+    lastContacted: "Yesterday",
+  },
+  {
+    id: "L-1038",
+    name: "Emily Chen",
+    email: "emily.c@email.com",
+    phone: "(602) 555-0102",
+    source: "Referral",
+    status: "Closed",
+    created: "3 days ago",
+    lastContacted: "2 days ago",
+  },
+  {
+    id: "L-1037",
+    name: "Marcus Hall",
+    email: "marcus@email.com",
+    phone: "(602) 555-0133",
+    source: "Booking Form",
+    status: "Lost",
+    created: "4 days ago",
+    lastContacted: "3 days ago",
+  },
+  {
+    id: "L-1036",
+    name: "Sofia Reyes",
+    email: "sofia.r@email.com",
+    phone: "(602) 555-0166",
+    source: "Facebook Ad",
+    status: "Contacted",
+    created: "5 days ago",
+    lastContacted: "4 days ago",
+  },
+  {
+    id: "L-1035",
+    name: "Ben Carter",
+    email: "benc@email.com",
+    phone: "(480) 555-0154",
+    source: "Booking Form",
+    status: "Booked",
+    created: "6 days ago",
+    lastContacted: "5 days ago",
+  },
 ];
 
 export type DocItem = {
@@ -301,13 +557,43 @@ export type DocItem = {
 };
 
 export const documents: DocItem[] = [
-  { id: "d1", name: "May 2026 Performance Report.pdf", group: "Reports", size: "2.1 MB", uploaded: "3 days ago" },
-  { id: "d2", name: "Apr 2026 Performance Report.pdf", group: "Reports", size: "1.9 MB", uploaded: "1 mo ago" },
+  {
+    id: "d1",
+    name: "May 2026 Performance Report.pdf",
+    group: "Reports",
+    size: "2.1 MB",
+    uploaded: "3 days ago",
+  },
+  {
+    id: "d2",
+    name: "Apr 2026 Performance Report.pdf",
+    group: "Reports",
+    size: "1.9 MB",
+    uploaded: "1 mo ago",
+  },
   { id: "d3", name: "INV-2026-005.pdf", group: "Invoices", size: "118 KB", uploaded: "Yesterday" },
   { id: "d4", name: "INV-2026-004.pdf", group: "Invoices", size: "121 KB", uploaded: "1 mo ago" },
-  { id: "d5", name: "Master Services Agreement.pdf", group: "Contracts", size: "640 KB", uploaded: "Jan 2026" },
-  { id: "d6", name: "Review Request Automation Spec.pdf", group: "Automation Specs", size: "412 KB", uploaded: "2 mo ago" },
-  { id: "d7", name: "Booking Page Refresh — Request.pdf", group: "Website Change Requests", size: "238 KB", uploaded: "1 wk ago" },
+  {
+    id: "d5",
+    name: "Master Services Agreement.pdf",
+    group: "Contracts",
+    size: "640 KB",
+    uploaded: "Jan 2026",
+  },
+  {
+    id: "d6",
+    name: "Review Request Automation Spec.pdf",
+    group: "Automation Specs",
+    size: "412 KB",
+    uploaded: "2 mo ago",
+  },
+  {
+    id: "d7",
+    name: "Booking Page Refresh — Request.pdf",
+    group: "Website Change Requests",
+    size: "238 KB",
+    uploaded: "1 wk ago",
+  },
 ];
 
 export type Invoice = {
@@ -345,10 +631,42 @@ export type Ticket = {
 };
 
 export const tickets: Ticket[] = [
-  { id: "T-218", request: "Update homepage hero image", type: "Website Update", priority: "Normal", status: "In Progress", created: "2 days ago", updated: "5h ago" },
-  { id: "T-217", request: "Add SMS reminder 1 hour before appointment", type: "Automation Change", priority: "High", status: "Open", created: "3 days ago", updated: "1 day ago" },
-  { id: "T-216", request: "HubSpot contact sync delay", type: "Integration Issue", priority: "Normal", status: "Waiting on Client", created: "5 days ago", updated: "2 days ago" },
-  { id: "T-215", request: "Add new staff member to booking calendar", type: "General Support", priority: "Low", status: "Resolved", created: "2 wk ago", updated: "1 wk ago" },
+  {
+    id: "T-218",
+    request: "Update homepage hero image",
+    type: "Website Update",
+    priority: "Normal",
+    status: "In Progress",
+    created: "2 days ago",
+    updated: "5h ago",
+  },
+  {
+    id: "T-217",
+    request: "Add SMS reminder 1 hour before appointment",
+    type: "Automation Change",
+    priority: "High",
+    status: "Open",
+    created: "3 days ago",
+    updated: "1 day ago",
+  },
+  {
+    id: "T-216",
+    request: "HubSpot contact sync delay",
+    type: "Integration Issue",
+    priority: "Normal",
+    status: "Waiting on Client",
+    created: "5 days ago",
+    updated: "2 days ago",
+  },
+  {
+    id: "T-215",
+    request: "Add new staff member to booking calendar",
+    type: "General Support",
+    priority: "Low",
+    status: "Resolved",
+    created: "2 wk ago",
+    updated: "1 wk ago",
+  },
 ];
 
 // ───────────────────────── Work Requests ─────────────────────────
@@ -409,18 +727,45 @@ export const workRequests: WorkRequest[] = [
     submittedDate: "May 26, 2026",
     assignee: "Devon (Columbus AI)",
     lastUpdate: "5h ago",
-    description: "We'd like a dedicated page for Dermaplaning with pricing, before/after photos, and a booking CTA.",
+    description:
+      "We'd like a dedicated page for Dermaplaning with pricing, before/after photos, and a booking CTA.",
     comments: [
-      { id: "c1", author: "Kira Morris", role: "Client", body: "Photos are in the shared drive. Let me know if you need anything else.", at: "2 days ago" },
-      { id: "c2", author: "Devon Park", role: "Columbus AI", body: "Got them — drafting the page now. Will share a preview tomorrow.", at: "1 day ago" },
-      { id: "c3", author: "Devon Park", role: "Columbus AI", body: "Internal: SEO review pending from Maya.", at: "5h ago", internal: true },
+      {
+        id: "c1",
+        author: "Kira Morris",
+        role: "Client",
+        body: "Photos are in the shared drive. Let me know if you need anything else.",
+        at: "2 days ago",
+      },
+      {
+        id: "c2",
+        author: "Devon Park",
+        role: "Columbus AI",
+        body: "Got them — drafting the page now. Will share a preview tomorrow.",
+        at: "1 day ago",
+      },
+      {
+        id: "c3",
+        author: "Devon Park",
+        role: "Columbus AI",
+        body: "Internal: SEO review pending from Maya.",
+        at: "5h ago",
+        internal: true,
+      },
     ],
     attachments: [{ id: "at1", name: "dermaplaning-photos.zip", size: "12.4 MB" }],
     timeline: [
       { id: "tl1", step: "Requested", at: "May 26", note: "Submitted by Kira", done: true },
       { id: "tl2", step: "Reviewed", at: "May 27", note: "Scope confirmed", done: true },
       { id: "tl3", step: "Assigned", at: "May 27", note: "Devon Park", done: true },
-      { id: "tl4", step: "In Progress", at: "May 28", note: "Page draft underway", done: true, active: true },
+      {
+        id: "tl4",
+        step: "In Progress",
+        at: "May 28",
+        note: "Page draft underway",
+        done: true,
+        active: true,
+      },
       { id: "tl5", step: "Completed", at: "—", done: false },
     ],
   },
@@ -433,9 +778,16 @@ export const workRequests: WorkRequest[] = [
     submittedDate: "May 24, 2026",
     assignee: "Maya (Columbus AI)",
     lastUpdate: "1 day ago",
-    description: "Add an SMS reminder 1 hour before each appointment in addition to the existing 24h and 2h reminders.",
+    description:
+      "Add an SMS reminder 1 hour before each appointment in addition to the existing 24h and 2h reminders.",
     comments: [
-      { id: "c4", author: "Maya Chen", role: "Columbus AI", body: "Scoped. We'll deploy this week.", at: "1 day ago" },
+      {
+        id: "c4",
+        author: "Maya Chen",
+        role: "Columbus AI",
+        body: "Scoped. We'll deploy this week.",
+        at: "1 day ago",
+      },
     ],
     attachments: [],
     timeline: [
@@ -455,7 +807,8 @@ export const workRequests: WorkRequest[] = [
     submittedDate: "May 22, 2026",
     assignee: "Unassigned",
     lastUpdate: "3 days ago",
-    description: "We want our booking confirmations to also opt clients into our monthly newsletter (Mailchimp).",
+    description:
+      "We want our booking confirmations to also opt clients into our monthly newsletter (Mailchimp).",
     comments: [],
     attachments: [],
     timeline: [
@@ -477,7 +830,13 @@ export const workRequests: WorkRequest[] = [
     lastUpdate: "1 wk ago",
     description: "Refresh the listed prices for facials and chemical peels.",
     comments: [
-      { id: "c5", author: "Devon Park", role: "Columbus AI", body: "Published. Let me know if anything else changes.", at: "1 wk ago" },
+      {
+        id: "c5",
+        author: "Devon Park",
+        role: "Columbus AI",
+        body: "Published. Let me know if anything else changes.",
+        at: "1 wk ago",
+      },
     ],
     attachments: [],
     timeline: [
@@ -511,9 +870,25 @@ export const workRequests: WorkRequest[] = [
 ];
 
 export const requestTemplates: Record<RequestCategory, string[]> = {
-  Website: ["Add a Service Page", "Update Homepage", "Change Pricing", "Update Images", "SEO Improvements"],
-  Automation: ["New Reminder Workflow", "Lead Follow-Up Automation", "Review Request Campaign", "Missed Call Text Back"],
-  Integration: ["Connect Mailchimp", "Connect Stripe", "Connect HubSpot", "Connect Google Calendar"],
+  Website: [
+    "Add a Service Page",
+    "Update Homepage",
+    "Change Pricing",
+    "Update Images",
+    "SEO Improvements",
+  ],
+  Automation: [
+    "New Reminder Workflow",
+    "Lead Follow-Up Automation",
+    "Review Request Campaign",
+    "Missed Call Text Back",
+  ],
+  Integration: [
+    "Connect Mailchimp",
+    "Connect Stripe",
+    "Connect HubSpot",
+    "Connect Google Calendar",
+  ],
   General: ["Billing Question", "Technical Issue", "Consultation Request"],
 };
 
@@ -522,7 +897,12 @@ export const requestTemplates: Record<RequestCategory, string[]> = {
 export type MonthlyReport = {
   id: string;
   title: string;
-  type: "Monthly Performance" | "Website Performance" | "Lead Generation" | "Automation Performance" | "Quarterly Review";
+  type:
+    | "Monthly Performance"
+    | "Website Performance"
+    | "Lead Generation"
+    | "Automation Performance"
+    | "Quarterly Review";
   period: string;
   generatedAt: string;
   summary: string;
@@ -530,11 +910,51 @@ export type MonthlyReport = {
 };
 
 export const reports: MonthlyReport[] = [
-  { id: "rp1", title: "May 2026 Performance", type: "Monthly Performance", period: "May 2026", generatedAt: "3 days ago", summary: "42 leads, 17 appointments, $6,800 revenue influenced.", fileName: "may-2026-performance.pdf" },
-  { id: "rp2", title: "May 2026 Website Performance", type: "Website Performance", period: "May 2026", generatedAt: "3 days ago", summary: "4,128 visitors (+22%), 96 form submissions, 2.3% conversion.", fileName: "may-2026-website.pdf" },
-  { id: "rp3", title: "May 2026 Lead Generation", type: "Lead Generation", period: "May 2026", generatedAt: "3 days ago", summary: "42 leads, 60% sourced from organic search.", fileName: "may-2026-leads.pdf" },
-  { id: "rp4", title: "May 2026 Automation Performance", type: "Automation Performance", period: "May 2026", generatedAt: "3 days ago", summary: "6 automations, 1,932 runs, 99.1% average success rate.", fileName: "may-2026-automations.pdf" },
-  { id: "rp5", title: "Q1 2026 Quarterly Review", type: "Quarterly Review", period: "Q1 2026", generatedAt: "1 mo ago", summary: "Quarterly business impact summary and recommendations.", fileName: "q1-2026-review.pdf" },
+  {
+    id: "rp1",
+    title: "May 2026 Performance",
+    type: "Monthly Performance",
+    period: "May 2026",
+    generatedAt: "3 days ago",
+    summary: "42 leads, 17 appointments, $6,800 revenue influenced.",
+    fileName: "may-2026-performance.pdf",
+  },
+  {
+    id: "rp2",
+    title: "May 2026 Website Performance",
+    type: "Website Performance",
+    period: "May 2026",
+    generatedAt: "3 days ago",
+    summary: "4,128 visitors (+22%), 96 form submissions, 2.3% conversion.",
+    fileName: "may-2026-website.pdf",
+  },
+  {
+    id: "rp3",
+    title: "May 2026 Lead Generation",
+    type: "Lead Generation",
+    period: "May 2026",
+    generatedAt: "3 days ago",
+    summary: "42 leads, 60% sourced from organic search.",
+    fileName: "may-2026-leads.pdf",
+  },
+  {
+    id: "rp4",
+    title: "May 2026 Automation Performance",
+    type: "Automation Performance",
+    period: "May 2026",
+    generatedAt: "3 days ago",
+    summary: "6 automations, 1,932 runs, 99.1% average success rate.",
+    fileName: "may-2026-automations.pdf",
+  },
+  {
+    id: "rp5",
+    title: "Q1 2026 Quarterly Review",
+    type: "Quarterly Review",
+    period: "Q1 2026",
+    generatedAt: "1 mo ago",
+    summary: "Quarterly business impact summary and recommendations.",
+    fileName: "q1-2026-review.pdf",
+  },
 ];
 
 // ───────────────────────── Notifications ─────────────────────────
@@ -551,12 +971,60 @@ export type Notification = {
 };
 
 export const notifications: Notification[] = [
-  { id: "n1", kind: "lead", title: "New lead captured", body: "Maria Santos via Booking Form", at: "6h ago", read: false, href: "/leads" },
-  { id: "n2", kind: "website", title: "Website update completed", body: "Booking page refresh published", at: "Today", read: false, href: "/website" },
-  { id: "n3", kind: "support", title: "Request update", body: "Dermaplaning page — In Progress", at: "5h ago", read: false, href: "/requests" },
-  { id: "n4", kind: "invoice", title: "Invoice paid", body: "INV-2026-005 · $1,500.00", at: "Yesterday", read: true, href: "/billing" },
-  { id: "n5", kind: "automation", title: "Automation updated", body: "Review Request — runs increased 18%", at: "2d ago", read: true, href: "/automations" },
-  { id: "n6", kind: "report", title: "Monthly report available", body: "May 2026 Performance Report", at: "3d ago", read: true, href: "/reports" },
+  {
+    id: "n1",
+    kind: "lead",
+    title: "New lead captured",
+    body: "Maria Santos via Booking Form",
+    at: "6h ago",
+    read: false,
+    href: "/leads",
+  },
+  {
+    id: "n2",
+    kind: "website",
+    title: "Website update completed",
+    body: "Booking page refresh published",
+    at: "Today",
+    read: false,
+    href: "/website",
+  },
+  {
+    id: "n3",
+    kind: "support",
+    title: "Request update",
+    body: "Dermaplaning page — In Progress",
+    at: "5h ago",
+    read: false,
+    href: "/requests",
+  },
+  {
+    id: "n4",
+    kind: "invoice",
+    title: "Invoice paid",
+    body: "INV-2026-005 · $1,500.00",
+    at: "Yesterday",
+    read: true,
+    href: "/billing",
+  },
+  {
+    id: "n5",
+    kind: "automation",
+    title: "Automation updated",
+    body: "Review Request — runs increased 18%",
+    at: "2d ago",
+    read: true,
+    href: "/automations",
+  },
+  {
+    id: "n6",
+    kind: "report",
+    title: "Monthly report available",
+    body: "May 2026 Performance Report",
+    at: "3d ago",
+    read: true,
+    href: "/reports",
+  },
 ];
 
 // ───────────────────────── Team ─────────────────────────
@@ -571,7 +1039,28 @@ export type TeamMember = {
 };
 
 export const teamMembers: TeamMember[] = [
-  { id: "u1", name: "Kira D. Morris", email: "kira@kdmdermatherapy.com", role: "owner", lastLogin: "Today, 9:02 AM", status: "Active" },
-  { id: "u2", name: "Alex Rivera", email: "alex@kdmdermatherapy.com", role: "admin", lastLogin: "Yesterday", status: "Active" },
-  { id: "u3", name: "Sam Patel", email: "sam@kdmdermatherapy.com", role: "viewer", lastLogin: "3 days ago", status: "Active" },
+  {
+    id: "u1",
+    name: "Kira D. Morris",
+    email: "kira@kdmdermatherapy.com",
+    role: "owner",
+    lastLogin: "Today, 9:02 AM",
+    status: "Active",
+  },
+  {
+    id: "u2",
+    name: "Alex Rivera",
+    email: "alex@kdmdermatherapy.com",
+    role: "admin",
+    lastLogin: "Yesterday",
+    status: "Active",
+  },
+  {
+    id: "u3",
+    name: "Sam Patel",
+    email: "sam@kdmdermatherapy.com",
+    role: "viewer",
+    lastLogin: "3 days ago",
+    status: "Active",
+  },
 ];

@@ -5,11 +5,11 @@ COMPOSE_PROD = docker compose -f infra/docker/compose.prod.yml
 # Database migrations: single source of truth is packages/db. Run from repo root.
 .PHONY: db-migrate db-migrate-dev db-generate
 db-migrate:
-	cd packages/db && npx prisma migrate deploy
+	pnpm db:migrate:deploy
 db-migrate-dev:
-	cd packages/db && npx prisma migrate dev
+	pnpm --filter @columbusai/db exec prisma migrate dev
 db-generate:
-	cd packages/db && npx prisma generate
+	pnpm db:generate
 
 # Run load test against local stack (dev or prod compose).
 # Ensure web is up (e.g. make up).
@@ -19,7 +19,7 @@ REQUESTS ?= 100
 
 .PHONY: load-test load-test-dev 
 load-test:
-	cd apps/web && BASE_URL="$(BASE_URL)" CONCURRENCY="$(CONCURRENCY)" REQUESTS="$(REQUESTS)" CONVERSATION_ID="$(CONVERSATION_ID)" SPOOF_IPS="$(SPOOF_IPS)" npx tsx ../../infra/scripts/load-chat.ts
+	cd apps/web && BASE_URL="$(BASE_URL)" CONCURRENCY="$(CONCURRENCY)" REQUESTS="$(REQUESTS)" CONVERSATION_ID="$(CONVERSATION_ID)" SPOOF_IPS="$(SPOOF_IPS)" pnpm exec tsx ../../infra/scripts/load-chat.ts
 
 load-test-dev: load-test
 
@@ -60,16 +60,15 @@ n8n-url:
 	@echo "Basic auth user: $${N8N_BASIC_AUTH_USER:-admin}"
 
 hermes:
-	npm run hermes -- "$(TASK)"
+	pnpm run hermes -- "$(TASK)"
 
 # Local dev (host, no Docker)
 .PHONY: dev-marketing dev-portal dev-admin
 dev-marketing:
-	cd apps/marketing && npm run dev
+	pnpm --filter marketing dev
 
 dev-portal:
-	cd apps/portal && PORT=3001 npm run dev -- --port 3001
+	PORT=3001 pnpm --filter portal dev -- --port 3001
 
 dev-admin:
-	cd apps/admin && PORT=3002 npm run dev -- --port 3002
-
+	PORT=3002 pnpm --filter admin dev -- --port 3002

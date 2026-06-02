@@ -37,9 +37,7 @@ function toApiBody(data: DemoFormData): Record<string, string> {
   };
 }
 
-export async function submitDemoLead(
-  data: DemoFormData
-): Promise<SubmitDemoLeadResult> {
+export async function submitDemoLead(data: DemoFormData): Promise<SubmitDemoLeadResult> {
   const base = getApiBaseUrl();
   if (!base) {
     return {

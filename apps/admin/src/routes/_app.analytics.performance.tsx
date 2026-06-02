@@ -6,7 +6,10 @@ export const Route = createFileRoute("/_app/analytics/performance")({
   head: () => ({ meta: [{ title: "Automation Performance — Columbus AI" }] }),
   component: () => (
     <div>
-      <PageHeader title="Automation performance" subtitle="Success rates, runtimes, and throughput per workflow." />
+      <PageHeader
+        title="Automation performance"
+        subtitle="Success rates, runtimes, and throughput per workflow."
+      />
       <WorkflowMonitoring />
     </div>
   ),

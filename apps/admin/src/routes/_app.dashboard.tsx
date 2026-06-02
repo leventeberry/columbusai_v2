@@ -13,7 +13,10 @@ export const Route = createFileRoute("/_app/dashboard")({
   head: () => ({
     meta: [
       { title: "Dashboard — Columbus AI" },
-      { name: "description", content: "Executive overview of revenue, clients, leads, and AI automations." },
+      {
+        name: "description",
+        content: "Executive overview of revenue, clients, leads, and AI automations.",
+      },
     ],
   }),
   component: DashboardPage,
@@ -30,8 +33,13 @@ function DashboardPage() {
         subtitle="Real-time pulse on revenue, clients, and AI operations."
         actions={
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">Export</Button>
-            <Button size="sm" className="bg-gradient-to-r from-primary to-chart-2 text-primary-foreground">
+            <Button variant="outline" size="sm">
+              Export
+            </Button>
+            <Button
+              size="sm"
+              className="bg-gradient-to-r from-primary to-chart-2 text-primary-foreground"
+            >
               New workflow
             </Button>
           </div>
@@ -51,11 +59,17 @@ function DashboardPage() {
         <ClientsTable />
       </Section>
 
-      <Section title="Workflow monitoring" subtitle="Live execution status across all environments.">
+      <Section
+        title="Workflow monitoring"
+        subtitle="Live execution status across all environments."
+      >
         <WorkflowMonitoring />
       </Section>
 
-      <Section title="AI agent control center" subtitle="Manage your fleet of production AI agents.">
+      <Section
+        title="AI agent control center"
+        subtitle="Manage your fleet of production AI agents."
+      >
         <AgentControl />
       </Section>
 

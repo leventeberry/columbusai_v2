@@ -9,10 +9,7 @@ import { fileURLToPath } from "node:url";
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 const marketingRoot = path.dirname(fileURLToPath(import.meta.url));
-const leadsValidation = path.resolve(
-  marketingRoot,
-  "../../packages/leads/src/validation.ts",
-);
+const leadsValidation = path.resolve(marketingRoot, "../../packages/leads/src/validation.ts");
 
 export default defineConfig({
   vite: {

@@ -1,9 +1,4 @@
-import type {
-  WorkItem,
-  WorkPriority,
-  WorkStatus,
-  WorkType,
-} from "@/data/entities";
+import type { WorkItem, WorkPriority, WorkStatus, WorkType } from "@/data/entities";
 import { dbMutate, dbSnapshot, dbSubscribe, nextWorkItemId } from "@/data/mock/db";
 
 export type WorkItemFilter = {

@@ -46,8 +46,13 @@ function AutomationsPage() {
             </div>
 
             <div className="rounded-lg border border-[color:var(--accent)]/25 bg-[color:var(--accent)]/10 px-3 py-3">
-              <p className="text-[10px] uppercase tracking-wider text-[color:var(--accent)] font-semibold">Outcome this month</p>
-              <p className="mt-0.5 text-lg font-semibold">{a.outcomeCount.toLocaleString()} <span className="text-xs font-normal text-muted-foreground">{a.outcomeLabel}</span></p>
+              <p className="text-[10px] uppercase tracking-wider text-[color:var(--accent)] font-semibold">
+                Outcome this month
+              </p>
+              <p className="mt-0.5 text-lg font-semibold">
+                {a.outcomeCount.toLocaleString()}{" "}
+                <span className="text-xs font-normal text-muted-foreground">{a.outcomeLabel}</span>
+              </p>
             </div>
 
             <p className="text-sm text-muted-foreground">{a.description}</p>
@@ -64,7 +69,6 @@ function AutomationsPage() {
               </Button>
               <RequestChangeDialog name={a.name} />
             </div>
-
           </article>
         ))}
       </div>

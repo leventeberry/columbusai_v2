@@ -1,6 +1,16 @@
 import { cn } from "@/lib/utils";
 import { workTypeLabel, type WorkType } from "@/data/entities";
-import { Globe, Workflow, Plug, LifeBuoy, Rocket, Bug, Users, CreditCard, Sparkles } from "lucide-react";
+import {
+  Globe,
+  Workflow,
+  Plug,
+  LifeBuoy,
+  Rocket,
+  Bug,
+  Users,
+  CreditCard,
+  Sparkles,
+} from "lucide-react";
 
 const icons: Record<WorkType, typeof Globe> = {
   website: Globe,

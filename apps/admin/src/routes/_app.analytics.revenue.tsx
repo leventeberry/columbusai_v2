@@ -2,7 +2,15 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { revenueSeries } from "@/lib/mock/data";
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { cn } from "@/lib/utils";
 
 const RANGES = ["7d", "30d", "90d", "1y"] as const;
@@ -27,7 +35,9 @@ function RevenuePage() {
                 onClick={() => setRange(r)}
                 className={cn(
                   "rounded px-2.5 py-1 text-xs",
-                  range === r ? "bg-primary/20 text-primary" : "text-muted-foreground hover:text-foreground",
+                  range === r
+                    ? "bg-primary/20 text-primary"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 {r}
@@ -47,8 +57,19 @@ function RevenuePage() {
                 </linearGradient>
               </defs>
               <CartesianGrid stroke="var(--color-border)" strokeOpacity={0.4} vertical={false} />
-              <XAxis dataKey="day" stroke="var(--color-muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
-              <YAxis stroke="var(--color-muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
+              <XAxis
+                dataKey="day"
+                stroke="var(--color-muted-foreground)"
+                fontSize={11}
+                tickLine={false}
+                axisLine={false}
+              />
+              <YAxis
+                stroke="var(--color-muted-foreground)"
+                fontSize={11}
+                tickLine={false}
+                axisLine={false}
+              />
               <Tooltip
                 contentStyle={{
                   background: "var(--color-popover)",
@@ -57,7 +78,13 @@ function RevenuePage() {
                   fontSize: 12,
                 }}
               />
-              <Area type="monotone" dataKey="revenue" stroke="var(--color-primary)" fill="url(#rev)" strokeWidth={2} />
+              <Area
+                type="monotone"
+                dataKey="revenue"
+                stroke="var(--color-primary)"
+                fill="url(#rev)"
+                strokeWidth={2}
+              />
             </AreaChart>
           </ResponsiveContainer>
         </div>

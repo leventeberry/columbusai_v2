@@ -10,13 +10,16 @@ import { WorkKanban } from "@/components/work/WorkKanban";
 import { WorkMetrics } from "@/components/work/WorkMetrics";
 import { NewWorkItemDialog } from "@/components/work/NewWorkItemDialog";
 import { useWorkItems } from "@/hooks/useWorkItems";
-import {
-  CURRENT_AGENCY_USER_ID,
-  CURRENT_CLIENT_ID,
-} from "@/data/mock/db";
+import { CURRENT_AGENCY_USER_ID, CURRENT_CLIENT_ID } from "@/data/mock/db";
 import { type WorkStatus } from "@/data/entities";
 import { list as listClients } from "@/data/repositories/clients";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { getRole, isAgency } from "@/lib/portal-auth";
 
 export const Route = createFileRoute("/_authenticated/admin/work")({
@@ -94,7 +97,9 @@ function AdminWorkCenter() {
             <SelectContent>
               <SelectItem value="_all">All clients</SelectItem>
               {listClients().map((c) => (
-                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                <SelectItem key={c.id} value={c.id}>
+                  {c.name}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>

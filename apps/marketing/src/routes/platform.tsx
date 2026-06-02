@@ -8,9 +8,17 @@ export const Route = createFileRoute("/platform")({
   head: () => ({
     meta: [
       { title: "Platform — Columbus AI" },
-      { name: "description", content: "One managed system for your website, automations, integrations, client portals, and admin operations." },
+      {
+        name: "description",
+        content:
+          "One managed system for your website, automations, integrations, client portals, and admin operations.",
+      },
       { property: "og:title", content: "Platform — Columbus AI" },
-      { property: "og:description", content: "The managed Columbus AI stack — website, automation, integration, portal, and admin layers." },
+      {
+        property: "og:description",
+        content:
+          "The managed Columbus AI stack — website, automation, integration, portal, and admin layers.",
+      },
       { property: "og:url", content: "/platform" },
     ],
     links: [{ rel: "canonical", href: "/platform" }],

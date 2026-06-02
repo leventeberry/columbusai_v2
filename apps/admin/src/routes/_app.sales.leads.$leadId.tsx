@@ -24,11 +24,7 @@ function LeadDetailPage() {
         subtitle={lead ? `${lead.contact} · ${lead.email}` : "Loading…"}
         actions={
           lead && !lead.opportunityId ? (
-            <Button
-              size="sm"
-              disabled={convert.isPending}
-              onClick={() => convert.mutate(lead.id)}
-            >
+            <Button size="sm" disabled={convert.isPending} onClick={() => convert.mutate(lead.id)}>
               Convert to opportunity
             </Button>
           ) : null
@@ -47,7 +43,9 @@ function LeadDetailPage() {
             <p className="mt-1 capitalize">{lead.pipelineStage}</p>
           </div>
           <div>
-            <h3 className="text-xs font-medium uppercase text-muted-foreground">Service interest</h3>
+            <h3 className="text-xs font-medium uppercase text-muted-foreground">
+              Service interest
+            </h3>
             <p className="mt-1">{lead.service}</p>
           </div>
           <div>

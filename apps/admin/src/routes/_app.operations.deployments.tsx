@@ -33,19 +33,38 @@ export const Route = createFileRoute("/_app/operations/deployments")({
               <tr key={d.id} className="hover:bg-accent/30">
                 <td className="px-4 py-3 font-mono">{d.version}</td>
                 <td className="px-4 py-3">
-                  <span className={cn("rounded-full px-2 py-0.5 text-[11px] capitalize", envTone[d.env])}>{d.env}</span>
+                  <span
+                    className={cn(
+                      "rounded-full px-2 py-0.5 text-[11px] capitalize",
+                      envTone[d.env],
+                    )}
+                  >
+                    {d.env}
+                  </span>
                 </td>
                 <td className="px-4 py-3">
                   <span className="inline-flex items-center gap-2 capitalize">
-                    <StatusDot status={d.status === "in_progress" ? "queued" : d.status === "success" ? "healthy" : "failed"} />
+                    <StatusDot
+                      status={
+                        d.status === "in_progress"
+                          ? "queued"
+                          : d.status === "success"
+                            ? "healthy"
+                            : "failed"
+                      }
+                    />
                     {d.status.replace("_", " ")}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-muted-foreground">{d.date}</td>
                 <td className="px-4 py-3">{d.by}</td>
                 <td className="px-4 py-3 text-right">
-                  <Button variant="ghost" size="sm" className="h-7">Rollback</Button>
-                  <Button variant="ghost" size="sm" className="h-7">Logs</Button>
+                  <Button variant="ghost" size="sm" className="h-7">
+                    Rollback
+                  </Button>
+                  <Button variant="ghost" size="sm" className="h-7">
+                    Logs
+                  </Button>
                 </td>
               </tr>
             ))}

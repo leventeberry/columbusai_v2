@@ -21,7 +21,8 @@ export function ComingSoon({
         </span>
         <h3 className="mt-4 text-sm font-semibold">{message}</h3>
         <p className="mt-1 max-w-md text-xs text-muted-foreground">
-          We're polishing this surface. It'll plug into the same data graph as the rest of the console.
+          We're polishing this surface. It'll plug into the same data graph as the rest of the
+          console.
         </p>
       </div>
     </div>

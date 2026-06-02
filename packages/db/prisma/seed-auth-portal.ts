@@ -9,7 +9,7 @@ import {
   PortalWorkStatus,
   PortalWorkType,
   type PrismaClient,
-} from "../generated/prisma/client.js";
+} from "../src/generated/prisma/client.js";
 import bcrypt from "bcryptjs";
 
 const DEMO_PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? "ColumbusDev2026!";

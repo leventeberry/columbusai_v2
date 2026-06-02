@@ -6,7 +6,11 @@ export const Route = createFileRoute("/faq")({
   head: () => ({
     meta: [
       { title: "FAQ — Columbus AI" },
-      { name: "description", content: "Answers about what Columbus AI builds, how setup works, portal access, integrations, and support." },
+      {
+        name: "description",
+        content:
+          "Answers about what Columbus AI builds, how setup works, portal access, integrations, and support.",
+      },
       { property: "og:title", content: "FAQ — Columbus AI" },
       { property: "og:description", content: "Questions, answered." },
       { property: "og:url", content: "/faq" },

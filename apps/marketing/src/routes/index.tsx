@@ -16,9 +16,16 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Columbus AI — Automate the busywork. Operate with clarity." },
-      { name: "description", content: "Columbus AI builds and manages automations, websites, client portals, and integrations so businesses respond faster and scale without chaos." },
+      {
+        name: "description",
+        content:
+          "Columbus AI builds and manages automations, websites, client portals, and integrations so businesses respond faster and scale without chaos.",
+      },
       { property: "og:title", content: "Columbus AI — Managed AI Operations Platform" },
-      { property: "og:description", content: "Automations, websites, portals, and integrations — managed end-to-end." },
+      {
+        property: "og:description",
+        content: "Automations, websites, portals, and integrations — managed end-to-end.",
+      },
       { property: "og:url", content: "/" },
     ],
     links: [{ rel: "canonical", href: "/" }],

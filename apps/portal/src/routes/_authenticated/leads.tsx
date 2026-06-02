@@ -30,8 +30,10 @@ export const Route = createFileRoute("/_authenticated/leads")({
 
 const statusStyles: Record<LeadStatus, string> = {
   New: "bg-[color:var(--accent)]/15 text-[color:var(--accent)] border-[color:var(--accent)]/25",
-  Contacted: "bg-[color:var(--chart-4)]/15 text-[color:var(--chart-4)] border-[color:var(--chart-4)]/25",
-  Booked: "bg-[color:var(--status-online)]/15 text-[color:var(--status-online)] border-[color:var(--status-online)]/25",
+  Contacted:
+    "bg-[color:var(--chart-4)]/15 text-[color:var(--chart-4)] border-[color:var(--chart-4)]/25",
+  Booked:
+    "bg-[color:var(--status-online)]/15 text-[color:var(--status-online)] border-[color:var(--status-online)]/25",
   Closed: "bg-muted text-muted-foreground border-border",
   Lost: "bg-[color:var(--status-issue)]/15 text-[color:var(--status-issue)] border-[color:var(--status-issue)]/25",
 };
@@ -56,7 +58,15 @@ function LeadsPage() {
 
   const exportCsv = () => {
     const headers = ["Name", "Email", "Phone", "Source", "Status", "Created", "Last Contacted"];
-    const rows = filtered.map((l) => [l.name, l.email, l.phone, l.source, l.status, l.created, l.lastContacted]);
+    const rows = filtered.map((l) => [
+      l.name,
+      l.email,
+      l.phone,
+      l.source,
+      l.status,
+      l.created,
+      l.lastContacted,
+    ]);
     const csv = [headers, ...rows].map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
@@ -128,16 +138,31 @@ function LeadsPage() {
             {filtered.map((l) => (
               <TableRow key={l.id} className="cursor-pointer">
                 <TableCell className="font-medium">{l.name}</TableCell>
-                <TableCell className="hidden md:table-cell text-muted-foreground">{l.email}</TableCell>
-                <TableCell className="hidden md:table-cell text-muted-foreground">{l.phone}</TableCell>
-                <TableCell className="hidden lg:table-cell text-muted-foreground">{l.source}</TableCell>
+                <TableCell className="hidden md:table-cell text-muted-foreground">
+                  {l.email}
+                </TableCell>
+                <TableCell className="hidden md:table-cell text-muted-foreground">
+                  {l.phone}
+                </TableCell>
+                <TableCell className="hidden lg:table-cell text-muted-foreground">
+                  {l.source}
+                </TableCell>
                 <TableCell>
-                  <span className={cn("inline-flex rounded-full border px-2 py-0.5 text-xs", statusStyles[l.status])}>
+                  <span
+                    className={cn(
+                      "inline-flex rounded-full border px-2 py-0.5 text-xs",
+                      statusStyles[l.status],
+                    )}
+                  >
                     {l.status}
                   </span>
                 </TableCell>
-                <TableCell className="hidden sm:table-cell text-muted-foreground">{l.created}</TableCell>
-                <TableCell className="hidden lg:table-cell text-muted-foreground">{l.lastContacted}</TableCell>
+                <TableCell className="hidden sm:table-cell text-muted-foreground">
+                  {l.created}
+                </TableCell>
+                <TableCell className="hidden lg:table-cell text-muted-foreground">
+                  {l.lastContacted}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

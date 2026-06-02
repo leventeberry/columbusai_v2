@@ -61,7 +61,7 @@ FROM leads ORDER BY created_at DESC LIMIT 5;
 
 ## Workflow sync (dev)
 
-Version and deploy the demo workflow from the repo: see [n8n-workflow-sync.md](n8n-workflow-sync.md) (`npm run n8n:list`, `n8n:pull:demo`, `n8n:push:demo`, `n8n:activate:demo`).
+Version and deploy the demo workflow from the repo: see [n8n-workflow-sync.md](n8n-workflow-sync.md) (`pnpm n8n:list`, `n8n:pull:demo`, `n8n:push:demo`, `n8n:activate:demo`).
 
 **Env pitfalls:** `N8N_DEMO_WORKFLOW_ID` is the workflow id from `n8n:list` (not the webhook path UUID). Docker API uses `http://n8n:5678/webhook/...` via compose overrides. Active workflows need `/webhook/`; `/webhook-test/` only works while listening for test events in the n8n editor.
 

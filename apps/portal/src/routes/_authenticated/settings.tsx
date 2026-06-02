@@ -10,7 +10,13 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { getRole, setRole } from "@/lib/portal-auth";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({ meta: [{ title: "Settings — Columbus AI" }] }),
@@ -19,16 +25,22 @@ export const Route = createFileRoute("/_authenticated/settings")({
 
 const roleBadge: Record<string, string> = {
   owner: "bg-[color:var(--accent)]/15 text-[color:var(--accent)] border-[color:var(--accent)]/25",
-  admin: "bg-[color:var(--chart-4)]/15 text-[color:var(--chart-4)] border-[color:var(--chart-4)]/25",
+  admin:
+    "bg-[color:var(--chart-4)]/15 text-[color:var(--chart-4)] border-[color:var(--chart-4)]/25",
   viewer: "bg-muted text-muted-foreground border-border",
-  agency_admin: "bg-[color:var(--chart-2)]/15 text-[color:var(--chart-2)] border-[color:var(--chart-2)]/25",
-  agency_member: "bg-[color:var(--chart-3)]/15 text-[color:var(--chart-3)] border-[color:var(--chart-3)]/25",
+  agency_admin:
+    "bg-[color:var(--chart-2)]/15 text-[color:var(--chart-2)] border-[color:var(--chart-2)]/25",
+  agency_member:
+    "bg-[color:var(--chart-3)]/15 text-[color:var(--chart-3)] border-[color:var(--chart-3)]/25",
 };
 
 function SettingsPage() {
   return (
     <div className="space-y-6">
-      <PageHeader title="Settings" description="Manage your company profile, team, and notification preferences." />
+      <PageHeader
+        title="Settings"
+        description="Manage your company profile, team, and notification preferences."
+      />
 
       <Tabs defaultValue="profile">
         <TabsList className="bg-surface border border-border">
@@ -57,10 +69,16 @@ function SettingsPage() {
           <ViewAsRoleCard />
           <div className="surface-card">
             {teamMembers.map((m) => (
-              <div key={m.id} className="flex items-center gap-3 p-4 border-b border-border last:border-b-0">
+              <div
+                key={m.id}
+                className="flex items-center gap-3 p-4 border-b border-border last:border-b-0"
+              >
                 <Avatar className="h-9 w-9">
                   <AvatarFallback className="text-xs bg-surface-elevated">
-                    {m.name.split(" ").map(n => n[0]).join("")}
+                    {m.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
@@ -74,20 +92,28 @@ function SettingsPage() {
                 <span className="hidden md:inline-flex rounded-full border border-[color:var(--status-online)]/25 bg-[color:var(--status-online)]/15 px-2 py-0.5 text-[10px] font-medium text-[color:var(--status-online)]">
                   {m.status}
                 </span>
-                <span className={`inline-flex rounded-full border px-2 py-0.5 text-xs capitalize ${roleBadge[m.role]}`}>
+                <span
+                  className={`inline-flex rounded-full border px-2 py-0.5 text-xs capitalize ${roleBadge[m.role]}`}
+                >
                   {m.role}
                 </span>
-                <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={() => toast.success(`Role change requested for ${m.name}`)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs text-muted-foreground"
+                  onClick={() => toast.success(`Role change requested for ${m.name}`)}
+                >
                   Change role
                 </Button>
               </div>
             ))}
             <div className="p-4">
-              <Button variant="outline" onClick={() => toast.success("Invitation sent")}>Invite team member</Button>
+              <Button variant="outline" onClick={() => toast.success("Invitation sent")}>
+                Invite team member
+              </Button>
             </div>
           </div>
         </TabsContent>
-
 
         <TabsContent value="notifications" className="mt-5">
           <div className="surface-card p-6 max-w-2xl space-y-4">
@@ -111,8 +137,9 @@ function SettingsPage() {
         <TabsContent value="accounts" className="mt-5">
           <div className="surface-card p-6 max-w-2xl">
             <p className="text-sm text-muted-foreground">
-              Connected tools live under <span className="text-foreground font-medium">Integrations</span>. This section will show
-              individual user-linked accounts in the future.
+              Connected tools live under{" "}
+              <span className="text-foreground font-medium">Integrations</span>. This section will
+              show individual user-linked accounts in the future.
             </p>
           </div>
         </TabsContent>
@@ -138,7 +165,15 @@ function SettingsPage() {
   );
 }
 
-function Field({ label, defaultValue, type = "text" }: { label: string; defaultValue?: string; type?: string }) {
+function Field({
+  label,
+  defaultValue,
+  type = "text",
+}: {
+  label: string;
+  defaultValue?: string;
+  type?: string;
+}) {
   return (
     <div className="space-y-1.5">
       <Label>{label}</Label>
@@ -151,8 +186,16 @@ const ROLE_OPTIONS: { value: Role; label: string; hint: string }[] = [
   { value: "owner", label: "Client · Owner", hint: "Full client portal access" },
   { value: "admin", label: "Client · Admin", hint: "Most client tools" },
   { value: "viewer", label: "Client · Viewer", hint: "Read-only client" },
-  { value: "agency_admin", label: "Columbus AI · Admin", hint: "Full agency operations + admin Work Center" },
-  { value: "agency_member", label: "Columbus AI · Team Member", hint: "Operations + admin Work Center" },
+  {
+    value: "agency_admin",
+    label: "Columbus AI · Admin",
+    hint: "Full agency operations + admin Work Center",
+  },
+  {
+    value: "agency_member",
+    label: "Columbus AI · Team Member",
+    hint: "Operations + admin Work Center",
+  },
 ];
 
 function ViewAsRoleCard() {
@@ -171,8 +214,8 @@ function ViewAsRoleCard() {
       <div className="flex flex-col gap-1 mb-3">
         <p className="text-sm font-semibold">View the portal as</p>
         <p className="text-xs text-muted-foreground">
-          Switch between client and Columbus AI agency views. The shared Work Center stays in sync — agency views
-          see every client and internal notes.
+          Switch between client and Columbus AI agency views. The shared Work Center stays in sync —
+          agency views see every client and internal notes.
         </p>
       </div>
       <Select value={role} onValueChange={onChange}>

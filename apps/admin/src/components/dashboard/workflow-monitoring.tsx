@@ -1,8 +1,18 @@
 import { workflows } from "@/lib/mock/data";
 import { StatusDot } from "./status-dot";
-import { Activity, CheckCircle2, XCircle, Percent } from "lucide-react";
+import { Activity, CheckCircle2, XCircle, Percent, type LucideIcon } from "lucide-react";
 
-function Metric({ icon: Icon, label, value, tone }: any) {
+function Metric({
+  icon: Icon,
+  label,
+  value,
+  tone,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  tone: string;
+}) {
   return (
     <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-card/40 px-4 py-3">
       <span className={`grid h-9 w-9 place-items-center rounded-md ${tone}`}>
@@ -21,20 +31,40 @@ export function WorkflowMonitoring() {
     <div className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Metric icon={Activity} label="Running" value="42" tone="bg-info/15 text-info" />
-        <Metric icon={CheckCircle2} label="Completed today" value="3,184" tone="bg-success/15 text-success" />
-        <Metric icon={XCircle} label="Failed today" value="14" tone="bg-destructive/15 text-destructive" />
-        <Metric icon={Percent} label="Success rate" value="98.7%" tone="bg-primary/15 text-primary" />
+        <Metric
+          icon={CheckCircle2}
+          label="Completed today"
+          value="3,184"
+          tone="bg-success/15 text-success"
+        />
+        <Metric
+          icon={XCircle}
+          label="Failed today"
+          value="14"
+          tone="bg-destructive/15 text-destructive"
+        />
+        <Metric
+          icon={Percent}
+          label="Success rate"
+          value="98.7%"
+          tone="bg-primary/15 text-primary"
+        />
       </div>
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {workflows.map((w) => (
-          <div key={w.id} className="rounded-xl border border-border/60 bg-card/60 p-4 transition-colors hover:border-primary/40">
+          <div
+            key={w.id}
+            className="rounded-xl border border-border/60 bg-card/60 p-4 transition-colors hover:border-primary/40"
+          >
             <div className="flex items-start justify-between">
               <div>
                 <div className="flex items-center gap-2 text-sm font-medium">
                   <StatusDot status={w.status} />
                   {w.name}
                 </div>
-                <div className="mt-0.5 text-xs text-muted-foreground capitalize">{w.status} · {w.lastRun}</div>
+                <div className="mt-0.5 text-xs text-muted-foreground capitalize">
+                  {w.status} · {w.lastRun}
+                </div>
               </div>
               <span className="font-mono text-xs text-muted-foreground">{w.successRate}%</span>
             </div>

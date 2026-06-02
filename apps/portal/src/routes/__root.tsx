@@ -78,9 +78,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Columbus AI — Client Portal" },
-      { name: "description", content: "Your Columbus AI workspace: website status, automations, leads, analytics, and support." },
+      {
+        name: "description",
+        content:
+          "Your Columbus AI workspace: website status, automations, leads, analytics, and support.",
+      },
       { property: "og:title", content: "Columbus AI — Client Portal" },
-      { property: "og:description", content: "Your Columbus AI workspace: website status, automations, leads, analytics, and support." },
+      {
+        property: "og:description",
+        content:
+          "Your Columbus AI workspace: website status, automations, leads, analytics, and support.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

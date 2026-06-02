@@ -14,8 +14,9 @@
 Copy [`.env.example`](.env.example) to `.env` at repo root. Docker Compose dev loads it for all services.
 
 ```bash
-# From repo root
-npm install
+# From repo root (Node 26+, pnpm via Corepack)
+corepack enable && corepack prepare pnpm@10.12.4 --activate
+pnpm install
 make up-dev          # marketing + portal + admin + api + postgres + redis
 make dev-marketing   # host-only marketing
 ```
@@ -28,16 +29,16 @@ Hermes is a local Cursor SDK runner in `tools/hermes/`.
 
 ```bash
 # one-time
-npm install
+pnpm install
 
 # create a fresh session
-npm run hermes -- --new "audit compose.dev and propose fixes"
+pnpm run hermes -- --new "audit compose.dev and propose fixes"
 
 # resume previous session
-npm run hermes -- --resume "apply the approved fix and commit"
+pnpm run hermes -- --resume "apply the approved fix and commit"
 
 # allow push actions for this run
-npm run hermes -- --approve-push "commit and push this branch"
+pnpm run hermes -- --approve-push "commit and push this branch"
 ```
 
 State and structured logs are written to:

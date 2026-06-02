@@ -40,7 +40,7 @@ export function GlowEffect({
   const BASE_TRANSITION = {
     repeat: Infinity,
     duration: duration,
-    ease: 'linear',
+    ease: 'linear' as const,
   };
 
   const animations = {
@@ -63,7 +63,7 @@ export function GlowEffect({
       transition: {
         ...(transition ?? {
           ...BASE_TRANSITION,
-          repeatType: 'mirror',
+          repeatType: 'mirror' as const,
         }),
       },
     },
@@ -78,7 +78,7 @@ export function GlowEffect({
       transition: {
         ...(transition ?? {
           ...BASE_TRANSITION,
-          repeatType: 'mirror',
+          repeatType: 'mirror' as const,
         }),
       },
     },
@@ -90,7 +90,7 @@ export function GlowEffect({
       transition: {
         ...(transition ?? {
           ...BASE_TRANSITION,
-          repeatType: 'mirror',
+          repeatType: 'mirror' as const,
         }),
       },
     },
@@ -102,7 +102,7 @@ export function GlowEffect({
       transition: {
         ...(transition ?? {
           ...BASE_TRANSITION,
-          repeatType: 'mirror',
+          repeatType: 'mirror' as const,
         }),
       },
     },

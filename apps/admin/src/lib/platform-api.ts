@@ -93,10 +93,7 @@ export function isEnvPaused(envId: string) {
 }
 
 function appendTimeline(evt: Omit<TimelineEvent, "id" | "ts"> & { ts?: string }) {
-  store.timeline = [
-    { id: newId("tl"), ts: "just now", ...evt },
-    ...store.timeline,
-  ];
+  store.timeline = [{ id: newId("tl"), ts: "just now", ...evt }, ...store.timeline];
 }
 
 // ---------------- Provisioning ----------------
@@ -163,9 +160,7 @@ export async function cancelProvisioningJob({
           ...j,
           status: "failed",
           completedAt: "just now",
-          steps: j.steps.map((s) =>
-            s.status === "running" ? { ...s, status: "failed" } : s,
-          ),
+          steps: j.steps.map((s) => (s.status === "running" ? { ...s, status: "failed" } : s)),
         }
       : j,
   );
@@ -222,8 +217,8 @@ export function tickProvisioning() {
       i === idx
         ? { ...s, status: "success" as const }
         : i === idx + 1
-        ? { ...s, status: "running" as const }
-        : s,
+          ? { ...s, status: "running" as const }
+          : s,
     );
     const completed = next.filter((s) => s.status === "success").length;
     const progress = Math.round((completed / next.length) * 100);
@@ -553,9 +548,7 @@ export async function renewSsl(input: {
   };
 }
 
-export async function manageRedirects(input: {
-  domainId: string;
-}): Promise<PlatformActionResult> {
+export async function manageRedirects(input: { domainId: string }): Promise<PlatformActionResult> {
   await mockDelay(150, 300);
   return {
     success: true,
@@ -652,12 +645,14 @@ export async function openIntegrationDetails(input: {
   integrationId: string;
 }): Promise<PlatformActionResult> {
   await mockDelay(150, 300);
-  return { success: true, message: "Opening integration details", externalUrl: `/integrations/${input.integrationId}` };
+  return {
+    success: true,
+    message: "Opening integration details",
+    externalUrl: `/integrations/${input.integrationId}`,
+  };
 }
 
-export async function openN8n(input: {
-  environmentId?: string;
-}): Promise<PlatformActionResult> {
+export async function openN8n(input: { environmentId?: string }): Promise<PlatformActionResult> {
   await mockDelay(150, 300);
   return {
     success: true,
@@ -670,7 +665,11 @@ export async function inspectWorkflow(input: {
   workflowId: string;
 }): Promise<PlatformActionResult> {
   await mockDelay(150, 300);
-  return { success: true, message: `Inspecting workflow ${input.workflowId}`, externalUrl: `/workflows/${input.workflowId}` };
+  return {
+    success: true,
+    message: `Inspecting workflow ${input.workflowId}`,
+    externalUrl: `/workflows/${input.workflowId}`,
+  };
 }
 
 // ---------------- Billing / usage / settings ----------------
@@ -683,11 +682,13 @@ export async function upgradePlan(input: {
   return { success: true, message: `Upgrade to ${input.plan} initiated` };
 }
 
-export async function viewInvoices(input: {
-  clientId: string;
-}): Promise<PlatformActionResult> {
+export async function viewInvoices(input: { clientId: string }): Promise<PlatformActionResult> {
   await mockDelay(150, 300);
-  return { success: true, message: "Opening invoices", externalUrl: `/clients/${input.clientId}/invoices` };
+  return {
+    success: true,
+    message: "Opening invoices",
+    externalUrl: `/clients/${input.clientId}/invoices`,
+  };
 }
 
 export async function recordUsageEvent(input: {

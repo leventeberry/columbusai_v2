@@ -50,11 +50,20 @@ function Pill({ value }: { value: keyof typeof TONE }) {
 }
 
 function DomainsPage() {
-  const addDomain = () => run(api.addDomain({ host: `new-${Date.now() % 1000}.example.io`, environmentId: environments[0]?.id ?? "" }));
+  const addDomain = () =>
+    run(
+      api.addDomain({
+        host: `new-${Date.now() % 1000}.example.io`,
+        environmentId: environments[0]?.id ?? "",
+      }),
+    );
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <PageHeader title="Domains" subtitle="Every host pointed at the platform. SSL, DNS, and CDN at a glance." />
+        <PageHeader
+          title="Domains"
+          subtitle="Every host pointed at the platform. SSL, DNS, and CDN at a glance."
+        />
         <Button size="sm" onClick={addDomain}>
           <Plus className="mr-1.5 h-3.5 w-3.5" /> Add domain
         </Button>
@@ -64,7 +73,12 @@ function DomainsPage() {
           icon={Globe}
           title="No domains yet"
           description="Add a custom host so traffic can be routed to a client environment. SSL and DNS verification are tracked here."
-          action={<Button size="sm" onClick={addDomain}><Plus className="mr-1.5 h-3.5 w-3.5" />Add domain</Button>}
+          action={
+            <Button size="sm" onClick={addDomain}>
+              <Plus className="mr-1.5 h-3.5 w-3.5" />
+              Add domain
+            </Button>
+          }
         />
       ) : (
         <div className="rounded-xl border border-border/60 bg-card/40">
@@ -97,14 +111,42 @@ function DomainsPage() {
                       </a>
                     </TableCell>
                     <TableCell>{client.name}</TableCell>
-                    <TableCell><EnvBadge kind={env.kind} /></TableCell>
-                    <TableCell><Pill value={d.ssl} /></TableCell>
-                    <TableCell><Pill value={d.dns} /></TableCell>
-                    <TableCell><Pill value={d.cdn} /></TableCell>
+                    <TableCell>
+                      <EnvBadge kind={env.kind} />
+                    </TableCell>
+                    <TableCell>
+                      <Pill value={d.ssl} />
+                    </TableCell>
+                    <TableCell>
+                      <Pill value={d.dns} />
+                    </TableCell>
+                    <TableCell>
+                      <Pill value={d.cdn} />
+                    </TableCell>
                     <TableCell className="text-right">
-                      <Button size="sm" variant="ghost" onClick={() => run(api.verifyDomain({ domainId: d.id, host: d.host }))}><RefreshCw className="mr-1.5 h-3.5 w-3.5" />Verify DNS</Button>
-                      <Button size="sm" variant="ghost" onClick={() => run(api.renewSsl({ domainId: d.id, host: d.host }))}><ShieldCheck className="mr-1.5 h-3.5 w-3.5" />Renew SSL</Button>
-                      <Button size="sm" variant="ghost" onClick={() => run(api.manageRedirects({ domainId: d.id }))}>Redirects</Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => run(api.verifyDomain({ domainId: d.id, host: d.host }))}
+                      >
+                        <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
+                        Verify DNS
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => run(api.renewSsl({ domainId: d.id, host: d.host }))}
+                      >
+                        <ShieldCheck className="mr-1.5 h-3.5 w-3.5" />
+                        Renew SSL
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => run(api.manageRedirects({ domainId: d.id }))}
+                      >
+                        Redirects
+                      </Button>
                     </TableCell>
                   </TableRow>
                 );

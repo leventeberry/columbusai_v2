@@ -39,6 +39,7 @@ build/Release
 
 # Dependency directories
 node_modules/
+.pnpm-store/
 jspm_packages/
 
 # Snowpack dependency directory (https://snowpack.dev/)
@@ -148,6 +149,8 @@ vite.config.ts.timestamp-*
 
 # Prisma 7 generated client (@columbusai/db)
 packages/db/generated/
+packages/db/src/generated/
+packages/db/dist/
 
 # Playwright
 test-results/

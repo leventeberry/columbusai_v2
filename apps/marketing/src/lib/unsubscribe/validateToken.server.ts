@@ -5,6 +5,7 @@ export function isValidUnsubscribeToken(token: string): boolean {
   if (!token || typeof token !== "string") return false;
   const t = token.trim();
   if (t.length < MIN_TOKEN_LENGTH || t.length > MAX_TOKEN_LENGTH) return false;
+  // eslint-disable-next-line no-control-regex -- reject control chars in tokens
   if (/[\x00-\x1f\x7f]/.test(t)) return false;
   return true;
 }

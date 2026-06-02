@@ -57,7 +57,9 @@ export function CommentThread({
                     : ""
                 }`}
               >
-                <Avatar className={`h-8 w-8 ${user?.kind === "agency" ? "ring-2 ring-[color:var(--accent)]/30" : ""}`}>
+                <Avatar
+                  className={`h-8 w-8 ${user?.kind === "agency" ? "ring-2 ring-[color:var(--accent)]/30" : ""}`}
+                >
                   <AvatarFallback className="text-xs bg-surface-elevated">
                     {user?.initials ?? "?"}
                   </AvatarFallback>
@@ -100,8 +102,15 @@ export function CommentThread({
         <div className="flex items-center justify-between gap-3 flex-wrap">
           {canPostInternal ? (
             <div className="flex items-center gap-2">
-              <Switch id={`internal-${workItemId}`} checked={internal} onCheckedChange={setInternal} />
-              <Label htmlFor={`internal-${workItemId}`} className="text-xs text-muted-foreground cursor-pointer">
+              <Switch
+                id={`internal-${workItemId}`}
+                checked={internal}
+                onCheckedChange={setInternal}
+              />
+              <Label
+                htmlFor={`internal-${workItemId}`}
+                className="text-xs text-muted-foreground cursor-pointer"
+              >
                 Internal note (hidden from client)
               </Label>
             </div>

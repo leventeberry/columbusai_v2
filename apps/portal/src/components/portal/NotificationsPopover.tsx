@@ -20,10 +20,7 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
 import type { WorkActivityKind } from "@/data/entities";
-import {
-  CURRENT_AGENCY_USER_ID,
-  CURRENT_CLIENT_USER_ID,
-} from "@/data/mock/db";
+import { CURRENT_AGENCY_USER_ID, CURRENT_CLIENT_USER_ID } from "@/data/mock/db";
 import { formatRelative } from "@/data/utils";
 import { useNotifications } from "@/hooks/useWorkItems";
 import { markAllRead, markRead } from "@/data/services/notifications";
@@ -91,12 +88,12 @@ export function NotificationsPopover() {
           {notifications.map((n) => {
             const Icon = kindIcon[n.kind];
             const isRead = n.readAt !== null;
-            const href = (agency ? `/admin/work/${n.workItemId}` : `/requests/${n.workItemId}`) as
-              | `/admin/work/${string}`
-              | `/requests/${string}`;
             return (
               <li key={n.id} onClick={() => markRead(n.id, currentUserId)}>
-                <Link to={href}>
+                <Link
+                  to={agency ? "/admin/work/$id" : "/requests/$id"}
+                  params={{ id: n.workItemId }}
+                >
                   <div className="flex gap-3 px-4 py-3 hover:bg-surface-elevated/60 transition">
                     <div className="relative mt-0.5">
                       <div className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-surface-elevated text-muted-foreground">

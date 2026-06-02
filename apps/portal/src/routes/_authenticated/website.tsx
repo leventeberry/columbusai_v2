@@ -1,6 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { ExternalLink, ShieldCheck, Globe, Server, Zap, Clock, Wrench, CalendarCheck, Sparkles } from "lucide-react";
+import {
+  ExternalLink,
+  ShieldCheck,
+  Globe,
+  Server,
+  Zap,
+  Clock,
+  Wrench,
+  CalendarCheck,
+  Sparkles,
+} from "lucide-react";
 import { PageHeader } from "@/components/portal/PageHeader";
 import { StatusPill } from "@/components/portal/StatusPill";
 import { DateRangeToggle } from "@/components/portal/DateRangeToggle";
@@ -8,8 +18,6 @@ import { AreaTrend, BarTrend } from "@/components/portal/MetricChart";
 import { KpiCard } from "@/components/portal/KpiCard";
 import { Button } from "@/components/ui/button";
 import { website, websiteAnalytics, trendSeries, workRequests } from "@/lib/mock/portal";
-
-
 
 export const Route = createFileRoute("/_authenticated/website")({
   head: () => ({ meta: [{ title: "Website — Columbus AI" }] }),
@@ -41,7 +49,6 @@ function WebsitePage() {
                 Request website update
               </Link>
             </Button>
-
           </>
         }
       />
@@ -63,7 +70,10 @@ function WebsitePage() {
             { label: "Framework", value: website.framework, icon: Server },
             { label: "CDN", value: website.cdnStatus, icon: Zap },
           ].map((row) => (
-            <div key={row.label} className="rounded-lg border border-border bg-surface-elevated/40 p-3.5">
+            <div
+              key={row.label}
+              className="rounded-lg border border-border bg-surface-elevated/40 p-3.5"
+            >
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <row.icon className="h-3.5 w-3.5" />
                 {row.label}
@@ -81,12 +91,20 @@ function WebsitePage() {
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <KpiCard label="Visitors" value={websiteAnalytics.visitors.toLocaleString()} hint="Unique" />
+          <KpiCard
+            label="Visitors"
+            value={websiteAnalytics.visitors.toLocaleString()}
+            hint="Unique"
+          />
           <KpiCard label="Form Submissions" value={websiteAnalytics.formSubmissions} />
-          <KpiCard label="Appointments Booked" value={websiteAnalytics.appointmentsBooked} icon={CalendarCheck} accent="online" />
+          <KpiCard
+            label="Appointments Booked"
+            value={websiteAnalytics.appointmentsBooked}
+            icon={CalendarCheck}
+            accent="online"
+          />
           <KpiCard label="Conversion Rate" value={`${websiteAnalytics.conversionRate}%`} />
         </div>
-
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="surface-card p-5">
@@ -167,6 +185,5 @@ function WebsitePage() {
         </div>
       </section>
     </div>
-
   );
 }

@@ -102,8 +102,19 @@ export function Navbar() {
               </Link>
             ))}
             <div className="h-px bg-border my-2" />
-            <Link to="/client" onClick={() => setOpen(false)} className="px-3 py-2 text-sm text-muted-foreground">Client Login</Link>
-            <Button onClick={handleDemo} className="bg-gradient-primary text-primary-foreground mt-2">Request Demo</Button>
+            <Link
+              to="/client"
+              onClick={() => setOpen(false)}
+              className="px-3 py-2 text-sm text-muted-foreground"
+            >
+              Client Login
+            </Link>
+            <Button
+              onClick={handleDemo}
+              className="bg-gradient-primary text-primary-foreground mt-2"
+            >
+              Request Demo
+            </Button>
           </div>
         </div>
       )}

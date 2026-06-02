@@ -25,9 +25,7 @@ export function search(query: string, actor: SearchActor): SearchResults {
   if (!q) return EMPTY;
 
   const allItems = workItemsRepo.list({ includeArchived: false });
-  const scoped = actor.clientId
-    ? allItems.filter((w) => w.clientId === actor.clientId)
-    : allItems;
+  const scoped = actor.clientId ? allItems.filter((w) => w.clientId === actor.clientId) : allItems;
 
   const itemIndex = new Map(scoped.map((w) => [w.id, w] as const));
 

@@ -17,7 +17,6 @@
   },
   "scripts": {
     "build": "tsc",
-    "prepare": "npm run build",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -26,7 +25,7 @@
     "zod": "^3"
   },
   "devDependencies": {
-    "@types/node": "^20",
+    "@types/node": "^22.16.5",
     "@types/pg": "^8.16.0",
     "typescript": "^5"
   }

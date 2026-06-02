@@ -3,11 +3,7 @@ import { Bell, Search, LogOut, User as UserIcon } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -46,7 +42,7 @@ export function Topbar() {
 
   const onSignOut = async () => {
     await signOut();
-    navigate({ to: "/login" });
+    navigate({ to: "/login", search: { redirect: "/dashboard" } });
   };
 
   return (
@@ -74,7 +70,9 @@ export function Topbar() {
             </Button>
           </PopoverTrigger>
           <PopoverContent align="end" className="w-80 p-0">
-            <div className="border-b border-border/60 px-3 py-2.5 text-sm font-medium">Notifications</div>
+            <div className="border-b border-border/60 px-3 py-2.5 text-sm font-medium">
+              Notifications
+            </div>
             <ul className="max-h-96 divide-y divide-border/60 overflow-auto">
               {NOTIFICATIONS.map((n, i) => (
                 <li key={i} className="px-3 py-2.5 hover:bg-accent/40">

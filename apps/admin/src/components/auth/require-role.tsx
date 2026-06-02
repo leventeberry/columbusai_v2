@@ -7,13 +7,7 @@ import { useAuth, type AppRole } from "@/hooks/use-auth";
  * Client-side route guard for role-protected pages. Renders children when the
  * user has one of the allowed roles, otherwise redirects to /unauthorized.
  */
-export function RequireRole({
-  roles,
-  children,
-}: {
-  roles: AppRole[];
-  children: ReactNode;
-}) {
+export function RequireRole({ roles, children }: { roles: AppRole[]; children: ReactNode }) {
   const { isLoading, hasAnyRole, isAuthenticated } = useAuth();
   const location = useLocation();
 

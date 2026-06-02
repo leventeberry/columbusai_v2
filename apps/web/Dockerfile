@@ -1,57 +1,56 @@
-# Phase 5 production Dockerfile — multi-stage, workspace-aware.
-# Build from repo root: docker build -f apps/web/Dockerfile -t columbus-web .
-# Context must be repo root (so package.json + package-lock.json + workspaces are available).
+# Legacy Next.js web app. Build from repo root with pnpm.
+# docker build -f apps/web/Dockerfile -t columbus-web .
 
-# --- deps (workspace root) ---
-FROM node:26-alpine AS deps
+FROM node:26-alpine AS base
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN npm install -g corepack && corepack enable && corepack prepare pnpm@10.12.4 --activate
+
+FROM base AS deps
 WORKDIR /app
-COPY package.json package-lock.json ./
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml .npmrc ./
 COPY packages ./packages
 COPY apps ./apps
-RUN npm ci
+ENV DATABASE_URL="postgresql://postgres:postgres@postgres:5432/columbusai?schema=public"
+RUN pnpm install --frozen-lockfile --filter web...
 
-# --- build ---
-FROM node:26-alpine AS build
+FROM base AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/package.json ./
+COPY --from=deps /app/pnpm-workspace.yaml ./
 COPY --from=deps /app/packages ./packages
 COPY --from=deps /app/apps/web ./apps/web
 ENV NEXT_TELEMETRY_DISABLED=1
-# Generate Prisma client from shared db package (no prisma in apps/web)
-RUN cd packages/db && npx prisma generate
+ENV DATABASE_URL="postgresql://postgres:postgres@postgres:5432/columbusai?schema=public"
+RUN pnpm --filter @columbusai/db build
 WORKDIR /app/apps/web
-RUN npx next build --webpack
-# Next may externalize @prisma/client with a hash; replace hashed dir with symlink to real client
+RUN pnpm exec next build --webpack
 RUN for d in /app/node_modules/@prisma/client-*; do [ -d "$d" ] && rm -rf "$d" && ln -sf /app/node_modules/@prisma/client "$d" && break; done 2>/dev/null || true
 
-# --- runtime ---
 FROM node:26-alpine AS runtime
 RUN apk add --no-cache curl
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 WORKDIR /app
-
 COPY --from=build /app/apps/web/package.json ./
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/apps/web/.next ./.next
 COPY --from=build /app/apps/web/next.config.ts ./
 COPY --from=build /app/apps/web/public ./public
-
-# Next.js may externalize @prisma/client with a hash; symlink created in build stage
 EXPOSE 3000
+CMD ["pnpm", "run", "start"]
 
-CMD ["npm", "run", "start"]
-
-# --- dev (docker compose dev: target=dev) ---
-FROM node:26-alpine AS dev
+FROM base AS dev
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/package.json ./
+COPY --from=deps /app/pnpm-workspace.yaml ./
 COPY --from=deps /app/packages ./packages
 COPY --from=deps /app/apps/web ./apps/web
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN cd packages/db && npx prisma generate
+ENV DATABASE_URL="postgresql://postgres:postgres@postgres:5432/columbusai?schema=public"
+RUN pnpm --filter @columbusai/db build
 WORKDIR /app/apps/web
 EXPOSE 3000
-CMD ["npm", "run", "dev"]
+CMD ["pnpm", "run", "dev"]

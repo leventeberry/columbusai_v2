@@ -30,7 +30,12 @@ function TemplatesPage() {
           title="Stack templates"
           subtitle="Reusable infrastructure blueprints. Provision a client stack in one click."
         />
-        <Button size="sm" onClick={() => run(api.createStackTemplate({ name: `Custom Stack ${Date.now() % 1000}` }))}>
+        <Button
+          size="sm"
+          onClick={() =>
+            run(api.createStackTemplate({ name: `Custom Stack ${Date.now() % 1000}` }))
+          }
+        >
           <Plus className="mr-1.5 h-3.5 w-3.5" /> Create template
         </Button>
       </div>
@@ -42,12 +47,17 @@ function TemplatesPage() {
                 <div className="text-base font-semibold">{t.name}</div>
                 <p className="mt-1 text-xs text-muted-foreground">{t.description}</p>
               </div>
-              <Badge variant="outline" className={t.enabled ? "border-emerald-500/40 text-emerald-300" : ""}>
+              <Badge
+                variant="outline"
+                className={t.enabled ? "border-emerald-500/40 text-emerald-300" : ""}
+              >
                 {t.enabled ? "Active" : "Disabled"}
               </Badge>
             </div>
             <div className="mt-4">
-              <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Services</div>
+              <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                Services
+              </div>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {t.services.map((s) => (
                   <Badge key={s} variant="outline" className="font-mono text-[10px] uppercase">
@@ -57,20 +67,43 @@ function TemplatesPage() {
               </div>
             </div>
             <div className="mt-5 flex gap-2">
-              <Button size="sm" variant="outline" onClick={() => run(api.updateStackTemplate({ templateId: t.id, patch: { description: `${t.description} (edited)` } }))}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() =>
+                  run(
+                    api.updateStackTemplate({
+                      templateId: t.id,
+                      patch: { description: `${t.description} (edited)` },
+                    }),
+                  )
+                }
+              >
                 <Pencil className="mr-1.5 h-3.5 w-3.5" /> Edit
               </Button>
-              <Button size="sm" variant="outline" onClick={() => run(api.cloneStackTemplate({ templateId: t.id }))}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => run(api.cloneStackTemplate({ templateId: t.id }))}
+              >
                 <Copy className="mr-1.5 h-3.5 w-3.5" /> Clone
               </Button>
               <ConfirmDialog
                 title={t.enabled ? `Disable template "${t.name}"?` : `Enable template "${t.name}"?`}
-                description={t.enabled ? "New provisioning jobs cannot use this template until re-enabled." : "Template will become available for new provisioning jobs."}
+                description={
+                  t.enabled
+                    ? "New provisioning jobs cannot use this template until re-enabled."
+                    : "Template will become available for new provisioning jobs."
+                }
                 confirmLabel={t.enabled ? "Disable" : "Enable"}
                 variant={t.enabled ? "danger" : "default"}
                 onConfirm={() => run(api.disableStackTemplate({ templateId: t.id }))}
                 trigger={
-                  <Button size="sm" variant="outline" className={t.enabled ? "text-rose-400 hover:text-rose-300" : ""}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className={t.enabled ? "text-rose-400 hover:text-rose-300" : ""}
+                  >
                     <Power className="mr-1.5 h-3.5 w-3.5" /> {t.enabled ? "Disable" : "Enable"}
                   </Button>
                 }

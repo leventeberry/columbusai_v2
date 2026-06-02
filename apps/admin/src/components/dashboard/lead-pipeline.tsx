@@ -35,9 +35,7 @@ function LeadCard({ lead, dragging }: { lead: PipelineLeadCard; dragging?: boole
       ? "/sales/opportunities/$opportunityId"
       : "/sales/leads/$leadId";
   const detailParams =
-    lead.entityType === "opportunity"
-      ? { opportunityId: lead.id }
-      : { leadId: lead.id };
+    lead.entityType === "opportunity" ? { opportunityId: lead.id } : { leadId: lead.id };
 
   return (
     <Link
@@ -54,7 +52,10 @@ function LeadCard({ lead, dragging }: { lead: PipelineLeadCard; dragging?: boole
       </div>
       <div className="mt-0.5 text-xs text-muted-foreground">{lead.contact}</div>
       <div className="mt-2 flex items-center justify-between">
-        <Badge variant="outline" className="border-border/60 bg-background/40 text-[10px] font-normal">
+        <Badge
+          variant="outline"
+          className="border-border/60 bg-background/40 text-[10px] font-normal"
+        >
           {lead.service.length > 28 ? `${lead.service.slice(0, 28)}…` : lead.service}
         </Badge>
         <span className="font-mono text-xs text-foreground/90">
@@ -79,13 +80,7 @@ function DraggableLead({ lead }: { lead: PipelineLeadCard }) {
   );
 }
 
-function Column({
-  col,
-  leads,
-}: {
-  col: (typeof COLUMNS)[number];
-  leads: PipelineLeadCard[];
-}) {
+function Column({ col, leads }: { col: (typeof COLUMNS)[number]; leads: PipelineLeadCard[] }) {
   const { setNodeRef, isOver } = useDroppable({ id: col.id });
   const total = leads.reduce((s, l) => s + l.value, 0);
   return (
@@ -121,10 +116,7 @@ function Column({
 export function LeadPipeline() {
   const { data: cards, isLoading, isError } = useSalesPipeline();
   const updateStage = useUpdatePipelineStage();
-  const items = useMemo(
-    () => (cards ?? []).map(pipelineCardToLeadCard),
-    [cards],
-  );
+  const items = useMemo(() => (cards ?? []).map(pipelineCardToLeadCard), [cards]);
   const [active, setActive] = useState<PipelineLeadCard | null>(null);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 

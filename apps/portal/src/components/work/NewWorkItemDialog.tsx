@@ -45,7 +45,17 @@ export function NewWorkItemDialog({
   allowAllTypes?: boolean;
 }) {
   const types: WorkType[] = allowAllTypes
-    ? ["website", "automation", "integration", "support", "deployment", "bug", "internal", "billing", "onboarding"]
+    ? [
+        "website",
+        "automation",
+        "integration",
+        "support",
+        "deployment",
+        "bug",
+        "internal",
+        "billing",
+        "onboarding",
+      ]
     : CLIENT_TYPES;
   const [open, setOpen] = useState(false);
   const [type, setType] = useState<WorkType>(types[0]);
@@ -97,10 +107,14 @@ export function NewWorkItemDialog({
             <div className="space-y-1.5">
               <Label>Type</Label>
               <Select value={type} onValueChange={(v) => setType(v as WorkType)}>
-                <SelectTrigger className="bg-background"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="bg-background">
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   {types.map((t) => (
-                    <SelectItem key={t} value={t}>{workTypeLabel[t]}</SelectItem>
+                    <SelectItem key={t} value={t}>
+                      {workTypeLabel[t]}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -108,10 +122,14 @@ export function NewWorkItemDialog({
             <div className="space-y-1.5">
               <Label>Priority</Label>
               <Select value={priority} onValueChange={(v) => setPriority(v as WorkPriority)}>
-                <SelectTrigger className="bg-background"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="bg-background">
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   {WORK_PRIORITIES.map((p) => (
-                    <SelectItem key={p} value={p}>{workPriorityLabel[p]}</SelectItem>
+                    <SelectItem key={p} value={p}>
+                      {workPriorityLabel[p]}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>

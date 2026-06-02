@@ -27,7 +27,7 @@ export async function notifyUnsubscribeWebhook(token: string): Promise<void> {
         "[unsubscribe] webhook failed:",
         res.status,
         res.statusText,
-        body ? body.slice(0, 200) : ""
+        body ? body.slice(0, 200) : "",
       );
     }
   } catch (err) {

@@ -35,7 +35,9 @@ export function WorkMetrics({ items }: { items: WorkItem[] }) {
       <Card label="Completed this month" value={String(stats.completedThisMonth)} />
       <Card label="Avg resolution" value={`${stats.avgHours}h`} />
       <div className="surface-card p-4">
-        <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Requests by type</p>
+        <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+          Requests by type
+        </p>
         <div className="mt-2 space-y-1">
           {Object.entries(stats.byType)
             .sort((a, b) => b[1] - a[1])

@@ -2,28 +2,34 @@
 # Dev:  docker build -f apps/marketing/Dockerfile --target dev -t columbus-marketing .
 # Prod: docker build -f apps/marketing/Dockerfile --target runtime -t columbus-marketing .
 
-FROM node:26-alpine AS deps
+FROM node:26-alpine AS base
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN npm install -g corepack && corepack enable && corepack prepare pnpm@10.12.4 --activate
+
+FROM base AS deps
 WORKDIR /app
-COPY package.json package-lock.json ./
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml .npmrc ./
 COPY packages ./packages
 COPY apps ./apps
-RUN npm ci
+RUN pnpm install --frozen-lockfile --filter marketing...
 
-FROM node:26-alpine AS dev
+FROM base AS dev
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/package.json ./
+COPY --from=deps /app/pnpm-workspace.yaml ./
 COPY --from=deps /app/packages ./packages
 COPY --from=deps /app/apps/marketing ./apps/marketing
 WORKDIR /app/apps/marketing
 EXPOSE 3000
-# Leads package exports dist for Node (API); build so linked workspace resolves if dist is used.
-CMD ["sh", "-c", "cd /app/packages/leads && npm run build && cd /app/apps/marketing && npm run dev -- --host 0.0.0.0 --port ${PORT:-3000}"]
+CMD ["sh", "-c", "pnpm --filter @columbusai/db build && pnpm --filter @columbusai/leads build && pnpm run dev --host 0.0.0.0 --port ${PORT:-3000}"]
 
-FROM node:26-alpine AS build
+FROM base AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/package.json ./
+COPY --from=deps /app/pnpm-workspace.yaml ./
 COPY --from=deps /app/packages ./packages
 COPY --from=deps /app/apps/marketing ./apps/marketing
 WORKDIR /app/apps/marketing
@@ -39,8 +45,7 @@ ENV VITE_BOOKING_LINK=$VITE_BOOKING_LINK
 ENV VITE_CHAT_TITLE=$VITE_CHAT_TITLE
 ENV VITE_CHAT_WELCOME=$VITE_CHAT_WELCOME
 ENV VITE_ADMIN_URL=$VITE_ADMIN_URL
-RUN cd /app/packages/leads && npm run build
-RUN npm run build
+RUN pnpm --filter @columbusai/db build && pnpm --filter @columbusai/leads build && pnpm run build
 
 FROM node:26-alpine AS runtime
 RUN apk add --no-cache curl

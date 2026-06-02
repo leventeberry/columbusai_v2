@@ -108,7 +108,11 @@ function SignupPage() {
 
         <p className="text-center text-xs text-muted-foreground">
           Already have an account?{" "}
-          <Link to="/login" className="text-foreground underline-offset-4 hover:underline">
+          <Link
+            to="/login"
+            search={{ redirect: "/dashboard" }}
+            className="text-foreground underline-offset-4 hover:underline"
+          >
             Sign in
           </Link>
         </p>

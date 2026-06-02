@@ -2,10 +2,7 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { PageHeader } from "@/components/dashboard/page-header";
-import {
-  fetchAdminConversations,
-  type AdminConversation,
-} from "@/lib/conversations.functions";
+import { fetchAdminConversations, type AdminConversation } from "@/lib/conversations.functions";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -32,7 +29,10 @@ function ConversationsPage() {
 
   return (
     <div>
-      <PageHeader title="Conversations" subtitle="AI conversations from the chat service (live data)." />
+      <PageHeader
+        title="Conversations"
+        subtitle="AI conversations from the chat service (live data)."
+      />
       <div className="grid gap-4 lg:grid-cols-[360px_1fr]">
         <div className="rounded-xl border border-border/60 bg-card/40">
           <div className="border-b border-border/60 p-2">
