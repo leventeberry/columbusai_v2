@@ -200,70 +200,45 @@ Docker Compose sets `REDIS_URL` for the web service; override in `apps/web/.env`
 
 ---
 
-## Phase 5: Prod compose runbook
+## Phase 5: Production deployment
 
-Phase 5 runs the stack in a production-like way: built images only (no bind mounts), explicit migrations, healthchecks, and the same network topology as dev.
+Production runs on a single VPS (e.g. Hostinger) with Traefik TLS and [infra/docker/compose.prod.yml](infra/docker/compose.prod.yml).
 
-**Prereq:** Docker and Docker Compose v2.1+ (for `service_completed_successfully`). Create `apps/web/.env` from `apps/web/.env.example` and set at least `OPENAI_API_KEY` (and optionally other vars). Compose injects `DATABASE_URL`, `VECTOR_DATABASE_URL`, and `REDIS_URL` from the compose file; you can override via `env_file` or environment.
+**Routing (v2):**
+
+| Host | App |
+|------|-----|
+| `columbusai.tech` | marketing |
+| `api.columbusai.tech` | api |
+| `admin.columbusai.tech` | admin |
+| `portal.columbusai.tech` | portal |
+| `n8n.columbusai.tech` | n8n |
+
+Legacy Next.js (optional): `docker compose --profile legacy up -d web` → `app.columbusai.tech`.
+
+**Prereq:** Docker Compose v2.1+, repo root `.env` from `.env.example` (`DOMAIN`, `ACME_EMAIL`, `POSTGRES_PASSWORD`, `OPENAI_API_KEY`, `CORS_ORIGIN`, `VITE_API_URL`).
 
 ### Start prod stack
 
-From the repo root:
-
 ```bash
-docker compose -f infra/docker/compose.prod.yml up --build -d
+make up-prod
+# or: docker compose -f infra/docker/compose.prod.yml up -d --build
 ```
 
 ### Verify
 
 ```bash
-# Health
-curl http://localhost:3000/api/health
-# Expect: {"ok":true}
-
-# Chat (requires OPENAI_API_KEY in .env or environment)
-curl -X POST http://localhost:3000/api/chat \
-  -H "Content-Type: application/json" \
-  -d '{"message":"hi"}'
-
-# All services healthy or completed (migrate, ensure-databases are one-shot)
-docker compose -f infra/docker/compose.prod.yml ps
+make verify-prod
+curl -sf https://api.columbusai.tech/api/health
 ```
 
-### Fresh machine / from scratch
-
-To remove all data and re-run from a clean state:
-
-```bash
-docker compose -f infra/docker/compose.prod.yml down -v
-docker compose -f infra/docker/compose.prod.yml up --build
-```
-
-The `-v` flag removes named volumes (Postgres and Redis data). The next `up --build` recreates DBs and runs migrations again.
+Full runbook: [docs/deployment-runbook.md](docs/deployment-runbook.md).
 
 ### Required env vars in prod
 
-**Production required env** (set in `.env` or environment when using `docker-compose.yml` or `infra/docker/compose.prod.yml`):
+- **DOMAIN**, **ACME_EMAIL**, **POSTGRES_PASSWORD**
+- **OPENAI_API_KEY**, **CORS_ORIGIN** (`https://columbusai.tech,https://www.columbusai.tech`)
+- **VITE_API_URL** (`https://api.columbusai.tech`) — baked into marketing image at build
+- **Supabase** vars for admin (see `.env.example`)
 
-- **POSTGRES_PASSWORD** — set a strong password (compose default is `columbus`).
-- **DOMAIN** — required for Traefik routing (e.g. `app.<your-domain>` or your root domain).
-- **NEXT_PUBLIC_API_URL** — must be set in production (e.g. `https://api.<your-domain>`); default `http://localhost:4000` is dev only; web app fails start if missing or localhost in prod.
-- **CORS_ORIGIN** — must be set in production for the API (e.g. `https://app.<your-domain>`); API fails start if unset or default localhost.
-- **REDIS_URL** — set if rate limiting must be enabled (compose sets `redis://redis:6379`).
-
-See comments in `docker-compose.yml` for inline examples.
-
-- **Required for /api/chat:** `DATABASE_URL`, `OPENAI_API_KEY` (compose sets `DATABASE_URL`; ensure `OPENAI_API_KEY` is in `apps/web/.env` or passed to the web service).
-- **Optional:** `VECTOR_DATABASE_URL` (RAG; compose sets it), `REDIS_URL` (compose sets it), `OPENAI_MODEL`, `OPENAI_EMBED_MODEL`, `OPENAI_STORE`, `RATE_LIMIT_WINDOW_SECONDS`, `RATE_LIMIT_MAX_REQUESTS`, `RATE_LIMIT_SCOPE`, `RETRIEVAL_K`, `ADMIN_TOKEN` (for future ingestion API).
-
-See `apps/web/.env.example` for all supported variables.
-
-### Two-step startup (older Compose)
-
-If your Compose version does not support `depends_on: condition: service_completed_successfully`, run migrations manually then start web:
-
-```bash
-docker compose up -d postgres redis
-docker compose -f infra/docker/compose.prod.yml run --rm migrate
-docker compose -f infra/docker/compose.prod.yml up -d web
-```
+Compose injects `DATABASE_URL`, `REDIS_URL`, `VECTOR_DATABASE_URL`, and internal `N8N_DEMO_WEBHOOK_URL` for the API.

@@ -10,11 +10,24 @@
     "n8n:list": "tsx scripts/n8n/list-workflows.ts",
     "n8n:pull:demo": "tsx scripts/n8n/pull-workflow.ts",
     "n8n:push:demo": "tsx scripts/n8n/push-workflow.ts",
-    "n8n:activate:demo": "tsx scripts/n8n/activate-workflow.ts"
+    "n8n:activate:demo": "tsx scripts/n8n/activate-workflow.ts",
+    "hostinger:list-vms": "tsx scripts/hostinger/list-vms.ts",
+    "hostinger:provision": "tsx scripts/hostinger/provision-vps.ts",
+    "hostinger:provision:firewall": "tsx scripts/hostinger/provision-firewall.ts",
+    "hostinger:provision:ssh": "tsx scripts/hostinger/provision-ssh-key.ts",
+    "hostinger:provision:dns": "tsx scripts/hostinger/provision-dns.ts",
+    "hostinger:deploy": "tsx scripts/hostinger/deploy-docker.ts",
+    "hostinger:verify-env": "tsx scripts/hostinger/verify-env.ts",
+    "hostinger:dns:dump": "tsx scripts/hostinger/dump-dns.ts",
+    "hostinger:check-auth": "tsx scripts/hostinger/check-auth.ts",
+    "hostinger:deploy:all": "tsx scripts/hostinger/deploy-all.ts"
   },
   "devDependencies": {
     "@cursor/sdk": "latest",
     "dotenv": "^17.4.2",
     "tsx": "latest"
+  },
+  "dependencies": {
+    "hostinger-api-sdk": "^0.0.17"
   }
 }

@@ -1,5 +1,6 @@
 # Docker compose files (run from repo root).
 COMPOSE_DEV  = docker compose -f infra/docker/compose.dev.yml
+COMPOSE_PROD = docker compose -f infra/docker/compose.prod.yml
 
 # Database migrations: single source of truth is packages/db. Run from repo root.
 .PHONY: db-migrate db-migrate-dev db-generate
@@ -39,6 +40,20 @@ up:
 
 down:
 	$(COMPOSE_DEV) down
+
+# --- Docker (production) ---
+.PHONY: build-prod up-prod down-prod verify-prod
+build-prod:
+	$(COMPOSE_PROD) build
+
+up-prod:
+	$(COMPOSE_PROD) up -d --build
+
+down-prod:
+	$(COMPOSE_PROD) down
+
+verify-prod:
+	./infra/scripts/verify-prod-deploy.sh
 
 n8n-url:
 	@echo "n8n URL: http://localhost:5678"

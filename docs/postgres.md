@@ -73,4 +73,4 @@ Then stop the orphan container: `docker compose -f infra/docker/compose.dev.yml 
 
 ## Production
 
-Root `docker-compose.yml` uses the same pattern (no separate `postgres-vectors` container). Production webhooks may stay on n8n Cloud; self-hosted n8n in prod compose is optional.
+Root `docker-compose.yml` includes [compose.prod.yml](../infra/docker/compose.prod.yml). Production uses self-hosted n8n with metadata in the `n8n` database. See [deployment-runbook.md](deployment-runbook.md).

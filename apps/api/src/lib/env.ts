@@ -68,7 +68,7 @@ export function getApiEnv(): ApiEnv {
   if (isProd) {
     if (!corsRaw || parseCorsOrigins(corsRaw).length === 0) {
       console.error(
-        "[env] In production CORS_ORIGIN is required. Example: CORS_ORIGIN=https://app.example.com"
+        "[env] In production CORS_ORIGIN is required. Example: CORS_ORIGIN=https://columbusai.tech,https://www.columbusai.tech"
       );
       process.exit(1);
     }
@@ -76,7 +76,7 @@ export function getApiEnv(): ApiEnv {
     const defaultNormalized = parseCorsOrigins(DEFAULT_CORS_ORIGIN).join(",");
     if (normalized === defaultNormalized || corsRaw === DEFAULT_CORS_ORIGIN) {
       console.error(
-        "[env] In production CORS_ORIGIN must not be the default localhost list. Example: CORS_ORIGIN=https://app.example.com"
+        "[env] In production CORS_ORIGIN must not be the default localhost list. Example: CORS_ORIGIN=https://columbusai.tech,https://www.columbusai.tech"
       );
       process.exit(1);
     }
