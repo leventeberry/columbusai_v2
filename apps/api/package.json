@@ -15,7 +15,7 @@
     "@columbusai/leads": "workspace:*",
     "bcryptjs": "^3.0.2",
     "express": "^5.1.0",
-    "openai": "^4",
+    "openai": "^6",
     "pg": "^8.19.0",
     "redis": "^4",
     "zod": "^3"
