@@ -14,7 +14,7 @@ const faqs = [
   { q: "Can you integrate with my CRM?", a: "We integrate with HubSpot, GoHighLevel, and most modern CRMs via native APIs or middleware." },
   { q: "How long does setup take?", a: "Most launches go live within 1–3 weeks depending on scope. Complex stacks take longer and are scoped up front." },
   { q: "Do you offer ongoing support?", a: "Yes. Every plan includes ongoing support and a request channel through the client portal." },
-  { q: "Is the AI chat widget included?", a: "AI chat / assistant widgets can be added on Growth and Scale plans. Our own widget will be re-integrated into this site soon." },
+  { q: "Is the AI chat widget included?", a: "Yes — use the chat button on this site to try our assistant. Custom AI chat and workflow integrations are available on Growth and Scale plans." },
   { q: "How do I access the client portal?", a: "Active clients receive credentials at onboarding. The portal lives at /client." },
   { q: "Is the admin portal only for Columbus AI?", a: "Yes. The admin portal is restricted to Columbus AI operators." },
 ];

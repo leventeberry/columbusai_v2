@@ -8,7 +8,6 @@ import { WorkflowsSection } from "@/components/sections/WorkflowsSection";
 import { PortalAccessSection } from "@/components/sections/PortalAccessSection";
 import { ClientPortalPreview } from "@/components/sections/ClientPortalPreview";
 import { AdminPlatformPreview } from "@/components/sections/AdminPlatformPreview";
-import { AIWidgetPlaceholder } from "@/components/sections/AIWidgetPlaceholder";
 import { PricingSection } from "@/components/sections/PricingSection";
 import { FAQSection } from "@/components/sections/FAQSection";
 import { ContactSection } from "@/components/sections/ContactSection";
@@ -38,7 +37,6 @@ function Index() {
       <PortalAccessSection />
       <ClientPortalPreview />
       <AdminPlatformPreview />
-      <AIWidgetPlaceholder />
       <PricingSection />
       <FAQSection />
       <ContactSection />

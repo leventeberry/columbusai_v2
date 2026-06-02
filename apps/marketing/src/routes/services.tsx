@@ -1,8 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/sections/SiteLayout";
 import { ServicesSection } from "@/components/sections/ServicesSection";
-import { AIWidgetPlaceholder } from "@/components/sections/AIWidgetPlaceholder";
-
 export const Route = createFileRoute("/services")({
   head: () => ({
     meta: [
@@ -17,7 +15,6 @@ export const Route = createFileRoute("/services")({
   component: () => (
     <SiteLayout>
       <ServicesSection />
-      <AIWidgetPlaceholder />
     </SiteLayout>
   ),
 });

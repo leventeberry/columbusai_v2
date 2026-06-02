@@ -5,7 +5,7 @@ const services = [
   { icon: Globe, title: "Website Hosting & Management", desc: "We host and maintain your website with performance, uptime, SSL, updates, and lead capture in mind." },
   { icon: Workflow, title: "Workflow Automation", desc: "We automate repetitive tasks across your tools so leads, reminders, updates, and handoffs happen consistently." },
   { icon: LayoutDashboard, title: "Client Portals", desc: "We create portals where your customers or internal teams can view activity, submit requests, access documents, and track progress." },
-  { icon: MessageSquare, title: "AI Chat & Assistant Widgets", desc: "We integrate AI-powered chat widgets and assistant experiences into your site or workflows. The existing Columbus AI chat widget will be integrated into the new site later." },
+  { icon: MessageSquare, title: "AI Chat & Assistant Widgets", desc: "We integrate AI-powered chat widgets and assistant experiences into your site or workflows, including the Columbus AI assistant on this site." },
   { icon: Plug, title: "Integrations", desc: "We connect your business tools so information flows automatically instead of being copied manually." },
   { icon: BarChart3, title: "Reporting & Business Impact", desc: "Dashboards and reports that show leads captured, tasks automated, hours saved, and revenue influenced." },
 ];
