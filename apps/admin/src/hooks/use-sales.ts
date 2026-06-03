@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   convertLeadToOpportunity,
+  convertOpportunityToClient,
   fetchSalesClient,
   fetchSalesClients,
   fetchSalesLead,
@@ -9,6 +10,8 @@ import {
   fetchSalesOpportunity,
   fetchSalesPipeline,
   fetchSalesStats,
+  fetchStackTemplates,
+  retrySalesClientProvision,
   updateLeadPipelineStage,
   updateOpportunityStage,
 } from "@/lib/sales.functions";
@@ -24,6 +27,7 @@ export const salesKeys = {
   clients: () => [...salesKeys.all, "clients"] as const,
   client: (id: string) => [...salesKeys.all, "client", id] as const,
   stats: () => [...salesKeys.all, "stats"] as const,
+  stackTemplates: () => [...salesKeys.all, "stack-templates"] as const,
 };
 
 export function useSalesPipeline() {
@@ -106,6 +110,35 @@ export function useConvertLead() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => convertLeadToOpportunity({ data: { id } }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: salesKeys.all });
+    },
+  });
+}
+
+export function useStackTemplates() {
+  return useQuery({
+    queryKey: salesKeys.stackTemplates(),
+    queryFn: () => fetchStackTemplates(),
+  });
+}
+
+export function useConvertOpportunity() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (vars: { id: string; stackTemplateId?: string }) =>
+      convertOpportunityToClient({ data: vars }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: salesKeys.all });
+    },
+  });
+}
+
+export function useRetryProvision() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (vars: { id: string; stackTemplateId?: string }) =>
+      retrySalesClientProvision({ data: vars }),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: salesKeys.all });
     },

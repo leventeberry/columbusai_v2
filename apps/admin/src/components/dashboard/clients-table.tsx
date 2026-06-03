@@ -39,7 +39,8 @@ export function ClientsTable() {
   if (rows.length === 0) {
     return (
       <p className="rounded-xl border border-dashed border-border/60 p-8 text-center text-sm text-muted-foreground">
-        No converted clients yet. Win an opportunity to create one.
+        No converted clients yet. Win an opportunity in the pipeline or use Convert to client on an
+        opportunity detail page.
       </p>
     );
   }

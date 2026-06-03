@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useSalesOpportunity } from "@/hooks/use-sales";
 import { Badge } from "@/components/ui/badge";
+import { useSalesOpportunity } from "@/hooks/use-sales";
+import { ConvertClientDialog } from "@/components/dashboard/convert-client-dialog";
 
 export const Route = createFileRoute("/_app/sales/opportunities/$opportunityId")({
   head: ({ params }) => ({
@@ -13,7 +14,7 @@ export const Route = createFileRoute("/_app/sales/opportunities/$opportunityId")
 
 function OpportunityDetailPage() {
   const { opportunityId } = Route.useParams();
-  const { data: opp, isLoading, isError } = useSalesOpportunity(opportunityId);
+  const { data: opp, isLoading, isError, refetch } = useSalesOpportunity(opportunityId);
 
   return (
     <div className="space-y-6">
@@ -47,7 +48,7 @@ function OpportunityDetailPage() {
               <p className="mt-1 text-sm">{opp.notes}</p>
             </div>
           )}
-          <div className="md:col-span-2 flex flex-wrap gap-4 text-sm">
+          <div className="md:col-span-2 flex flex-wrap items-center gap-4 text-sm">
             <Link
               to="/sales/leads/$leadId"
               params={{ leadId: opp.leadId }}
@@ -55,7 +56,7 @@ function OpportunityDetailPage() {
             >
               ← Source lead
             </Link>
-            {opp.clientId && (
+            {opp.clientId ? (
               <Link
                 to="/sales/clients/$salesClientId"
                 params={{ salesClientId: opp.clientId }}
@@ -63,6 +64,12 @@ function OpportunityDetailPage() {
               >
                 View client →
               </Link>
+            ) : (
+              <ConvertClientDialog
+                opportunityId={opp.id}
+                company={opp.company}
+                onConverted={() => void refetch()}
+              />
             )}
           </div>
         </div>

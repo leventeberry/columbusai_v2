@@ -18,6 +18,10 @@ export type SalesLead = {
   priority: string | null;
   confidence: number | null;
   recommendedNextStep: string | null;
+  followupCount: number;
+  lastFollowupAt: string | null;
+  nextFollowupAt: string | null;
+  followupTemplate: string | null;
   opportunityId: string | null;
   pipelineStage: LeadStage | string;
   score: number;
@@ -57,6 +61,27 @@ export type SalesPipelineClient = {
   notes: string | null;
   industry: string;
   monthlyValue: number;
+  portalClientId: string | null;
+  onboardingWorkItemId: string | null;
+  stackTemplateId: string | null;
+  provisioningStatus: "pending" | "portal_ready" | "failed";
+  provisioningError: string | null;
+};
+
+export type ConvertClientResult = {
+  client: SalesPipelineClient;
+  portalClientId: string;
+  onboardingWorkItemId: string;
+  clientUserId: string;
+  tempPassword?: string;
+  alreadyProvisioned: boolean;
+};
+
+export type StackTemplate = {
+  id: string;
+  name: string;
+  description: string;
+  services: string[];
 };
 
 export type PipelineCard = {

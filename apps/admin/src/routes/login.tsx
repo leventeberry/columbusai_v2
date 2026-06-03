@@ -99,6 +99,13 @@ function LoginPage() {
           </Button>
         </form>
 
+        {import.meta.env.DEV && (
+          <p className="text-center text-xs text-muted-foreground">
+            Dev seed: admin@columbusai.com — password from <code className="text-[10px]">SEED_ADMIN_PASSWORD</code> in{" "}
+            <code className="text-[10px]">.env.local</code>
+          </p>
+        )}
+
         <p className="text-center text-xs text-muted-foreground">
           New workspace?{" "}
           <Link to="/signup" className="text-foreground underline-offset-4 hover:underline">

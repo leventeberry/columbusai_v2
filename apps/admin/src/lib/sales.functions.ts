@@ -8,6 +8,8 @@ import type {
   SalesOpportunity,
   SalesPipelineClient,
   SalesStats,
+  ConvertClientResult,
+  StackTemplate,
 } from "@/lib/sales-types";
 
 export const fetchSalesPipeline = createServerFn({ method: "GET" })
@@ -120,6 +122,55 @@ export const updateOpportunityStage = createServerFn({ method: "POST" })
       },
     );
     return res.opportunity;
+  });
+
+export const convertOpportunityToClient = createServerFn({ method: "POST" })
+  .middleware([requireApiSession])
+  .inputValidator((input) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        stackTemplateId: z.string().min(1).optional(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdminRole(context.roles);
+    return salesApiFetch<ConvertClientResult>(
+      `/api/opportunities/${data.id}/convert-to-client`,
+      {
+        method: "POST",
+        body: JSON.stringify({ stackTemplateId: data.stackTemplateId }),
+      },
+    );
+  });
+
+export const retrySalesClientProvision = createServerFn({ method: "POST" })
+  .middleware([requireApiSession])
+  .inputValidator((input) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        stackTemplateId: z.string().min(1).optional(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdminRole(context.roles);
+    return salesApiFetch<ConvertClientResult>(`/api/clients/${data.id}/retry-provision`, {
+      method: "POST",
+      body: JSON.stringify({ stackTemplateId: data.stackTemplateId }),
+    });
+  });
+
+export const fetchStackTemplates = createServerFn({ method: "GET" })
+  .middleware([requireApiSession])
+  .handler(async ({ context }) => {
+    await assertAdminRole(context.roles);
+    const data = await salesApiFetch<{ templates: StackTemplate[] }>(
+      "/api/onboarding/stack-templates",
+    );
+    return data.templates;
   });
 
 export const fetchSalesStats = createServerFn({ method: "GET" })

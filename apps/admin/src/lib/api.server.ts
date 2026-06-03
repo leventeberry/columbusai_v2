@@ -19,7 +19,7 @@ function forwardCookieHeaders(init?: RequestInit): HeadersInit {
   if (cookie) headers.Cookie = cookie;
 
   const token = process.env.ADMIN_API_TOKEN?.trim();
-  if (token && !cookie?.includes("columbus_session")) {
+  if (token) {
     headers["X-Admin-Token"] = token;
   }
 

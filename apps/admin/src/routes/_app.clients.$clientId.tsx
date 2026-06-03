@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { clients, type Client } from "@/lib/mock/data";
@@ -47,6 +47,15 @@ async function run<T extends api.PlatformActionResult>(p: Promise<T>) {
 export const Route = createFileRoute("/_app/clients/$clientId")({
   head: ({ params }) => ({ meta: [{ title: `Client · ${params.clientId} — Columbus AI` }] }),
   loader: ({ params }) => {
+    const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      params.clientId,
+    );
+    if (uuid) {
+      throw redirect({
+        to: "/sales/clients/$salesClientId",
+        params: { salesClientId: params.clientId },
+      });
+    }
     const c = clients.find((x) => x.id === params.clientId);
     if (!c) throw notFound();
     return c;
