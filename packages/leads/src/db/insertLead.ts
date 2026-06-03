@@ -1,4 +1,5 @@
 import { getPrismaClient } from "@columbusai/db";
+import { resolveLeadFollowupInit } from "../followup/leadFollowupInit.js";
 import type { Lead } from "../types.js";
 
 function getPrisma() {
@@ -7,6 +8,7 @@ function getPrisma() {
 
 /** Persists demo leads into sales.leads (Prisma-managed schema). */
 export async function insertLead(lead: Lead): Promise<void> {
+  const followup = resolveLeadFollowupInit(new Date(lead.created_at));
   await getPrisma().salesLead.create({
     data: {
       id: lead.id,
@@ -25,6 +27,9 @@ export async function insertLead(lead: Lead): Promise<void> {
       website: lead.website,
       status: "new",
       source: "demo_request",
+      followupCount: 0,
+      followupTemplate: followup.followupTemplate,
+      nextFollowupAt: followup.nextFollowupAt,
     },
   });
 }
