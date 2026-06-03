@@ -3,8 +3,9 @@ import {
   type SalesLeadStatus,
   type SalesOpportunityStage,
 } from "@columbusai/db";
+import { resolveLeadFollowupInit } from "@columbusai/leads";
 import { prisma } from "../prisma.js";
-import type { LeadDto, OpportunityDto, PipelineCardDto, SalesClientDto, SalesStatsDto } from "./dto.js";
+import type { LeadDto, OpportunityDto, PipelineCardDto, SalesClientDto, SalesStatsDto, ConvertClientResultDto } from "./dto.js";
 import {
   estimateLeadValue,
   serializeLead,
@@ -12,6 +13,13 @@ import {
   serializeSalesClient,
   toPipelineCard,
 } from "./serialize.js";
+import {
+  provisionClientFromOpportunity,
+  retryProvisionSalesClient,
+  type ProvisionOptions,
+} from "../onboarding/provisionClient.js";
+
+export type { ProvisionOptions };
 
 export type DemoLeadInput = {
   id: string;
@@ -31,6 +39,7 @@ export type DemoLeadInput = {
 };
 
 export async function createDemoLead(input: DemoLeadInput) {
+  const followup = resolveLeadFollowupInit(new Date(input.created_at));
   const created = await prisma.salesLead.create({
     data: {
       id: input.id,
@@ -49,6 +58,9 @@ export async function createDemoLead(input: DemoLeadInput) {
       website: input.website,
       status: "new",
       source: "demo_request",
+      followupCount: 0,
+      followupTemplate: followup.followupTemplate,
+      nextFollowupAt: followup.nextFollowupAt,
     },
     include: { opportunity: true },
   });
@@ -116,6 +128,8 @@ export async function updateLeadPipelineStage(
     });
     if (pipelineStage === "won" && !updated.client) {
       await convertOpportunityToClient(updated.id);
+      const refreshed = await getOpportunityById(updated.id);
+      return refreshed ?? serializeOpportunity(updated);
     }
     return serializeOpportunity(updated);
   }
@@ -228,6 +242,10 @@ export async function updateOpportunity(
       },
       include: { lead: true, client: true },
     });
+    if (data.stage === "won" && !updated.client) {
+      await convertOpportunityToClient(updated.id);
+      return getOpportunityById(id);
+    }
     return serializeOpportunity(updated);
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2025") return null;
@@ -235,40 +253,36 @@ export async function updateOpportunity(
   }
 }
 
-export async function convertOpportunityToClient(opportunityId: string): Promise<SalesClientDto | null> {
-  const opp = await prisma.salesOpportunity.findUnique({
-    where: { id: opportunityId },
-    include: { lead: true, client: true },
-  });
-  if (!opp) return null;
-  if (opp.client) {
-    return serializeSalesClient({ ...opp.client, opportunity: opp });
-  }
+export async function convertOpportunityToClient(
+  opportunityId: string,
+  opts: ProvisionOptions = {},
+): Promise<ConvertClientResultDto | null> {
+  const result = await provisionClientFromOpportunity(opportunityId, opts);
+  if (!result) return null;
+  return {
+    client: result.client,
+    portalClientId: result.portalClientId,
+    onboardingWorkItemId: result.onboardingWorkItemId,
+    clientUserId: result.clientUserId,
+    tempPassword: result.tempPassword,
+    alreadyProvisioned: result.alreadyProvisioned,
+  };
+}
 
-  const result = await prisma.$transaction(async (tx) => {
-    const client = await tx.salesClient.create({
-      data: {
-        opportunityId: opp.id,
-        name: opp.company || opp.contactName,
-        email: opp.email,
-        company: opp.company,
-        owner: opp.owner,
-        notes: opp.notes,
-        status: "onboarding",
-      },
-    });
-    await tx.salesOpportunity.update({
-      where: { id: opp.id },
-      data: { stage: "won" },
-    });
-    return client;
-  });
-
-  const full = await prisma.salesClient.findUniqueOrThrow({
-    where: { id: result.id },
-    include: { opportunity: { include: { lead: true } } },
-  });
-  return serializeSalesClient(full);
+export async function retrySalesClientProvision(
+  salesClientId: string,
+  opts: ProvisionOptions = {},
+): Promise<ConvertClientResultDto | null> {
+  const result = await retryProvisionSalesClient(salesClientId, opts);
+  if (!result) return null;
+  return {
+    client: result.client,
+    portalClientId: result.portalClientId,
+    onboardingWorkItemId: result.onboardingWorkItemId,
+    clientUserId: result.clientUserId,
+    tempPassword: result.tempPassword,
+    alreadyProvisioned: result.alreadyProvisioned,
+  };
 }
 
 export async function listSalesClients(): Promise<SalesClientDto[]> {

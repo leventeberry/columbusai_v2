@@ -53,6 +53,10 @@ export function serializeLead(lead: SalesLead, opportunity?: SalesOpportunity | 
     priority: lead.priority,
     confidence: lead.confidence,
     recommendedNextStep: lead.recommendedNextStep,
+    followupCount: lead.followupCount,
+    lastFollowupAt: lead.lastFollowupAt?.toISOString() ?? null,
+    nextFollowupAt: lead.nextFollowupAt?.toISOString() ?? null,
+    followupTemplate: lead.followupTemplate,
     opportunityId: opportunity?.id ?? null,
     pipelineStage: pipelineStageForLead(lead, opportunity),
     score: leadScore(lead),
@@ -108,6 +112,11 @@ export function serializeSalesClient(
     notes: client.notes,
     industry: lead?.industry ?? "",
     monthlyValue: opp?.estimatedValue ?? 0,
+    portalClientId: client.portalClientId ?? null,
+    onboardingWorkItemId: client.onboardingWorkItemId ?? null,
+    stackTemplateId: client.stackTemplateId ?? null,
+    provisioningStatus: client.provisioningStatus,
+    provisioningError: client.provisioningError ?? null,
   };
 }
 

@@ -3,6 +3,8 @@ import { SalesOpportunityStage } from "@columbusai/db";
 import { routeParam } from "../../lib/route-params.js";
 import { z } from "zod";
 import * as sales from "../../lib/sales/repository.js";
+import { isValidStackTemplateId } from "../../lib/onboarding/stack-templates.js";
+import type { RequestWithAuth } from "../../middleware/requireSession.js";
 
 const stageSchema = z.enum(SalesOpportunityStage);
 
@@ -52,11 +54,28 @@ export async function patchOpportunity(req: Request, res: Response): Promise<voi
   res.json({ opportunity });
 }
 
-export async function postConvertOpportunity(req: Request, res: Response): Promise<void> {
-  const client = await sales.convertOpportunityToClient(routeParam(req.params.id));
-  if (!client) {
+const convertBodySchema = z.object({
+  stackTemplateId: z.string().min(1).optional(),
+});
+
+export async function postConvertOpportunity(req: RequestWithAuth, res: Response): Promise<void> {
+  const parsed = convertBodySchema.safeParse(req.body ?? {});
+  if (!parsed.success) {
+    res.status(400).json({ error: "Invalid body", details: z.flattenError(parsed.error) });
+    return;
+  }
+  const stackTemplateId =
+    parsed.data.stackTemplateId && isValidStackTemplateId(parsed.data.stackTemplateId)
+      ? parsed.data.stackTemplateId
+      : undefined;
+
+  const result = await sales.convertOpportunityToClient(routeParam(req.params.id), {
+    stackTemplateId,
+    actorUserId: req.auth?.user.id,
+  });
+  if (!result) {
     res.status(404).json({ error: "Opportunity not found" });
     return;
   }
-  res.status(201).json({ client });
+  res.status(result.alreadyProvisioned ? 200 : 201).json(result);
 }

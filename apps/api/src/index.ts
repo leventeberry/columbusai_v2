@@ -22,7 +22,7 @@ import {
   patchOpportunity,
   postConvertOpportunity,
 } from "./routes/sales/opportunities.js";
-import { getSalesClients, getSalesClient } from "./routes/sales/clients.js";
+import { getSalesClients, getSalesClient, getStackTemplates, postRetryProvision } from "./routes/sales/clients.js";
 import { postAuthLogin } from "./routes/auth/login.js";
 import { postAuthLogout } from "./routes/auth/logout.js";
 import { getAuthMe } from "./routes/auth/me.js";
@@ -41,7 +41,8 @@ import {
   postPortalWorkComment,
   postPortalWorkItem,
 } from "./routes/portal/work-items.js";
-import { getPortalNotifications } from "./routes/portal/notifications.js";
+import { getPortalNotifications, patchPortalNotificationRead, postPortalNotificationsReadAll } from "./routes/portal/notifications.js";
+import { postOnboardingEvent } from "./routes/onboarding/events.js";
 
 const env = getApiEnv();
 const app = express();
@@ -111,6 +112,8 @@ app.get("/api/admin/conversations", adminAccess, asyncHandler(getAdminConversati
 
 app.get("/api/portal/me", sessionRequired, asyncHandler(getPortalMe));
 app.get("/api/portal/notifications", sessionRequired, asyncHandler(getPortalNotifications));
+app.patch("/api/portal/notifications/:id/read", sessionRequired, asyncHandler(patchPortalNotificationRead));
+app.post("/api/portal/notifications/read-all", sessionRequired, asyncHandler(postPortalNotificationsReadAll));
 app.get("/api/portal/work-items", sessionRequired, asyncHandler(getPortalWorkItems));
 app.get("/api/portal/work-items/:id", sessionRequired, asyncHandler(getPortalWorkItem));
 app.post("/api/portal/work-items", sessionRequired, asyncHandler(postPortalWorkItem));
@@ -133,6 +136,9 @@ app.patch("/api/opportunities/:id", adminAccess, asyncHandler(patchOpportunity))
 app.post("/api/opportunities/:id/convert-to-client", adminAccess, asyncHandler(postConvertOpportunity));
 app.get("/api/clients", adminAccess, asyncHandler(getSalesClients));
 app.get("/api/clients/:id", adminAccess, asyncHandler(getSalesClient));
+app.post("/api/clients/:id/retry-provision", adminAccess, asyncHandler(postRetryProvision));
+app.get("/api/onboarding/stack-templates", adminAccess, asyncHandler(getStackTemplates));
+app.post("/api/onboarding/events", adminAccess, asyncHandler(postOnboardingEvent));
 
 app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
   const reqId = (req as Request & { id?: string }).id;
