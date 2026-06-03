@@ -52,6 +52,8 @@
     "n8n:activate:demo": "pnpm exec tsx scripts/n8n/activate-workflow.ts demo",
     "n8n:pull:followup": "pnpm exec tsx scripts/n8n/pull-workflow.ts followup",
     "n8n:push:followup": "pnpm exec tsx scripts/n8n/push-workflow.ts followup",
+    "n8n:generate:followup-templates": "pnpm exec tsx scripts/n8n/generate-followup-templates.ts",
+    "n8n:push:followup-templates": "pnpm exec tsx scripts/n8n/push-followup-templates.ts",
     "n8n:activate:followup": "pnpm exec tsx scripts/n8n/activate-workflow.ts followup",
     "hostinger:list-vms": "pnpm exec tsx scripts/hostinger/list-vms.ts",
     "hostinger:provision": "pnpm exec tsx scripts/hostinger/provision-vps.ts",

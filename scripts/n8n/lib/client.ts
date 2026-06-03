@@ -4,6 +4,7 @@ export type N8nWorkflow = Record<string, unknown> & {
   id?: string;
   name?: string;
   active?: boolean;
+  isArchived?: boolean;
   updatedAt?: string;
   nodes?: unknown[];
   connections?: Record<string, unknown>;
@@ -100,7 +101,7 @@ export async function createWorkflow(
   return n8nRequest<N8nWorkflow>(env, "POST", "/api/v1/workflows", body);
 }
 
-/** Update workflow: PATCH (newer API) with PUT fallback (local Docker n8n). */
+/** Update workflow: PATCH (Cloud) with PUT fallback (local Docker n8n). */
 export async function updateWorkflow(
   env: N8nEnv,
   id: string,
@@ -111,7 +112,7 @@ export async function updateWorkflow(
     return await n8nRequest<N8nWorkflow>(env, "PATCH", path, body);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    if (!message.includes("(405)")) throw err;
+    if (!message.includes("(405)") && !message.includes("(404)")) throw err;
     return await n8nRequest<N8nWorkflow>(env, "PUT", path, body);
   }
 }

@@ -1,0 +1,772 @@
+{
+  "name": "ColumbusAI_Demo_Follow_Up_7_Day",
+  "description": "TEMPLATE ONLY — import and activate one follow-up template per deployment. 7-Day Standard: emails on days 1, 3, 7, 10, 14 from lead creation. Set DEFAULT_FOLLOWUP_TEMPLATE=7day on the API.",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -1200,
+        320
+      ],
+      "id": "ft7-schedule",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n  l.id,\n  l.created_at,\n  l.updated_at,\n  l.fname,\n  l.lname,\n  l.email,\n  l.phone,\n  l.company,\n  l.role,\n  l.industry,\n  l.team_size,\n  l.what_automate,\n  l.budget,\n  l.timeline,\n  l.website,\n  l.status,\n  l.source,\n  l.notes,\n  l.summary,\n  l.priority,\n  l.confidence,\n  l.recommended_next_step,\n  l.followup_count,\n  l.followup_template\nFROM sales.leads l\nWHERE l.status = 'new'\n  AND l.source = 'demo_request'\n  AND l.followup_template = '7day'\n  AND l.followup_count < 5\n  AND l.next_followup_at IS NOT NULL\n  AND l.next_followup_at <= NOW()\nORDER BY l.next_followup_at ASC\nLIMIT 50;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -960,
+        320
+      ],
+      "id": "ft7-select",
+      "name": "Select Due Leads",
+      "credentials": {
+        "postgres": {
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -720,
+        320
+      ],
+      "id": "ft7-loop",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "nl-id",
+              "name": "id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "nl-created",
+              "name": "created_at",
+              "value": "={{ $json.created_at }}",
+              "type": "string"
+            },
+            {
+              "id": "nl-updated",
+              "name": "updated_at",
+              "value": "={{ $json.updated_at }}",
+              "type": "string"
+            },
+            {
+              "id": "nl-fname",
+              "name": "fname",
+              "value": "={{ $json.fname }}",
+              "type": "string"
+            },
+            {
+              "id": "nl-lname",
+              "name": "lname",
+              "value": "={{ $json.lname }}",
+              "type": "string"
+            },
+            {
+              "id": "nl-email",
+              "name": "email",
+              "value": "={{ $json.email }}",
+              "type": "string"
+            },
+            {
+              "id": "nl-phone",
+              "name": "phone",
+              "value": "={{ $json.phone || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "nl-company",
+              "name": "company",
+              "value": "={{ $json.company || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "nl-role",
+              "name": "role",
+              "value": "={{ $json.role || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "nl-industry",
+              "name": "industry",
+              "value": "={{ $json.industry || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "nl-team",
+              "name": "team_size",
+              "value": "={{ $json.team_size || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "nl-what",
+              "name": "what_automate",
+              "value": "={{ $json.what_automate }}",
+              "type": "string"
+            },
+            {
+              "id": "nl-budget",
+              "name": "budget",
+              "value": "={{ $json.budget || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "nl-timeline",
+              "name": "timeline",
+              "value": "={{ $json.timeline || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "nl-website",
+              "name": "website",
+              "value": "={{ $json.website || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "nl-status",
+              "name": "status",
+              "value": "={{ $json.status }}",
+              "type": "string"
+            },
+            {
+              "id": "nl-source",
+              "name": "source",
+              "value": "={{ $json.source }}",
+              "type": "string"
+            },
+            {
+              "id": "nl-notes",
+              "name": "notes",
+              "value": "={{ $json.notes || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "nl-summary",
+              "name": "summary",
+              "value": "={{ $json.summary || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "nl-priority",
+              "name": "priority",
+              "value": "={{ $json.priority || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "nl-confidence",
+              "name": "confidence",
+              "value": "={{ $json.confidence }}",
+              "type": "number"
+            },
+            {
+              "id": "nl-next",
+              "name": "recommended_next_step",
+              "value": "={{ $json.recommended_next_step || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "nl-count",
+              "name": "followup_count",
+              "value": "={{ $json.followup_count }}",
+              "type": "number"
+            },
+            {
+              "id": "nl-template",
+              "name": "followup_template",
+              "value": "={{ $json.followup_template }}",
+              "type": "string"
+            },
+            {
+              "id": "nl-contact",
+              "name": "contact_name",
+              "value": "={{ ($json.fname || '') + ' ' + ($json.lname || '') }}",
+              "type": "string"
+            },
+            {
+              "id": "nl-booking",
+              "name": "booking_link",
+              "value": "={{ $env.BOOKING_LINK || 'https://cal.com/columbus-ai/30min' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -480,
+        480
+      ],
+      "id": "ft7-normalize",
+      "name": "Normalize Lead"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.followup_count }}",
+                    "rightValue": 0,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.followup_count }}",
+                    "rightValue": 1,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.followup_count }}",
+                    "rightValue": 2,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.followup_count }}",
+                    "rightValue": 3,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.followup_count }}",
+                    "rightValue": 4,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -240,
+        480
+      ],
+      "id": "ft7-switch",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>Quick follow-up – Columbus AI</title>\n</head>\n<body style=\"margin:0; padding:0; background-color:#f4f4f4; font-family: Arial, Helvetica, sans-serif;\">\n  <table role=\"presentation\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" style=\"background-color:#f4f4f4;\">\n    <tr>\n      <td align=\"center\" style=\"padding:24px 16px;\">\n        <table role=\"presentation\" width=\"600\" cellspacing=\"0\" cellpadding=\"0\" style=\"max-width:600px; width:100%; background-color:#ffffff;\">\n          <tr>\n            <td style=\"background-color:#2c3e50; color:#ffffff; padding:20px 32px;\">\n              <h1 style=\"margin:0; font-size:20px; font-weight:bold;\">Quick follow-up</h1>\n              <p style=\"margin:4px 0 0; font-size:12px; opacity:0.9;\">Columbus AI Automation Solutions, LLC</p>\n            </td>\n          </tr>\n          <tr>\n            <td style=\"padding:32px; color:#333333; font-size:16px; line-height:1.6;\">\n              <p style=\"margin-top:0;\">Hi {{ $('Normalize Lead').item.json.fname }},</p>\n<p>Thank you again for reaching out to Columbus AI. We enjoyed reviewing your demo request for {{ $('Normalize Lead').item.json.company || 'your business' }}.</p>\n<p>We would love to learn more about your automation goals and explore how we can help.</p>\n<p style=\"padding:12px; background:#f8f9fa; border-left:4px solid #2c3e50; margin:16px 0;\">{{ $('Normalize Lead').item.json.what_automate }}</p>\n<p>If you have not booked a discovery call yet, you can pick a time that works for you below.</p>\n              <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" style=\"margin:24px 0;\">\n                <tr>\n                  <td style=\"border-radius:6px; background-color:#2c3e50;\">\n                    <a href=\"{{ $('Normalize Lead').item.json.booking_link }}\" style=\"display:inline-block; padding:12px 24px; color:#ffffff; text-decoration:none; font-weight:bold;\">Schedule a discovery call</a>\n                  </td>\n                </tr>\n              </table>\n              <p>We look forward to connecting with you.</p>\n              <p>Thank you,<br><strong>Columbus AI Automation Solutions, LLC</strong><br>Columbus, Ohio</p>\n            </td>\n          </tr>\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        200
+      ],
+      "id": "ft7-html-0",
+      "name": "Email 1 HTML"
+    },
+    {
+      "parameters": {
+        "fromEmail": "no-reply@columbusai.tech",
+        "toEmail": "={{ $('Normalize Lead').item.json.email }}",
+        "subject": "Quick follow-up on your demo request",
+        "html": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        240,
+        200
+      ],
+      "id": "ft7-send-0",
+      "name": "Email 1 Send",
+      "credentials": {
+        "smtp": {
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>Automation that fits your goals – Columbus AI</title>\n</head>\n<body style=\"margin:0; padding:0; background-color:#f4f4f4; font-family: Arial, Helvetica, sans-serif;\">\n  <table role=\"presentation\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" style=\"background-color:#f4f4f4;\">\n    <tr>\n      <td align=\"center\" style=\"padding:24px 16px;\">\n        <table role=\"presentation\" width=\"600\" cellspacing=\"0\" cellpadding=\"0\" style=\"max-width:600px; width:100%; background-color:#ffffff;\">\n          <tr>\n            <td style=\"background-color:#2c3e50; color:#ffffff; padding:20px 32px;\">\n              <h1 style=\"margin:0; font-size:20px; font-weight:bold;\">Automation that fits your goals</h1>\n              <p style=\"margin:4px 0 0; font-size:12px; opacity:0.9;\">Columbus AI Automation Solutions, LLC</p>\n            </td>\n          </tr>\n          <tr>\n            <td style=\"padding:32px; color:#333333; font-size:16px; line-height:1.6;\">\n              <p style=\"margin-top:0;\">Hi {{ $('Normalize Lead').item.json.fname }},</p>\n<p>Following up on your demo request — many teams come to us looking to reduce manual work in areas like {{ $('Normalize Lead').item.json.what_automate }}.</p>\n<p>Here is what a typical Columbus AI engagement delivers:</p>\n<ul style=\"padding-left:20px; line-height:1.8;\">\n  <li>Clear automation roadmap aligned to your timeline and budget</li>\n  <li>Integrations with the tools your team already uses</li>\n  <li>Measurable time savings within the first 30–60 days</li>\n</ul>\n<p>If a quick discovery call would help you evaluate fit, we would be glad to walk through options specific to {{ $('Normalize Lead').item.json.company || 'your team' }}.</p>\n              <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" style=\"margin:24px 0;\">\n                <tr>\n                  <td style=\"border-radius:6px; background-color:#2c3e50;\">\n                    <a href=\"{{ $('Normalize Lead').item.json.booking_link }}\" style=\"display:inline-block; padding:12px 24px; color:#ffffff; text-decoration:none; font-weight:bold;\">Schedule a discovery call</a>\n                  </td>\n                </tr>\n              </table>\n              <p>We look forward to connecting with you.</p>\n              <p>Thank you,<br><strong>Columbus AI Automation Solutions, LLC</strong><br>Columbus, Ohio</p>\n            </td>\n          </tr>\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        360
+      ],
+      "id": "ft7-html-1",
+      "name": "Email 2 HTML"
+    },
+    {
+      "parameters": {
+        "fromEmail": "no-reply@columbusai.tech",
+        "toEmail": "={{ $('Normalize Lead').item.json.email }}",
+        "subject": "How automation could help your team",
+        "html": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        240,
+        360
+      ],
+      "id": "ft7-send-1",
+      "name": "Email 2 Send",
+      "credentials": {
+        "smtp": {
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>Results from similar teams – Columbus AI</title>\n</head>\n<body style=\"margin:0; padding:0; background-color:#f4f4f4; font-family: Arial, Helvetica, sans-serif;\">\n  <table role=\"presentation\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" style=\"background-color:#f4f4f4;\">\n    <tr>\n      <td align=\"center\" style=\"padding:24px 16px;\">\n        <table role=\"presentation\" width=\"600\" cellspacing=\"0\" cellpadding=\"0\" style=\"max-width:600px; width:100%; background-color:#ffffff;\">\n          <tr>\n            <td style=\"background-color:#2c3e50; color:#ffffff; padding:20px 32px;\">\n              <h1 style=\"margin:0; font-size:20px; font-weight:bold;\">Results from similar teams</h1>\n              <p style=\"margin:4px 0 0; font-size:12px; opacity:0.9;\">Columbus AI Automation Solutions, LLC</p>\n            </td>\n          </tr>\n          <tr>\n            <td style=\"padding:32px; color:#333333; font-size:16px; line-height:1.6;\">\n              <p style=\"margin-top:0;\">Hi {{ $('Normalize Lead').item.json.fname }},</p>\n<p>Teams in {{ $('Normalize Lead').item.json.industry || 'your industry' }} often start with workflows similar to what you described:</p>\n<p style=\"padding:12px; background:#f8f9fa; border-left:4px solid #2c3e50; margin:16px 0;\">{{ $('Normalize Lead').item.json.what_automate }}</p>\n<p>Recent Columbus AI clients have used automation to cut repetitive admin work, improve response times, and free staff for higher-value tasks — without replacing the human judgment that matters.</p>\n<p>If you would like to see how this could apply to {{ $('Normalize Lead').item.json.company || 'your business' }}, we are happy to share relevant examples on a short call.</p>\n              <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" style=\"margin:24px 0;\">\n                <tr>\n                  <td style=\"border-radius:6px; background-color:#2c3e50;\">\n                    <a href=\"{{ $('Normalize Lead').item.json.booking_link }}\" style=\"display:inline-block; padding:12px 24px; color:#ffffff; text-decoration:none; font-weight:bold;\">Schedule a discovery call</a>\n                  </td>\n                </tr>\n              </table>\n              <p>We look forward to connecting with you.</p>\n              <p>Thank you,<br><strong>Columbus AI Automation Solutions, LLC</strong><br>Columbus, Ohio</p>\n            </td>\n          </tr>\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        520
+      ],
+      "id": "ft7-html-2",
+      "name": "Email 3 HTML"
+    },
+    {
+      "parameters": {
+        "fromEmail": "no-reply@columbusai.tech",
+        "toEmail": "={{ $('Normalize Lead').item.json.email }}",
+        "subject": "How teams like yours use Columbus AI",
+        "html": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        240,
+        520
+      ],
+      "id": "ft7-send-2",
+      "name": "Email 3 Send",
+      "credentials": {
+        "smtp": {
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>A few things we hear often – Columbus AI</title>\n</head>\n<body style=\"margin:0; padding:0; background-color:#f4f4f4; font-family: Arial, Helvetica, sans-serif;\">\n  <table role=\"presentation\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" style=\"background-color:#f4f4f4;\">\n    <tr>\n      <td align=\"center\" style=\"padding:24px 16px;\">\n        <table role=\"presentation\" width=\"600\" cellspacing=\"0\" cellpadding=\"0\" style=\"max-width:600px; width:100%; background-color:#ffffff;\">\n          <tr>\n            <td style=\"background-color:#2c3e50; color:#ffffff; padding:20px 32px;\">\n              <h1 style=\"margin:0; font-size:20px; font-weight:bold;\">A few things we hear often</h1>\n              <p style=\"margin:4px 0 0; font-size:12px; opacity:0.9;\">Columbus AI Automation Solutions, LLC</p>\n            </td>\n          </tr>\n          <tr>\n            <td style=\"padding:32px; color:#333333; font-size:16px; line-height:1.6;\">\n              <p style=\"margin-top:0;\">Hi {{ $('Normalize Lead').item.json.fname }},</p>\n<p>We know timing, budget, and internal buy-in are common considerations before starting an automation project.</p>\n<p>A few points that help most teams decide:</p>\n<ul style=\"padding-left:20px; line-height:1.8;\">\n  <li><strong>Scope:</strong> We start with a focused pilot tied to {{ $('Normalize Lead').item.json.what_automate }} — not a massive overhaul.</li>\n  <li><strong>Investment:</strong> Engagements are sized to your stated budget and timeline when provided.</li>\n  <li><strong>Risk:</strong> Discovery is no-obligation; you leave with a clear recommendation either way.</li>\n</ul>\n<p>If any of that would be useful to talk through, you can book a time below whenever it suits you.</p>\n              <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" style=\"margin:24px 0;\">\n                <tr>\n                  <td style=\"border-radius:6px; background-color:#2c3e50;\">\n                    <a href=\"{{ $('Normalize Lead').item.json.booking_link }}\" style=\"display:inline-block; padding:12px 24px; color:#ffffff; text-decoration:none; font-weight:bold;\">Schedule a discovery call</a>\n                  </td>\n                </tr>\n              </table>\n              <p>We look forward to connecting with you.</p>\n              <p>Thank you,<br><strong>Columbus AI Automation Solutions, LLC</strong><br>Columbus, Ohio</p>\n            </td>\n          </tr>\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        680
+      ],
+      "id": "ft7-html-3",
+      "name": "Email 4 HTML"
+    },
+    {
+      "parameters": {
+        "fromEmail": "no-reply@columbusai.tech",
+        "toEmail": "={{ $('Normalize Lead').item.json.email }}",
+        "subject": "Common questions about getting started",
+        "html": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        240,
+        680
+      ],
+      "id": "ft7-send-3",
+      "name": "Email 4 Send",
+      "credentials": {
+        "smtp": {
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>Should we close the loop? – Columbus AI</title>\n</head>\n<body style=\"margin:0; padding:0; background-color:#f4f4f4; font-family: Arial, Helvetica, sans-serif;\">\n  <table role=\"presentation\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" style=\"background-color:#f4f4f4;\">\n    <tr>\n      <td align=\"center\" style=\"padding:24px 16px;\">\n        <table role=\"presentation\" width=\"600\" cellspacing=\"0\" cellpadding=\"0\" style=\"max-width:600px; width:100%; background-color:#ffffff;\">\n          <tr>\n            <td style=\"background-color:#2c3e50; color:#ffffff; padding:20px 32px;\">\n              <h1 style=\"margin:0; font-size:20px; font-weight:bold;\">Should we close the loop?</h1>\n              <p style=\"margin:4px 0 0; font-size:12px; opacity:0.9;\">Columbus AI Automation Solutions, LLC</p>\n            </td>\n          </tr>\n          <tr>\n            <td style=\"padding:32px; color:#333333; font-size:16px; line-height:1.6;\">\n              <p style=\"margin-top:0;\">Hi {{ $('Normalize Lead').item.json.fname }},</p>\n<p>We wanted to check in one last time about your Columbus AI demo request. If timing is not right, no worries at all — we completely understand.</p>\n<p>If you would still like to explore automation for {{ $('Normalize Lead').item.json.company || 'your business' }}, we would be happy to speak with you. You can schedule a discovery call whenever it suits you.</p>\n<p>Either way, thank you for considering Columbus AI. We are here if you need us in the future.</p>\n              <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" style=\"margin:24px 0;\">\n                <tr>\n                  <td style=\"border-radius:6px; background-color:#2c3e50;\">\n                    <a href=\"{{ $('Normalize Lead').item.json.booking_link }}\" style=\"display:inline-block; padding:12px 24px; color:#ffffff; text-decoration:none; font-weight:bold;\">Schedule a discovery call</a>\n                  </td>\n                </tr>\n              </table>\n              <p>Warm regards,<br><strong>Columbus AI Automation Solutions, LLC</strong><br>Columbus, Ohio</p>\n            </td>\n          </tr>\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        840
+      ],
+      "id": "ft7-html-4",
+      "name": "Email 5 HTML"
+    },
+    {
+      "parameters": {
+        "fromEmail": "no-reply@columbusai.tech",
+        "toEmail": "={{ $('Normalize Lead').item.json.email }}",
+        "subject": "Should we close the loop?",
+        "html": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        240,
+        840
+      ],
+      "id": "ft7-send-4",
+      "name": "Email 5 Send",
+      "credentials": {
+        "smtp": {
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=UPDATE sales.leads\nSET\n  followup_count = followup_count + 1,\n  last_followup_at = NOW(),\n  next_followup_at = CASE\n    WHEN followup_count = 0 THEN created_at + INTERVAL '3 days'\n    WHEN followup_count = 1 THEN created_at + INTERVAL '7 days'\n    WHEN followup_count = 2 THEN created_at + INTERVAL '10 days'\n    WHEN followup_count = 3 THEN created_at + INTERVAL '14 days'\n    ELSE NULL\n  END,\n  updated_at = NOW()\nWHERE id = '{{ $('Normalize Lead').item.json.id }}'::uuid\n  AND status = 'new'\n  AND followup_template = '7day'\n  AND followup_count = {{ $('Normalize Lead').item.json.followup_count }};",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        480,
+        480
+      ],
+      "id": "ft7-update",
+      "name": "Mark Follow-Up Sent",
+      "credentials": {
+        "postgres": {
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Email 1 HTML": {
+      "main": [
+        [
+          {
+            "node": "Email 1 Send",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email 1 Send": {
+      "main": [
+        [
+          {
+            "node": "Mark Follow-Up Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email 2 HTML": {
+      "main": [
+        [
+          {
+            "node": "Email 2 Send",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email 2 Send": {
+      "main": [
+        [
+          {
+            "node": "Mark Follow-Up Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email 3 HTML": {
+      "main": [
+        [
+          {
+            "node": "Email 3 Send",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email 3 Send": {
+      "main": [
+        [
+          {
+            "node": "Mark Follow-Up Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email 4 HTML": {
+      "main": [
+        [
+          {
+            "node": "Email 4 Send",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email 4 Send": {
+      "main": [
+        [
+          {
+            "node": "Mark Follow-Up Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email 5 HTML": {
+      "main": [
+        [
+          {
+            "node": "Email 5 Send",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email 5 Send": {
+      "main": [
+        [
+          {
+            "node": "Mark Follow-Up Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Select Due Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select Due Leads": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Normalize Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Lead": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Email 1 HTML",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email 2 HTML",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email 3 HTML",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email 4 HTML",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email 5 HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Follow-Up Sent": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "pinData": {}
+}

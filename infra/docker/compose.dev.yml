@@ -4,7 +4,7 @@
 # Single postgres (pgvector): columbus (platform), columbus_vectors (RAG), n8n (automation).
 services:
   n8n:
-    image: n8nio/n8n:latest
+    image: n8nio/n8n:2.23.2
     ports:
       - "5678:5678"
     env_file:
@@ -23,6 +23,10 @@ services:
       ADMIN_API_TOKEN: ${ADMIN_API_TOKEN:-}
       FOLLOWUP_WAIT_1_MINUTES: ${FOLLOWUP_WAIT_1_MINUTES:-1}
       FOLLOWUP_WAIT_2_MINUTES: ${FOLLOWUP_WAIT_2_MINUTES:-2}
+      BOOKING_LINK: ${BOOKING_LINK:-https://cal.com/columbus-ai/30min}
+      # Allow $env in expressions for follow-up workflow (n8n 2.x blocks by default)
+      N8N_BLOCK_ENV_ACCESS_IN_NODE: "false"
+      N8N_EXPRESSIONS_ALLOWED_ENV_VARS: BOOKING_LINK,FOLLOWUP_WAIT_1_MINUTES,FOLLOWUP_WAIT_2_MINUTES
       DB_TYPE: postgresdb
       DB_POSTGRESDB_HOST: postgres
       DB_POSTGRESDB_PORT: "5432"
@@ -105,8 +109,9 @@ services:
       # Active workflows use /webhook/ (webhook-test only works during "Listen for test event" in UI)
       N8N_DEMO_WEBHOOK_TEST_URL: http://n8n:5678/webhook/f7ceff32-3922-4ac8-a522-2b83995e5f04
       N8N_DEMO_WEBHOOK_URL: http://n8n:5678/webhook/f7ceff32-3922-4ac8-a522-2b83995e5f04
-      N8N_DEMO_FOLLOWUP_WEBHOOK_TEST_URL: http://n8n:5678/webhook/demo-follow-up
-      N8N_DEMO_FOLLOWUP_WEBHOOK_URL: http://n8n:5678/webhook/demo-follow-up
+      FOLLOWUP_WAIT_1_MINUTES: ${FOLLOWUP_WAIT_1_MINUTES:-1}
+      FOLLOWUP_WAIT_2_MINUTES: ${FOLLOWUP_WAIT_2_MINUTES:-2}
+      BOOKING_LINK: ${BOOKING_LINK:-https://cal.com/columbus-ai/30min}
       CORS_ORIGIN: http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001,http://localhost:3002,http://127.0.0.1:3002,http://localhost:3010,http://127.0.0.1:3010
       SESSION_SECRET: ${SESSION_SECRET:-dev-only-insecure-session-secret-do-not-use-in-production!!}
       # ADMIN_API_TOKEN: set in ../../.env.local only (do not use ${ADMIN_API_TOKEN:-} — empty override breaks env_file)
