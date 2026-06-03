@@ -26,7 +26,7 @@
 | `SESSION_SECRET` | API | HMAC/session token hashing (min 32 chars) |
 | `SESSION_COOKIE_NAME` | API | Default `columbus_session` |
 | `COOKIE_DOMAIN` | API | Optional e.g. `.columbusai.tech` for cross-subdomain |
-| `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` | DB seed | First `SUPER_ADMIN` |
+| `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` | DB seed | First `SUPER_ADMIN` (`admin@columbusai.com` by default) |
 | `ADMIN_API_TOKEN` | API + scripts | Legacy service token (optional if using sessions) |
 
 **Removed after migration:** `VITE_SUPABASE_*`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY`.

@@ -47,9 +47,11 @@ curl -sf -X PATCH "$API_URL/api/opportunities/$OPP_ID" "${HDR[@]}" \
   -d '{"stage":"negotiation"}' | python3 -m json.tool
 
 echo "== 7. Convert opportunity to client =="
-CLIENT_RES=$(curl -sf -X POST "$API_URL/api/opportunities/$OPP_ID/convert-to-client" "${HDR[@]}" -d '{}')
+CLIENT_RES=$(curl -sf -X POST "$API_URL/api/opportunities/$OPP_ID/convert-to-client" "${HDR[@]}" -d '{"stackTemplateId":"tpl-basic"}')
 echo "$CLIENT_RES" | python3 -m json.tool
 CLIENT_ID=$(python3 -c "import json,sys; print(json.load(sys.stdin)['client']['id'])" <<<"$CLIENT_RES")
+PORTAL_ID=$(python3 -c "import json,sys; print(json.load(sys.stdin).get('portalClientId',''))" <<<"$CLIENT_RES")
+[[ -n "$PORTAL_ID" ]] || { echo "portalClientId missing from convert response"; exit 1; }
 
 echo "== 8. Confirm client in GET /api/clients =="
 curl -sf "$API_URL/api/clients" "${HDR[@]}" | python3 -c "import json,sys; clients=json.load(sys.stdin)['clients']; m=[c for c in clients if c['id']=='$CLIENT_ID']; print(m[0] if m else 'MISSING')"

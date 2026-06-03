@@ -166,22 +166,6 @@ export const ENV_KEYS: EnvKeyDef[] = [
     },
   },
   {
-    key: "N8N_DEMO_FOLLOWUP_WEBHOOK_TEST_URL",
-    values: {
-      local: "http://localhost:5678/webhook/demo-follow-up",
-      staging: `https://n8n.${stagingDomain}/webhook/demo-follow-up`,
-      production: `https://n8n.${prodDomain}/webhook/demo-follow-up`,
-    },
-  },
-  {
-    key: "N8N_DEMO_FOLLOWUP_WEBHOOK_URL",
-    values: {
-      local: "http://localhost:5678/webhook/demo-follow-up",
-      staging: `https://n8n.${stagingDomain}/webhook/demo-follow-up`,
-      production: `https://n8n.${prodDomain}/webhook/demo-follow-up`,
-    },
-  },
-  {
     key: "N8N_WEBHOOK_URL",
     values: {
       local: `http://localhost:5678/webhook/${demoWebhookPath}`,
@@ -221,6 +205,11 @@ export const ENV_KEYS: EnvKeyDef[] = [
   { key: "N8N_DEMO_FOLLOWUP_WORKFLOW_ID", values: { local: "", staging: "", production: "" } },
   { key: "FOLLOWUP_WAIT_1_MINUTES", values: { local: "1", staging: "60", production: "1440" } },
   { key: "FOLLOWUP_WAIT_2_MINUTES", values: { local: "2", staging: "120", production: "2880" } },
+  {
+    key: "DEFAULT_FOLLOWUP_TEMPLATE",
+    values: { local: "", staging: "", production: "" },
+    comment: "Optional: 2day | 7day | 14day — multi-touch registry templates; unset = legacy 2-email flow",
+  },
   {
     key: "N8N_API_URL",
     values: {

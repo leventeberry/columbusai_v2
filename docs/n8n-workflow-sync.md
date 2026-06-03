@@ -19,7 +19,7 @@ N8N_API_KEY=<your-local-key>
 
 Never commit API keys. Scripts do not print them.
 
-**Workflow id vs webhook path:** `N8N_DEMO_WORKFLOW_ID` is the workflow id from `pnpm n8n:list` (e.g. `gEEYTVQe39iBRra3`). The demo-request webhook URL uses a different UUID (the Webhook node path). The follow-up workflow uses path `demo-follow-up` (`/webhook/demo-follow-up`). Scripts exit with a clear error if you set the demo workflow id to the webhook path UUID.
+**Workflow id vs webhook path:** `N8N_DEMO_WORKFLOW_ID` is the workflow id from `pnpm n8n:list` (e.g. `gEEYTVQe39iBRra3`). The demo-request webhook URL uses a different UUID (the Webhook node path). The follow-up workflow uses a schedule trigger (no webhook). Scripts exit with a clear error if you set the demo workflow id to the webhook path UUID.
 
 ## Commands
 
@@ -32,6 +32,8 @@ Never commit API keys. Scripts do not print them.
 | Pull follow-up | `pnpm n8n:pull:followup` | → `demo-follow-up.workflow.json` |
 | Push follow-up | `pnpm n8n:push:followup` | Update follow-up workflow |
 | Activate follow-up | `pnpm n8n:activate:followup` | Activate follow-up |
+| Generate follow-up templates | `pnpm n8n:generate:followup-templates` | Emit 2day/7day/14day template JSON (see [demo-follow-up-templates.md](demo-follow-up-templates.md)) |
+| Push follow-up templates | `pnpm n8n:push:followup-templates` | Create/update template workflows in n8n (inactive) |
 
 ## Typical flow (demo-request)
 

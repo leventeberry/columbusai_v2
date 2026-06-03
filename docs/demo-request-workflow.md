@@ -2,7 +2,7 @@
 
 ## Flow
 
-Marketing `ContactSection` → `POST {VITE_API_URL}/api/leads/demo` → `@columbusai/leads` `processDemoLead` → Postgres `leads` table (or `LEADS_PATH` jsonl) → n8n demo-request webhook (non-blocking) → n8n demo-follow-up webhook (non-blocking).
+Marketing `ContactSection` → `POST {VITE_API_URL}/api/leads/demo` → `@columbusai/leads` `processDemoLead` → Postgres `leads` table (or `LEADS_PATH` jsonl) → n8n demo-request webhook (non-blocking). Follow-up emails are sent by the scheduled n8n workflow (see [demo-follow-up-workflow.md](demo-follow-up-workflow.md)).
 
 Shared lead logic lives in [`packages/leads`](../packages/leads/) (ported from marketing server fn + n8n sender).
 
@@ -17,9 +17,7 @@ Discovery-call follow-up: [demo-follow-up-workflow.md](demo-follow-up-workflow.m
 | `N8N_DEMO_WEBHOOK_URL` | API only | Production demo webhook |
 | `N8N_DEMO_WEBHOOK_TEST_URL` | API only | Dev demo webhook |
 | `N8N_WEBHOOK_URL` / `N8N_WEBHOOK_TEST_URL` | API only | Fallback if demo vars unset |
-| `BOOKING_LINK` | API only | Included in n8n payload |
-| `N8N_DEMO_FOLLOWUP_WEBHOOK_URL` | API only | Follow-up workflow (prod) |
-| `N8N_DEMO_FOLLOWUP_WEBHOOK_TEST_URL` | API only | Follow-up workflow (dev) |
+| `BOOKING_LINK` | API + n8n | Cal link in demo/follow-up emails |
 | `CORS_ORIGIN` | API | Must include marketing origin |
 
 ## API contract
