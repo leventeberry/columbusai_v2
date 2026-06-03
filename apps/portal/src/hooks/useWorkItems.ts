@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import type { WorkItemFilter } from "@/data/repositories/work-items";
 import type { Notification, WorkComment, WorkItem } from "@/data/entities";
@@ -8,6 +8,8 @@ import {
   fetchPortalWorkItem,
   fetchPortalWorkItems,
   fetchPortalNotifications,
+  patchPortalNotificationRead,
+  postPortalNotificationsReadAll,
   postPortalWorkComment,
   patchPortalWorkItem,
   createPortalWorkItem,
@@ -181,6 +183,9 @@ function mapApiNotification(row: PortalNotificationRow): Notification {
 export function useNotifications() {
   const { currentUserId } = usePortalWorkspace();
   const fetchFn = useServerFn(fetchPortalNotifications);
+  const markReadFn = useServerFn(patchPortalNotificationRead);
+  const markAllFn = useServerFn(postPortalNotificationsReadAll);
+  const qc = useQueryClient();
   const mock = isPortalMockEnabled();
 
   const query = useQuery({
@@ -202,9 +207,37 @@ export function useNotifications() {
     staleTime: 30_000,
   });
 
+  const markReadMutation = useMutation({
+    mutationFn: async (notificationId: string) => {
+      if (mock) {
+        notificationsRepo.markRead(notificationId, currentUserId);
+        return;
+      }
+      await markReadFn({ data: { id: notificationId } });
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["portal-notifications"] });
+    },
+  });
+
+  const markAllMutation = useMutation({
+    mutationFn: async () => {
+      if (mock) {
+        notificationsRepo.markAllRead(currentUserId);
+        return;
+      }
+      await markAllFn();
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["portal-notifications"] });
+    },
+  });
+
   return {
     notifications: query.data?.notifications ?? [],
     unreadCount: query.data?.unreadCount ?? 0,
+    markRead: (id: string) => markReadMutation.mutate(id),
+    markAllRead: () => markAllMutation.mutate(),
   };
 }
 

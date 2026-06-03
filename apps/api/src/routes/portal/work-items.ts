@@ -9,6 +9,11 @@ import {
   serializeWorkItem,
   userCanAccessClient,
 } from "../../lib/portal/repository.js";
+import {
+  notifyWorkItemComment,
+  notifyWorkItemCreated,
+  notifyWorkItemStatusChanged,
+} from "../../lib/portal/work-item-notifications.js";
 
 export async function getPortalWorkItems(req: RequestWithAuth, res: Response): Promise<void> {
   const user = req.auth!.user;
@@ -139,6 +144,8 @@ export async function postPortalWorkItem(req: RequestWithAuth, res: Response): P
     },
   });
 
+  await notifyWorkItemCreated(item, req.auth!.user.id);
+
   res.status(201).json({ workItem: serializeWorkItem(item) });
 }
 
@@ -200,6 +207,11 @@ export async function patchPortalWorkItem(req: RequestWithAuth, res: Response): 
         from_value: existing.status,
         to_value: parsed.data.status,
       },
+    });
+    await notifyWorkItemStatusChanged({
+      item: existing,
+      actorId: req.auth!.user.id,
+      toStatus: parsed.data.status,
     });
     if (parsed.data.status === "completed") {
       await prisma.portalWorkActivity.create({
@@ -272,6 +284,12 @@ export async function postPortalWorkComment(req: RequestWithAuth, res: Response)
       actor_id: req.auth!.user.id,
       kind: "comment_added",
     },
+  });
+
+  await notifyWorkItemComment({
+    item: existing,
+    actorId: req.auth!.user.id,
+    agencyOnly: parsed.data.visibility === "internal",
   });
 
   res.status(201).json({

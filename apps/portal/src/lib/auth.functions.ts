@@ -30,8 +30,11 @@ export const portalAuthLogin = createServerFn({ method: "POST" })
       sessionToken?: string;
     };
     if (!res.ok) throw new Error(body.error ?? "Login failed");
-    if (body.sessionToken) stashSetCookie(body.sessionToken);
-    return apiFetch<PortalMeResponse>("/api/portal/me");
+    if (!body.sessionToken) throw new Error("Login failed");
+    stashSetCookie(body.sessionToken);
+    return apiFetch<PortalMeResponse>("/api/portal/me", {
+      headers: { Cookie: `${SESSION_COOKIE}=${encodeURIComponent(body.sessionToken)}` },
+    });
   });
 
 export const portalAuthLogout = createServerFn({ method: "POST" }).handler(async () => {

@@ -2,9 +2,11 @@ import { useSyncExternalStore } from "react";
 import { getPortalMe, type PortalMeResponse } from "@/lib/portal-session";
 
 function subscribe(cb: () => void) {
+  window.addEventListener("portal-session-changed", cb);
   window.addEventListener("portal-role-changed", cb);
   window.addEventListener("storage", cb);
   return () => {
+    window.removeEventListener("portal-session-changed", cb);
     window.removeEventListener("portal-role-changed", cb);
     window.removeEventListener("storage", cb);
   };

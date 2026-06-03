@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useRouterState } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/portal/PageHeader";
 import { Input } from "@/components/ui/input";
@@ -6,11 +6,13 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Search, LayoutGrid, List } from "lucide-react";
 import { WorkItemTable } from "@/components/work/WorkItemTable";
+import { WorkItemDetail } from "@/components/work/WorkItemDetail";
 import { WorkKanban } from "@/components/work/WorkKanban";
 import { NewWorkItemDialog } from "@/components/work/NewWorkItemDialog";
 import { useWorkItems } from "@/hooks/useWorkItems";
 import { usePortalWorkspace } from "@/hooks/usePortalWorkspace";
 import { type WorkStatus } from "@/data/entities";
+import { canChangeStatus, canSeeInternalNotes, getRole } from "@/lib/portal-auth";
 
 export const Route = createFileRoute("/_authenticated/requests")({
   head: () => ({ meta: [{ title: "Work Center — Columbus AI" }] }),
@@ -21,6 +23,8 @@ type View = "all" | "open" | "in_progress" | "waiting" | "completed";
 
 function WorkCenterPage() {
   const { activeClientId, currentUserId, isAgency } = usePortalWorkspace();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const workItemId = pathname.startsWith("/requests/") ? pathname.slice("/requests/".length) : null;
   const items = useWorkItems({ clientId: activeClientId ?? undefined });
   const [view, setView] = useState<View>("open");
   const [layout, setLayout] = useState<"list" | "kanban">("list");
@@ -46,6 +50,19 @@ function WorkCenterPage() {
           description="No client workspace is linked to your account yet."
         />
       </div>
+    );
+  }
+
+  if (workItemId) {
+    const role = getRole();
+    return (
+      <WorkItemDetail
+        id={workItemId}
+        backHref="/requests"
+        currentUserId={currentUserId}
+        canSeeInternal={canSeeInternalNotes(role)}
+        canEdit={canChangeStatus(role)}
+      />
     );
   }
 

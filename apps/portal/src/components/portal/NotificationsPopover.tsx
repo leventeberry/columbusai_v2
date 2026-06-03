@@ -20,12 +20,10 @@ import { Link } from "@tanstack/react-router";
 import type { WorkActivityKind } from "@/data/entities";
 import { formatRelative } from "@/data/utils";
 import { useNotifications } from "@/hooks/useWorkItems";
-import { markAllRead, markRead } from "@/data/services/notifications";
-import { isPortalMockEnabled } from "@/lib/portal-config";
 import { usePortalWorkspace } from "@/hooks/usePortalWorkspace";
 import { getRole, isAgency } from "@/lib/portal-auth";
 
-const kindIcon: Record<WorkActivityKind, typeof Bell> = {
+const kindIcon: Record<string, typeof Bell> = {
   created: PlusCircle,
   status_changed: RefreshCcw,
   assignee_changed: UserPlus,
@@ -37,12 +35,13 @@ const kindIcon: Record<WorkActivityKind, typeof Bell> = {
   attachment_removed: Trash2,
   archived: Archive,
   completed: CheckCircle2,
+  onboarding_welcome: Bell,
+  client_onboarded: Bell,
 };
 
 export function NotificationsPopover() {
   const { currentUserId } = usePortalWorkspace();
-  const { notifications, unreadCount } = useNotifications();
-  const mock = isPortalMockEnabled();
+  const { notifications, unreadCount, markRead, markAllRead } = useNotifications();
   const agency = isAgency(getRole());
 
   return (
@@ -67,8 +66,8 @@ export function NotificationsPopover() {
             variant="ghost"
             size="sm"
             className="text-xs text-muted-foreground"
-            disabled={!mock || unreadCount === 0}
-            onClick={() => mock && markAllRead(currentUserId)}
+            disabled={unreadCount === 0}
+            onClick={() => markAllRead()}
           >
             Mark all read
           </Button>
@@ -107,12 +106,12 @@ export function NotificationsPopover() {
                         </p>
                       </div>
                     </Link>
-                    {mock && !n.readAt && (
+                    {!n.readAt && (
                       <Button
                         variant="ghost"
                         size="sm"
                         className="mt-1 h-7 text-xs"
-                        onClick={() => markRead(n.id, currentUserId)}
+                        onClick={() => markRead(n.id)}
                       >
                         <Check className="mr-1 h-3 w-3" /> Mark read
                       </Button>

@@ -129,4 +129,20 @@ export const fetchPortalNotifications = createServerFn({ method: "GET" })
     );
   });
 
+export const patchPortalNotificationRead = createServerFn({ method: "POST" })
+  .middleware([requireApiSession])
+  .inputValidator((input) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data }) => {
+    return apiFetch<{ notification: PortalNotificationRow }>(
+      `/api/portal/notifications/${encodeURIComponent(data.id)}/read`,
+      { method: "PATCH" },
+    );
+  });
+
+export const postPortalNotificationsReadAll = createServerFn({ method: "POST" })
+  .middleware([requireApiSession])
+  .handler(async () => {
+    return apiFetch<{ ok: boolean }>("/api/portal/notifications/read-all", { method: "POST" });
+  });
+
 export type { WorkType, WorkStatus, WorkPriority };

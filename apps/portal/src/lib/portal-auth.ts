@@ -1,5 +1,5 @@
 import type { Role } from "./mock/portal";
-import { portalAuthLogin, portalAuthLogout, portalAuthMe } from "@/lib/auth.functions";
+import { portalAuthLogout, portalAuthMe } from "@/lib/auth.functions";
 import {
   applyPortalSession,
   clearPortalSession,
@@ -7,6 +7,7 @@ import {
   getPortalMe,
   setRoleOverride,
 } from "@/lib/portal-session";
+import type { PortalMeResponse } from "@/lib/portal-session";
 
 export type { Role };
 
@@ -16,7 +17,24 @@ export function isLoggedIn(): boolean {
 
 export async function signIn(email: string, password: string): Promise<{ error: string | null }> {
   try {
-    const me = await portalAuthLogin({ data: { email, password } });
+    const apiUrl = (import.meta.env.VITE_API_URL ?? "http://localhost:4000").replace(/\/$/, "");
+    const res = await fetch(`${apiUrl}/api/auth/login`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    const body = await res.json();
+    if (!res.ok) {
+      throw new Error(body.error ?? "Login failed");
+    }
+    const meRes = await fetch(`${apiUrl}/api/portal/me`, {
+      credentials: "include",
+    });
+    if (!meRes.ok) {
+      throw new Error("Login failed");
+    }
+    const me = (await meRes.json()) as PortalMeResponse;
     applyPortalSession(me);
     return { error: null };
   } catch (e) {

@@ -26,6 +26,12 @@ export type PortalMeResponse = {
 let cachedMe: PortalMeResponse | null = null;
 let roleOverride: Role | null = null;
 
+function notifySessionChanged(): void {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("portal-session-changed"));
+  }
+}
+
 export function setRoleOverride(role: Role | null): void {
   roleOverride = role;
 }
@@ -33,11 +39,13 @@ export function setRoleOverride(role: Role | null): void {
 export function applyPortalSession(me: PortalMeResponse): void {
   cachedMe = me;
   roleOverride = null;
+  notifySessionChanged();
 }
 
 export function clearPortalSession(): void {
   cachedMe = null;
   roleOverride = null;
+  notifySessionChanged();
 }
 
 export function getEffectiveRole(): Role {
