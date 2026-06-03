@@ -36,7 +36,7 @@ DATABASE_URL=postgresql://columbus:columbus@localhost:5432/columbus \
   pnpm --filter @columbusai/db exec tsx prisma/seed-auth-portal.ts
 ```
 
-Uses `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` from the active env file. Re-run after changing seed passwords so `auth.users` hashes stay in sync.
+Uses `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` from the active env file (defaults: `admin@columbusai.com` + `SEED_ADMIN_PASSWORD` or `ColumbusDev2026!` when unset). Re-run after changing seed passwords so `auth.users` hashes stay in sync.
 
 ## App usage
 

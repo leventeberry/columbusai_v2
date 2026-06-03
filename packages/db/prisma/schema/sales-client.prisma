@@ -15,7 +15,14 @@ model SalesClient {
   company String  @default("")
   notes   String?
 
+  portalClientId       String?                 @unique @map("portal_client_id")
+  onboardingWorkItemId String?                 @map("onboarding_work_item_id")
+  stackTemplateId      String?                 @map("stack_template_id")
+  provisioningStatus   SalesProvisioningStatus @default(pending) @map("provisioning_status")
+  provisioningError    String?                 @map("provisioning_error") @db.Text
+
   @@index([status])
+  @@index([provisioningStatus])
   @@index([createdAt(sort: Desc)])
   @@map("clients")
   @@schema("sales")

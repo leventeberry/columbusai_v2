@@ -35,3 +35,11 @@ enum SalesClientStatus {
 
   @@schema("sales")
 }
+
+enum SalesProvisioningStatus {
+  pending
+  portal_ready
+  failed
+
+  @@schema("sales")
+}

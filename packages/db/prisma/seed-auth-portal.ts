@@ -17,6 +17,7 @@ const DEMO_PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? "ColumbusDev2026!";
 export async function seedAuthAndPortal(prisma: PrismaClient): Promise<void> {
   const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 12);
 
+  // Keep in sync with SEED_ADMIN_EMAIL in .env.local.example and env/profiles.ts
   const superEmail = (process.env.SEED_ADMIN_EMAIL ?? "admin@columbusai.com").toLowerCase();
 
   const superAdmin = await prisma.appUser.upsert({

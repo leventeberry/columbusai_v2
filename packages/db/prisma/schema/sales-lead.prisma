@@ -28,9 +28,16 @@ model SalesLead {
   recommendedNextStep String? @map("recommended_next_step")
   analysisRaw         Json?   @map("analysis_raw")
 
+  followupCount  Int       @default(0) @map("followup_count")
+  lastFollowupAt DateTime? @map("last_followup_at") @db.Timestamptz(6)
+  nextFollowupAt DateTime? @map("next_followup_at") @db.Timestamptz(6)
+  followupTemplate String? @map("followup_template")
+
   opportunity SalesOpportunity?
 
   @@index([status])
+  @@index([status, nextFollowupAt])
+  @@index([followupTemplate, status, nextFollowupAt])
   @@index([email])
   @@index([createdAt(sort: Desc)])
   @@map("leads")
