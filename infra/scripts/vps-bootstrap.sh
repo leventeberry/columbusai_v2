@@ -12,12 +12,21 @@ echo "${PRETTY_NAME:-unknown}"
 echo "==> Install Docker (if missing)"
 if ! command -v docker >/dev/null 2>&1; then
   apt-get update -qq
-  apt-get install -y ca-certificates curl
+  apt-get install -y ca-certificates curl rsync
   install -m 0755 -d /etc/apt/keyrings
-  curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+  . /etc/os-release
+  docker_dist="${ID:-ubuntu}"
+  docker_codename="${VERSION_CODENAME:-}"
+  if [[ "$docker_dist" == "debian" && -z "$docker_codename" ]]; then
+    docker_codename=bookworm
+  elif [[ "$docker_dist" != "debian" && -z "$docker_codename" ]]; then
+    docker_dist=ubuntu
+    docker_codename=jammy
+  fi
+  curl -fsSL "https://download.docker.com/linux/${docker_dist}/gpg" -o /etc/apt/keyrings/docker.asc
   chmod a+r /etc/apt/keyrings/docker.asc
-  echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-    $(. /etc/os-release && echo "${VERSION_CODENAME:-jammy}") stable" \
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/${docker_dist} \
+    ${docker_codename} stable" \
     > /etc/apt/sources.list.d/docker.list
   apt-get update -qq
   apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin

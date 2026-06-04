@@ -85,45 +85,54 @@ CREATE INDEX "clients_created_at_idx" ON "sales"."clients"("created_at" DESC);
 ALTER TABLE "sales"."clients" ADD CONSTRAINT "clients_opportunity_id_fkey" FOREIGN KEY ("opportunity_id") REFERENCES "sales"."opportunities"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- Backfill from legacy public.leads if present (runtime-created demo table)
-INSERT INTO "sales"."leads" (
-    "id",
-    "created_at",
-    "updated_at",
-    "fname",
-    "lname",
-    "email",
-    "phone",
-    "company",
-    "role",
-    "industry",
-    "team_size",
-    "what_automate",
-    "budget",
-    "timeline",
-    "website",
-    "status",
-    "source"
-)
-SELECT
-    l."id",
-    l."created_at",
-    l."created_at",
-    l."fname",
-    l."lname",
-    l."email",
-    COALESCE(l."phone", ''),
-    COALESCE(l."company", ''),
-    COALESCE(l."role", ''),
-    COALESCE(l."industry", ''),
-    COALESCE(l."team_size", ''),
-    l."what_automate",
-    COALESCE(l."budget", ''),
-    COALESCE(l."timeline", ''),
-    COALESCE(l."website", ''),
-    'new'::"sales"."SalesLeadStatus",
-    'demo_request'::"sales"."SalesLeadSource"
-FROM "public"."leads" AS l
-WHERE NOT EXISTS (
-    SELECT 1 FROM "sales"."leads" AS s WHERE s."id" = l."id"
-)
-ON CONFLICT ("id") DO NOTHING;
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'leads'
+  ) THEN
+    INSERT INTO "sales"."leads" (
+        "id",
+        "created_at",
+        "updated_at",
+        "fname",
+        "lname",
+        "email",
+        "phone",
+        "company",
+        "role",
+        "industry",
+        "team_size",
+        "what_automate",
+        "budget",
+        "timeline",
+        "website",
+        "status",
+        "source"
+    )
+    SELECT
+        l."id",
+        l."created_at",
+        l."created_at",
+        l."fname",
+        l."lname",
+        l."email",
+        COALESCE(l."phone", ''),
+        COALESCE(l."company", ''),
+        COALESCE(l."role", ''),
+        COALESCE(l."industry", ''),
+        COALESCE(l."team_size", ''),
+        l."what_automate",
+        COALESCE(l."budget", ''),
+        COALESCE(l."timeline", ''),
+        COALESCE(l."website", ''),
+        'new'::"sales"."SalesLeadStatus",
+        'demo_request'::"sales"."SalesLeadSource"
+    FROM "public"."leads" AS l
+    WHERE NOT EXISTS (
+        SELECT 1 FROM "sales"."leads" AS s WHERE s."id" = l."id"
+    )
+    ON CONFLICT ("id") DO NOTHING;
+  END IF;
+END $$;

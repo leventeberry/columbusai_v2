@@ -47,6 +47,7 @@ ENV VITE_BOOKING_LINK=$VITE_BOOKING_LINK
 ENV VITE_CHAT_TITLE=$VITE_CHAT_TITLE
 ENV VITE_CHAT_WELCOME=$VITE_CHAT_WELCOME
 ENV VITE_ADMIN_URL=$VITE_ADMIN_URL
+ENV DATABASE_URL="postgresql://postgres:postgres@postgres:5432/columbusai?schema=public"
 RUN pnpm --filter @columbusai/db build && pnpm --filter @columbusai/leads build && pnpm run build
 
 FROM node:26-alpine AS runtime
