@@ -36,3 +36,15 @@ export function getAdminUrl(): string {
 export function getAdminLoginUrl(): string {
   return `${getAdminUrl()}/login`;
 }
+
+/** Columbus AI client portal (separate TanStack Start app). */
+export function getPortalUrl(): string {
+  const url = readVite("VITE_PORTAL_URL");
+  if (url) return url.replace(/\/$/, "");
+  if (import.meta.env.DEV) return "http://localhost:3001";
+  return "https://portal.columbusai.tech";
+}
+
+export function getPortalLoginUrl(): string {
+  return `${getPortalUrl()}/login`;
+}

@@ -5,7 +5,6 @@ import { TrustStrip } from "@/components/sections/TrustStrip";
 import { PlatformSection } from "@/components/sections/PlatformSection";
 import { ServicesSection } from "@/components/sections/ServicesSection";
 import { WorkflowsSection } from "@/components/sections/WorkflowsSection";
-import { PortalAccessSection } from "@/components/sections/PortalAccessSection";
 import { ClientPortalPreview } from "@/components/sections/ClientPortalPreview";
 import { AdminPlatformPreview } from "@/components/sections/AdminPlatformPreview";
 import { PricingSection } from "@/components/sections/PricingSection";
@@ -41,7 +40,6 @@ function Index() {
       <PlatformSection />
       <ServicesSection />
       <WorkflowsSection />
-      <PortalAccessSection />
       <ClientPortalPreview />
       <AdminPlatformPreview />
       <PricingSection />

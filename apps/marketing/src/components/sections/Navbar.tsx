@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Menu, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { getPortalLoginUrl } from "@/lib/env";
 
 const navItems = [
   { to: "/", label: "Home" },
@@ -68,7 +69,13 @@ export function Navbar() {
 
         <div className="hidden lg:flex items-center gap-2">
           <Button asChild variant="ghost" size="sm">
-            <Link to="/client">Client Login</Link>
+            <a
+              href={getPortalLoginUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Client Login
+            </a>
           </Button>
           <Button
             size="sm"
@@ -103,7 +110,7 @@ export function Navbar() {
             ))}
             <div className="h-px bg-border my-2" />
             <a
-              href="https://portal.columbusai.tech"
+              href={getPortalLoginUrl()}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setOpen(false)}

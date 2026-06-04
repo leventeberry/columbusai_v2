@@ -187,6 +187,7 @@ services:
         VITE_CHAT_TITLE: ${VITE_CHAT_TITLE:-Chexi AI}
         VITE_CHAT_WELCOME: ${VITE_CHAT_WELCOME:-I'm Chexi, your Columbus AI assistant. Ask me anything!}
         VITE_ADMIN_URL: ${VITE_ADMIN_URL:-https://admin.${DOMAIN:-columbusai.tech}}
+        VITE_PORTAL_URL: ${VITE_PORTAL_URL:-https://portal.${DOMAIN:-columbusai.tech}}
     environment:
       NODE_ENV: production
       PORT: "3000"

@@ -65,6 +65,10 @@ export const ENV_KEYS: EnvKeyDef[] = [
     values: { local: "http://localhost:3002", staging: stagingUrl("admin"), production: prodUrl("admin") },
   },
   {
+    key: "VITE_PORTAL_URL",
+    values: { local: "http://localhost:3001", staging: stagingUrl("portal"), production: prodUrl("portal") },
+  },
+  {
     key: "DATABASE_URL",
     comment: "Compose overrides hostnames for containers; use localhost for host Prisma on laptop",
     values: {

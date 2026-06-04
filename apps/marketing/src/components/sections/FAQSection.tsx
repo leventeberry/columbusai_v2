@@ -41,7 +41,7 @@ const faqs = [
   },
   {
     q: "How do I access the client portal?",
-    a: "Active clients receive credentials at onboarding. The portal lives at /client.",
+    a: "Active clients receive credentials at onboarding. Sign in at portal.columbusai.tech.",
   },
   {
     q: "Is the admin portal only for Columbus AI?",

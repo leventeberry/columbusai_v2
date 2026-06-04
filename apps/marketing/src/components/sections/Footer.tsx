@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Sparkles } from "lucide-react";
-import { CONTACT_EMAIL, getAdminLoginUrl } from "@/lib/env";
+import { CONTACT_EMAIL, getAdminLoginUrl, getPortalLoginUrl } from "@/lib/env";
 
 export function Footer() {
   return (
@@ -27,7 +27,7 @@ export function Footer() {
             <FLink to="/services">Reporting</FLink>
           </Col>
           <Col title="Access">
-            <FExternalLink href="https://portal.columbusai.tech">Client Login</FExternalLink>
+            <FExternalLink href={getPortalLoginUrl()}>Client Login</FExternalLink>
             <FExternalLink href={getAdminLoginUrl()}>Admin Login</FExternalLink>
             <FLink to="/contact">Request Demo</FLink>
           </Col>
