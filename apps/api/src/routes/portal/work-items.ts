@@ -6,9 +6,16 @@ import type { RequestWithAuth } from "../../middleware/requireSession.js";
 import {
   allowedClientIds,
   isAgencyRole,
+  isAgencyWriteRole,
   serializeWorkItem,
   userCanAccessClient,
 } from "../../lib/portal/repository.js";
+import {
+  filterActivityForViewer,
+  filterCommentsForViewer,
+  serializePortalActivity,
+  serializePortalComment,
+} from "../../lib/portal/serialize.js";
 import {
   notifyWorkItemComment,
   notifyWorkItemCreated,
@@ -65,17 +72,13 @@ export async function getPortalWorkItem(req: RequestWithAuth, res: Response): Pr
     prisma.portalWorkActivity.findMany({ where: { work_item_id: id }, orderBy: { created_at: "asc" } }),
   ]);
 
+  const role = req.auth!.user.role;
+  const visibleComments = filterCommentsForViewer(role, comments);
+  const visibleActivity = filterActivityForViewer(role, activity);
+
   res.json({
     workItem: serializeWorkItem(item),
-    comments: comments.map((c) => ({
-      id: c.id,
-      workItemId: c.work_item_id,
-      authorId: c.author_id,
-      body: c.body,
-      visibility: c.visibility,
-      mentions: c.mentions,
-      createdAt: c.created_at.toISOString(),
-    })),
+    comments: visibleComments.map(serializePortalComment),
     attachments: attachments.map((a) => ({
       id: a.id,
       workItemId: a.work_item_id,
@@ -86,15 +89,7 @@ export async function getPortalWorkItem(req: RequestWithAuth, res: Response): Pr
       url: a.url,
       createdAt: a.created_at.toISOString(),
     })),
-    activity: activity.map((a) => ({
-      id: a.id,
-      workItemId: a.work_item_id,
-      actorId: a.actor_id,
-      kind: a.kind,
-      from: a.from_value ?? undefined,
-      to: a.to_value ?? undefined,
-      createdAt: a.created_at.toISOString(),
-    })),
+    activity: visibleActivity.map(serializePortalActivity),
   });
 }
 
@@ -107,6 +102,10 @@ const createSchema = z.object({
 });
 
 export async function postPortalWorkItem(req: RequestWithAuth, res: Response): Promise<void> {
+  if (isAgencyRole(req.auth!.user.role) && !isAgencyWriteRole(req.auth!.user.role)) {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
   const parsed = createSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: "Invalid input" });
@@ -185,7 +184,7 @@ export async function patchPortalWorkItem(req: RequestWithAuth, res: Response): 
     return;
   }
 
-  if (!isAgencyRole(req.auth!.user.role)) {
+  if (!isAgencyWriteRole(req.auth!.user.role)) {
     res.status(403).json({ error: "Forbidden" });
     return;
   }
@@ -245,6 +244,10 @@ const commentSchema = z.object({
 });
 
 export async function postPortalWorkComment(req: RequestWithAuth, res: Response): Promise<void> {
+  if (isAgencyRole(req.auth!.user.role) && !isAgencyWriteRole(req.auth!.user.role)) {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
   const parsed = commentSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: "Invalid input" });

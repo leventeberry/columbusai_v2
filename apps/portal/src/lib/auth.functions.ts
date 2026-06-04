@@ -3,6 +3,7 @@ import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { apiFetch, getApiBaseUrl } from "@/lib/api.server";
 import { SESSION_COOKIE } from "@/lib/auth-middleware";
+import { extractSessionTokenFromSetCookie } from "@/lib/extract-session-cookie";
 import type { PortalMeResponse } from "@/lib/portal-session";
 
 const loginSchema = z.object({
@@ -31,13 +32,11 @@ export const portalAuthLogin = createServerFn({ method: "POST" })
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
-    const body = (await res.json()) as PortalMeResponse & {
-      error?: string;
-      sessionToken?: string;
-    };
+    const body = (await res.json()) as PortalMeResponse & { error?: string };
     if (!res.ok) throw new Error(body.error ?? "Login failed");
-    if (!body.sessionToken) throw new Error("Login failed");
-    appendSessionCookie(body.sessionToken);
+    const token = extractSessionTokenFromSetCookie(res, SESSION_COOKIE);
+    if (!token) throw new Error("Login failed");
+    appendSessionCookie(token);
     return apiFetch<PortalMeResponse>("/api/portal/me");
   });
 

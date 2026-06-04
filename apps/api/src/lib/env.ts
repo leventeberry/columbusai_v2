@@ -92,7 +92,29 @@ export function getApiEnv(): ApiEnv {
     process.exit(1);
   }
   if (isProd && !redisUrl) {
-    console.warn("[env] REDIS_URL is unset; rate limiting is disabled.");
+    console.error("[env] REDIS_URL is required in production for fail-closed rate limiting.");
+    process.exit(1);
+  }
+
+  const widgetSecret = process.env.WIDGET_SESSION_SECRET?.trim() ?? "";
+  if (isProd && widgetSecret.length < 32) {
+    console.error(
+      "[env] WIDGET_SESSION_SECRET is required in production (min 32 characters).",
+    );
+    process.exit(1);
+  }
+
+  const cookieDomain = process.env.COOKIE_DOMAIN?.trim() ?? "";
+  const corsNeedsCrossSubdomain =
+    isProd &&
+    corsOrigins.some(
+      (o) => o.includes("admin.") || o.includes("portal.") || o.includes("api."),
+    );
+  if (corsNeedsCrossSubdomain && !cookieDomain) {
+    console.error(
+      "[env] COOKIE_DOMAIN is required in production when admin/portal/api use separate subdomains.",
+    );
+    process.exit(1);
   }
 
   // Optional: VECTOR_DATABASE_URL (warn in prod if absent)

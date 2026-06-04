@@ -1,11 +1,9 @@
 import { ClientSource } from "@columbusai/db";
 import { prisma } from "../prisma.js";
 
-const AGENCY_ROLES = new Set(["SUPER_ADMIN", "ADMIN", "STAFF", "VIEWER"]);
+import { isAgencyRole } from "./roles.js";
 
-export function isAgencyRole(role: string): boolean {
-  return AGENCY_ROLES.has(role);
-}
+export { isAgencyRole, isAgencyWriteRole } from "./roles.js";
 
 export async function getPortalMemberships(userId: string) {
   return prisma.clientUser.findMany({

@@ -2,6 +2,11 @@ import { Request, Response } from "express";
 import { z } from "zod";
 import { prisma } from "../lib/prisma.js";
 import { MessageRole } from "@columbusai/db";
+import { applyRateLimitPreset } from "../lib/rateLimit.js";
+import {
+  authorizeConversationAccess,
+  createBootstrapConversation,
+} from "../lib/chat/conversationAuth.js";
 import {
   postMessagesBodySchema,
   getMessagesQuerySchema,
@@ -25,31 +30,30 @@ export async function postMessages(req: Request, res: Response): Promise<void> {
       return;
     }
 
+    const convSuffix = conversationId ? `:conv:${conversationId}` : "";
+    if (!(await applyRateLimitPreset(req, res, "messages", convSuffix))) return;
+
+    const access = await authorizeConversationAccess(req, conversationId);
+    if (!access.ok) {
+      res.status(access.status).json({ error: access.error });
+      return;
+    }
+
     let convId = conversationId;
+    let conversationToken: string | undefined;
     let message: Awaited<ReturnType<typeof prisma.message.create>>;
     if (!convId) {
-      // Transaction ensures atomic creation of conversation + first message.
-      const result = await prisma.$transaction(async (tx) => {
-        const conv = await tx.conversation.create({ data: {} });
-        const msg = await tx.message.create({
-          data: {
-            conversation_id: conv.id,
-            role: MessageRole.user,
-            content,
-          },
-        });
-        return { convId: conv.id, message: msg };
+      const created = await createBootstrapConversation(req);
+      convId = created.id;
+      conversationToken = created.conversationToken;
+      message = await prisma.message.create({
+        data: {
+          conversation_id: convId,
+          role: MessageRole.user,
+          content,
+        },
       });
-      convId = result.convId;
-      message = result.message;
     } else {
-      const existing = await prisma.conversation.findUnique({
-        where: { id: convId },
-      });
-      if (!existing) {
-        res.status(404).json({ error: "Conversation not found" });
-        return;
-      }
       message = await prisma.message.create({
         data: {
           conversation_id: convId,
@@ -61,6 +65,7 @@ export async function postMessages(req: Request, res: Response): Promise<void> {
 
     res.status(200).json({
       conversationId: convId,
+      ...(conversationToken ? { conversationToken } : {}),
       message: {
         id: message.id,
         conversationId: message.conversation_id,
@@ -87,6 +92,15 @@ export async function getMessages(req: Request, res: Response): Promise<void> {
       return;
     }
     const { conversationId } = parsed.data;
+
+    const convSuffix = `:conv:${conversationId}`;
+    if (!(await applyRateLimitPreset(req, res, "messages", convSuffix))) return;
+
+    const access = await authorizeConversationAccess(req, conversationId);
+    if (!access.ok) {
+      res.status(access.status).json({ error: access.error });
+      return;
+    }
 
     const messages = await prisma.message.findMany({
       where: { conversation_id: conversationId },

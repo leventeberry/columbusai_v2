@@ -1,12 +1,22 @@
 // --- chat schema ---
 
+enum ConversationPrincipalType {
+  widget
+  user
+
+  @@schema("chat")
+}
+
 model Conversation {
-  id                       String    @id @default(uuid())
-  created_at               DateTime  @default(now())
-  updated_at               DateTime  @updatedAt
+  id                       String                     @id @default(uuid())
+  created_at               DateTime                   @default(now())
+  updated_at               DateTime                   @updatedAt
   external_conversation_key String?
+  owner_user_id            String?
+  principal_type           ConversationPrincipalType  @default(widget)
   messages                 Message[]
 
+  @@index([owner_user_id])
   @@map("conversations")
   @@schema("chat")
 }

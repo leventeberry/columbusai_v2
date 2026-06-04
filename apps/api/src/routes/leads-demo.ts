@@ -1,7 +1,10 @@
 import type { Request, Response } from "express";
 import { processDemoLead } from "@columbusai/leads";
+import { applyRateLimitPreset } from "../lib/rateLimit.js";
 
 export async function postLeadsDemo(req: Request, res: Response): Promise<void> {
+  if (!(await applyRateLimitPreset(req, res, "leadsDemo"))) return;
+
   const requestId = (req as Request & { id?: string }).id;
 
   let body: Record<string, unknown>;

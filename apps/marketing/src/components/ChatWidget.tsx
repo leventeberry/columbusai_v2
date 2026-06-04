@@ -13,6 +13,15 @@ type ChatMessage = {
 const FALLBACK_ERROR_MESSAGE = "Sorry, I'm having trouble connecting to the AI.";
 const HISTORY_CACHE_KEY = "chatbot-history";
 const CONVERSATION_ID_KEY = "chatbot-conversation-id";
+const CONVERSATION_TOKEN_KEY = "chatbot-conversation-token";
+
+function chatRequestHeaders(): Record<string, string> {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (typeof window === "undefined") return headers;
+  const token = sessionStorage.getItem(CONVERSATION_TOKEN_KEY);
+  if (token?.trim()) headers["X-Conversation-Token"] = token.trim();
+  return headers;
+}
 
 /**
  * Floating chat widget — Columbus AI ("Chexi AI").
@@ -32,6 +41,12 @@ export function ChatWidget() {
 
   const apiBase = getApiBaseUrl();
 
+  const persistConversation = (id: string, token?: string) => {
+    setConversationId(id);
+    sessionStorage.setItem(CONVERSATION_ID_KEY, id);
+    if (token) sessionStorage.setItem(CONVERSATION_TOKEN_KEY, token);
+  };
+
   useEffect(() => {
     const t = setTimeout(() => setShowNudge(true), 1500);
     return () => clearTimeout(t);
@@ -41,6 +56,10 @@ export function ChatWidget() {
     if (typeof window === "undefined") return;
     const stored = sessionStorage.getItem(CONVERSATION_ID_KEY);
     if (stored?.trim()) setConversationId(stored.trim());
+    if (!sessionStorage.getItem(CONVERSATION_TOKEN_KEY)) {
+      sessionStorage.removeItem(CONVERSATION_ID_KEY);
+      setConversationId(null);
+    }
   }, []);
 
   useEffect(() => {
@@ -73,7 +92,7 @@ export function ChatWidget() {
       try {
         const res = await fetch(
           `${apiBase}/api/messages?conversationId=${encodeURIComponent(conversationId)}`,
-          { credentials: "include" },
+          { credentials: "include", headers: chatRequestHeaders() },
         );
         if (!res.ok) throw new Error("Failed to fetch chat history.");
         const data = (await res.json()) as {
@@ -143,7 +162,7 @@ export function ChatWidget() {
     try {
       const res = await fetch(`${apiBase}/api/chat`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: chatRequestHeaders(),
         credentials: "include",
         body: JSON.stringify({
           message: trimmed,
@@ -153,6 +172,7 @@ export function ChatWidget() {
 
       const data = (await res.json().catch(() => ({}))) as {
         conversationId?: string;
+        conversationToken?: string;
         text?: string;
         error?: string;
       };
@@ -163,8 +183,7 @@ export function ChatWidget() {
           prev.map((m) => (m.id === assistantId ? { ...m, content: errMsg } : m)),
         );
         if (data.conversationId) {
-          setConversationId(data.conversationId);
-          sessionStorage.setItem(CONVERSATION_ID_KEY, data.conversationId);
+          persistConversation(data.conversationId, data.conversationToken);
         }
         return;
       }
@@ -172,8 +191,7 @@ export function ChatWidget() {
       const text = typeof data.text === "string" ? data.text : FALLBACK_ERROR_MESSAGE;
       setMessages((prev) => prev.map((m) => (m.id === assistantId ? { ...m, content: text } : m)));
       if (data.conversationId) {
-        setConversationId(data.conversationId);
-        sessionStorage.setItem(CONVERSATION_ID_KEY, data.conversationId);
+        persistConversation(data.conversationId, data.conversationToken);
       }
     } catch {
       setMessages((prev) =>

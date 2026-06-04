@@ -55,6 +55,7 @@ const FALLBACK_ERROR_MESSAGE =
   "Sorry, I'm having trouble connecting to the AI.";
 const HISTORY_CACHE_KEY = "chatbot-history";
 const CONVERSATION_ID_KEY = "chatbot-conversation-id";
+const CONVERSATION_TOKEN_KEY = "chatbot-conversation-token";
 const DEFAULT_WIDGET_TITLE =
   process.env.NEXT_PUBLIC_CHAT_TITLE || "Chexi AI";
 const DEFAULT_WELCOME_MESSAGE =
@@ -93,8 +94,13 @@ export function ChatWidget({ origin }: ChatWidgetProps) {
   const assistantAvatarUrl = GLOBAL_ASSISTANT_AVATAR_URL || undefined;
   const resolvedOrigin = origin?.trim() || undefined;
   const requestHeaders = useMemo(() => {
-    if (!resolvedOrigin) return undefined;
-    return { "X-Widget-Origin": resolvedOrigin };
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (resolvedOrigin) headers["X-Widget-Origin"] = resolvedOrigin;
+    if (typeof window !== "undefined") {
+      const token = sessionStorage.getItem(CONVERSATION_TOKEN_KEY);
+      if (token?.trim()) headers["X-Conversation-Token"] = token.trim();
+    }
+    return headers;
   }, [resolvedOrigin]);
 
   // Restore conversationId from sessionStorage on mount
@@ -102,6 +108,10 @@ export function ChatWidget({ origin }: ChatWidgetProps) {
     if (typeof window === "undefined") return;
     const stored = sessionStorage.getItem(CONVERSATION_ID_KEY);
     if (stored?.trim()) setConversationId(stored.trim());
+    if (!sessionStorage.getItem(CONVERSATION_TOKEN_KEY)) {
+      sessionStorage.removeItem(CONVERSATION_ID_KEY);
+      setConversationId(null);
+    }
   }, []);
 
   useEffect(() => {
@@ -145,7 +155,7 @@ export function ChatWidget({ origin }: ChatWidgetProps) {
       try {
         const res = await fetch(
           `${API_BASE}/api/messages?conversationId=${encodeURIComponent(conversationId)}`,
-          { credentials: "include", ...(requestHeaders ? { headers: requestHeaders } : {}) }
+          { credentials: "include", headers: requestHeaders },
         );
         if (!res.ok) throw new Error("Failed to fetch chat history.");
         const data = (await res.json()) as { messages: { role: string; content: string }[] };
@@ -215,10 +225,7 @@ export function ChatWidget({ origin }: ChatWidgetProps) {
     try {
       const res = await fetch(`${API_BASE}/api/chat`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(requestHeaders || {}),
-        },
+        headers: requestHeaders,
         credentials: "include",
         body: JSON.stringify({
           message: trimmed,
@@ -228,6 +235,7 @@ export function ChatWidget({ origin }: ChatWidgetProps) {
 
       const data = await res.json().catch(() => ({})) as {
         conversationId?: string;
+        conversationToken?: string;
         text?: string;
         error?: string;
       };
@@ -239,9 +247,12 @@ export function ChatWidget({ origin }: ChatWidgetProps) {
             m.id === assistantId ? { ...m, content: errMsg } : m
           )
         );
-        if (data.conversationId) {
+        if (data.conversationId && typeof window !== "undefined") {
           setConversationId(data.conversationId);
-          if (typeof window !== "undefined") sessionStorage.setItem(CONVERSATION_ID_KEY, data.conversationId);
+          sessionStorage.setItem(CONVERSATION_ID_KEY, data.conversationId);
+          if (data.conversationToken) {
+            sessionStorage.setItem(CONVERSATION_TOKEN_KEY, data.conversationToken);
+          }
         }
         return;
       }
@@ -252,9 +263,12 @@ export function ChatWidget({ origin }: ChatWidgetProps) {
           m.id === assistantId ? { ...m, content: text } : m
         )
       );
-      if (data.conversationId) {
+      if (data.conversationId && typeof window !== "undefined") {
         setConversationId(data.conversationId);
-        if (typeof window !== "undefined") sessionStorage.setItem(CONVERSATION_ID_KEY, data.conversationId);
+        sessionStorage.setItem(CONVERSATION_ID_KEY, data.conversationId);
+        if (data.conversationToken) {
+          sessionStorage.setItem(CONVERSATION_TOKEN_KEY, data.conversationToken);
+        }
       }
     } catch {
       setMessages((prev) =>

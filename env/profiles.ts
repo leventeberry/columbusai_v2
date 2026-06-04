@@ -248,6 +248,14 @@ export const ENV_KEYS: EnvKeyDef[] = [
       production: "change-me-generate-a-long-random-string-at-least-32-chars",
     },
   },
+  {
+    key: "WIDGET_SESSION_SECRET",
+    values: {
+      local: "dev-only-widget-session-secret-32chars!!",
+      staging: "change-me-staging-widget-session-secret-32chars",
+      production: "change-me-generate-another-long-random-string-at-least-32-chars",
+    },
+  },
   { key: "SESSION_COOKIE_NAME", values: { local: "columbus_session", staging: "columbus_session", production: "columbus_session" } },
   { key: "SESSION_TTL_DAYS", values: { local: "14", staging: "14", production: "14" } },
   {

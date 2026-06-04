@@ -36,13 +36,24 @@ export async function postRetryProvision(req: RequestWithAuth, res: Response): P
       ? parsed.data.stackTemplateId
       : undefined;
 
-  const result = await sales.retrySalesClientProvision(routeParam(req.params.id), {
-    stackTemplateId,
-    actorUserId: req.auth?.user.id,
-  });
-  if (!result) {
-    res.status(404).json({ error: "Sales client not found" });
-    return;
+  try {
+    const result = await sales.retrySalesClientProvision(routeParam(req.params.id), {
+      stackTemplateId,
+      actorUserId: req.auth?.user.id,
+    });
+    if (!result) {
+      res.status(404).json({ error: "Sales client not found" });
+      return;
+    }
+    res.json(result);
+  } catch (e) {
+    if (e && typeof e === "object" && "code" in e && e.code === "AGENCY_EMAIL_CONFLICT") {
+      res.status(409).json({
+        error: e instanceof Error ? e.message : "Email belongs to an agency account",
+        code: "AGENCY_EMAIL_CONFLICT",
+      });
+      return;
+    }
+    throw e;
   }
-  res.json(result);
 }

@@ -17,7 +17,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node -e \"process.exit(0)\""
   },
   "dependencies": {
     "@columbusai/db": "file:../db",

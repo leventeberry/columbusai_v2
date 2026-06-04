@@ -3,6 +3,7 @@ import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { getApiBaseUrl } from "@/lib/api.server";
 import { SESSION_COOKIE } from "@/lib/auth-middleware";
+import { extractSessionTokenFromSetCookie } from "@/lib/extract-session-cookie";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -53,13 +54,13 @@ export const authLogin = createServerFn({ method: "POST" })
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
-    const body = (await res.json()) as AuthMeResponse & { error?: string; sessionToken?: string };
+    const body = (await res.json()) as AuthMeResponse & { error?: string };
     if (!res.ok) {
       throw new Error(body.error ?? "Login failed");
     }
-    if (body.sessionToken) {
-      appendSessionCookie(body.sessionToken);
-    }
+    const token = extractSessionTokenFromSetCookie(res, SESSION_COOKIE);
+    if (!token) throw new Error("Login failed");
+    appendSessionCookie(token);
     return { user: body.user, roles: body.user.roles };
   });
 

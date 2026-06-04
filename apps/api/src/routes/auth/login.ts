@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "../../lib/prisma.js";
 import { verifyPassword } from "../../lib/auth/password.js";
 import { createSession, setSessionCookie } from "../../lib/auth/session.js";
+import { applyRateLimitPreset } from "../../lib/rateLimit.js";
 import { serializeMe } from "../../lib/auth/serialize.js";
 
 const bodySchema = z.object({
@@ -11,6 +12,8 @@ const bodySchema = z.object({
 });
 
 export async function postAuthLogin(req: Request, res: Response): Promise<void> {
+  if (!(await applyRateLimitPreset(req, res, "login"))) return;
+
   const parsed = bodySchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: "Invalid email or password" });
@@ -54,6 +57,5 @@ export async function postAuthLogin(req: Request, res: Response): Promise<void> 
       },
       memberships,
     ),
-    sessionToken: token,
   });
 }

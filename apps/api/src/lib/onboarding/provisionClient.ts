@@ -23,6 +23,8 @@ import {
 } from "./followup.js";
 import { createPortalNotification, notifyAgencyStaff } from "./notifications.js";
 import { defaultStackTemplateId, isValidStackTemplateId } from "./stack-templates.js";
+import { AgencyEmailConflictError } from "./errors.js";
+import { isAgencyRole } from "../portal/roles.js";
 
 export type ProvisionOptions = {
   stackTemplateId?: string;
@@ -123,16 +125,13 @@ export async function provisionPortalForSalesClient(
       let issuedTempPassword: string | undefined;
 
       if (existingUser) {
-        clientUserId = existingUser.id;
-        if (existingUser.role !== AppUserRole.CLIENT) {
-          await tx.appUser.update({
-            where: { id: existingUser.id },
-            data: {
-              role: AppUserRole.CLIENT,
-              display_name: existingUser.display_name ?? contactName,
-            },
-          });
+        if (
+          existingUser.role !== AppUserRole.CLIENT &&
+          isAgencyRole(existingUser.role)
+        ) {
+          throw new AgencyEmailConflictError();
         }
+        clientUserId = existingUser.id;
       } else {
         clientUserId = (
           await tx.appUser.create({
@@ -247,6 +246,15 @@ export async function provisionPortalForSalesClient(
       alreadyProvisioned: false,
     };
   } catch (err) {
+    if (err instanceof AgencyEmailConflictError) {
+      await recordOnboardingAuditEvent({
+        actorUserId: opts.actorUserId,
+        salesClientId: salesClient.id,
+        portalClientId: salesClient.portalClientId ?? "",
+        metadata: { email, code: err.code, conflict: true },
+      });
+      throw err;
+    }
     const message = err instanceof Error ? err.message : String(err);
     await prisma.salesClient.update({
       where: { id: salesClient.id },

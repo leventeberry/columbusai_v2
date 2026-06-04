@@ -8,7 +8,11 @@ import {
   ensureVectorSchema,
   searchChunks,
 } from "../lib/vector-db.js";
-import { rateLimit } from "../lib/rateLimit.js";
+import { applyRateLimitPreset } from "../lib/rateLimit.js";
+import {
+  authorizeConversationAccess,
+  createBootstrapConversation,
+} from "../lib/chat/conversationAuth.js";
 import { getApiEnv } from "../lib/env.js";
 import { withTimer } from "../lib/timing.js";
 import { postChatBodySchema } from "./schemas/chat.js";
@@ -51,46 +55,24 @@ export async function postChat(req: Request, res: Response): Promise<void> {
     }
     const { conversationId: bodyConvId, message } = parsed.data;
 
-    const forwarded = req.headers["x-forwarded-for"];
-    const ip =
-      (typeof forwarded === "string"
-        ? forwarded.split(",")[0]?.trim()
-        : null) ?? req.ip ?? "unknown";
-    const scope = process.env.RATE_LIMIT_SCOPE ?? "ip";
-    const rlKey =
-      `rl:chat:ip:${ip}` +
-      (scope === "ip+conversation" && bodyConvId ? `:conv:${bodyConvId}` : "");
-    const limit = Math.max(
-      1,
-      parseInt(process.env.RATE_LIMIT_MAX_REQUESTS ?? "20", 10) || 20
-    );
-    const windowSeconds = Math.max(
-      1,
-      parseInt(process.env.RATE_LIMIT_WINDOW_SECONDS ?? "300", 10) || 300
-    );
-    const rl = await rateLimit({ key: rlKey, limit, windowSeconds });
-    if (!rl.allowed) {
+    const convSuffix = bodyConvId ? `:conv:${bodyConvId}` : "";
+    if (!(await applyRateLimitPreset(req, res, "chat", convSuffix))) {
       recordChatMetrics(429, 0);
-      res
-        .status(429)
-        .set({
-          "Retry-After": String(rl.resetSeconds),
-          "X-RateLimit-Limit": String(limit),
-          "X-RateLimit-Remaining": "0",
-        })
-        .json({ error: "Rate limit exceeded. Please try again shortly." });
       return;
     }
+
+    const access = await authorizeConversationAccess(req, bodyConvId);
+    if (!access.ok) {
+      recordChatMetrics(access.status, 0);
+      res.status(access.status).json({ error: access.error });
+      return;
+    }
+
+    let responseConversationToken: string | undefined;
 
     const dbRead = await withTimer("db_read", async () => {
       let convId: string;
       if (bodyConvId) {
-        const existing = await prisma.conversation.findUnique({
-          where: { id: bodyConvId },
-        });
-        if (!existing) {
-          return { notFound: true as const, convId: null as unknown as string };
-        }
         convId = bodyConvId;
         await prisma.message.create({
           data: {
@@ -100,17 +82,15 @@ export async function postChat(req: Request, res: Response): Promise<void> {
           },
         });
       } else {
-        // Transaction ensures atomic creation of conversation + first message.
-        convId = await prisma.$transaction(async (tx) => {
-          const conv = await tx.conversation.create({ data: {} });
-          await tx.message.create({
-            data: {
-              conversation_id: conv.id,
-              role: MessageRole.user,
-              content: message,
-            },
-          });
-          return conv.id;
+        const created = await createBootstrapConversation(req);
+        convId = created.id;
+        responseConversationToken = created.conversationToken;
+        await prisma.message.create({
+          data: {
+            conversation_id: convId,
+            role: MessageRole.user,
+            content: message,
+          },
         });
       }
 
@@ -125,13 +105,8 @@ export async function postChat(req: Request, res: Response): Promise<void> {
         take: CONTEXT_MESSAGE_LIMIT,
       });
 
-      return { notFound: false as const, convId, messagesForContext };
+      return { convId, messagesForContext };
     });
-
-    if (dbRead.result.notFound) {
-      res.status(404).json({ error: "Conversation not found" });
-      return;
-    }
 
     const convId = dbRead.result.convId;
     const messagesForContext = dbRead.result.messagesForContext;
@@ -300,17 +275,14 @@ export async function postChat(req: Request, res: Response): Promise<void> {
       })
     );
 
-    res
-      .status(200)
-      .set({
-        "X-RateLimit-Limit": String(limit),
-        "X-RateLimit-Remaining": String(rl.remaining),
-      })
-      .json({
-        conversationId: convId,
-        responseId: response.id,
-        text: assistantText,
-      });
+    res.status(200).json({
+      conversationId: convId,
+      ...(responseConversationToken
+        ? { conversationToken: responseConversationToken }
+        : {}),
+      responseId: response.id,
+      text: assistantText,
+    });
   } catch (e) {
     const total_ms = Date.now() - totalStartMs;
     if (e instanceof Error && e.name === "AbortError") {

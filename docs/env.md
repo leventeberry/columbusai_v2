@@ -44,6 +44,22 @@ pnpm env:sync-examples   # regenerate .env.*.example
 pnpm env:check           # verify key parity
 ```
 
+## Required for production
+
+| Variable | Purpose |
+|----------|---------|
+| `POSTGRES_PASSWORD` | Database (compose fails without it) |
+| `OPENAI_API_KEY` | Chat API |
+| `SESSION_SECRET` | Session signing (≥32 chars) |
+| `WIDGET_SESSION_SECRET` | Widget conversation HMAC tokens (≥32 chars) |
+| `REDIS_URL` | Fail-closed rate limiting |
+| `CORS_ORIGIN` | Non-localhost origins |
+| `COOKIE_DOMAIN` | Cross-subdomain session cookies (e.g. `.columbusai.tech`) |
+| `N8N_BASIC_AUTH_USER` / `N8N_BASIC_AUTH_PASSWORD` | n8n UI |
+| `ADMIN_API_TOKEN` | n8n → API automation |
+
+See [security-hardening.md](security-hardening.md) for deployment checklist.
+
 ## Compose vs env file
 
 Compose **always** passes the matching `env_file` into services. Many values are **overridden** in compose `environment:` blocks (internal Docker hostnames, `NODE_ENV`, internal n8n webhook URLs). See comments at the top of each compose file.

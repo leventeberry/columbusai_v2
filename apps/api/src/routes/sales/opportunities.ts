@@ -69,13 +69,24 @@ export async function postConvertOpportunity(req: RequestWithAuth, res: Response
       ? parsed.data.stackTemplateId
       : undefined;
 
-  const result = await sales.convertOpportunityToClient(routeParam(req.params.id), {
-    stackTemplateId,
-    actorUserId: req.auth?.user.id,
-  });
-  if (!result) {
-    res.status(404).json({ error: "Opportunity not found" });
-    return;
+  try {
+    const result = await sales.convertOpportunityToClient(routeParam(req.params.id), {
+      stackTemplateId,
+      actorUserId: req.auth?.user.id,
+    });
+    if (!result) {
+      res.status(404).json({ error: "Opportunity not found" });
+      return;
+    }
+    res.status(result.alreadyProvisioned ? 200 : 201).json(result);
+  } catch (e) {
+    if (e && typeof e === "object" && "code" in e && e.code === "AGENCY_EMAIL_CONFLICT") {
+      res.status(409).json({
+        error: e instanceof Error ? e.message : "Email belongs to an agency account",
+        code: "AGENCY_EMAIL_CONFLICT",
+      });
+      return;
+    }
+    throw e;
   }
-  res.status(result.alreadyProvisioned ? 200 : 201).json(result);
 }

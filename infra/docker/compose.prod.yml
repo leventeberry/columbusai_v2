@@ -3,7 +3,8 @@
 #   docker compose --env-file .env.production -f infra/docker/compose.prod.yml up -d --build
 #
 # Required in .env.production: DOMAIN, ACME_EMAIL, POSTGRES_PASSWORD, OPENAI_API_KEY,
-#   CORS_ORIGIN, VITE_API_URL (build arg), SESSION_SECRET, ADMIN_API_TOKEN (optional).
+#   CORS_ORIGIN, VITE_API_URL, SESSION_SECRET, WIDGET_SESSION_SECRET, REDIS_URL,
+#   N8N_BASIC_AUTH_USER, N8N_BASIC_AUTH_PASSWORD, ADMIN_API_TOKEN (for n8n automation).
 # Compose overrides: DATABASE_URL, internal n8n webhooks, NODE_ENV, API_URL for portal/admin.
 
 services:
@@ -44,7 +45,7 @@ services:
     image: pgvector/pgvector:pg16
     environment:
       POSTGRES_USER: columbus
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-columbus}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
       POSTGRES_DB: columbus
     volumes:
       - columbus_prod_pgdata:/var/lib/postgresql/data
@@ -64,7 +65,7 @@ services:
     environment:
       PGHOST: postgres
       POSTGRES_USER: columbus
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-columbus}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
     volumes:
       - ./ensure-databases.sh:/scripts/ensure-databases.sh:ro
     depends_on:
@@ -79,7 +80,7 @@ services:
       context: ../..
       dockerfile: infra/docker/Dockerfile.migrate
     environment:
-      DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres:5432/columbus
+      DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/columbus
     depends_on:
       ensure-databases:
         condition: service_completed_successfully
@@ -96,22 +97,22 @@ services:
       WEBHOOK_URL: https://n8n.${DOMAIN:-columbusai.tech}/
       N8N_SECURE_COOKIE: "true"
       N8N_BASIC_AUTH_ACTIVE: ${N8N_BASIC_AUTH_ACTIVE:-true}
-      N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER:-admin}
-      N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD:-changeme}
+      N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER:?N8N_BASIC_AUTH_USER is required}
+      N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD:?N8N_BASIC_AUTH_PASSWORD is required}
       GENERIC_TIMEZONE: ${GENERIC_TIMEZONE:-America/New_York}
       COLUMBUS_API_URL: http://api:4000
-      ADMIN_API_TOKEN: ${ADMIN_API_TOKEN:-}
+      ADMIN_API_TOKEN: ${ADMIN_API_TOKEN:?ADMIN_API_TOKEN is required for n8n automation}
       FOLLOWUP_WAIT_1_MINUTES: ${FOLLOWUP_WAIT_1_MINUTES:-1440}
       FOLLOWUP_WAIT_2_MINUTES: ${FOLLOWUP_WAIT_2_MINUTES:-2880}
       BOOKING_LINK: ${BOOKING_LINK:-https://cal.com/columbus-ai/30min}
-      N8N_BLOCK_ENV_ACCESS_IN_NODE: "false"
-      N8N_EXPRESSIONS_ALLOWED_ENV_VARS: BOOKING_LINK,FOLLOWUP_WAIT_1_MINUTES,FOLLOWUP_WAIT_2_MINUTES
+      N8N_BLOCK_ENV_ACCESS_IN_NODE: "true"
+      N8N_EXPRESSIONS_ALLOWED_ENV_VARS: ${N8N_EXPRESSIONS_ALLOWED_ENV_VARS:-}
       DB_TYPE: postgresdb
       DB_POSTGRESDB_HOST: postgres
       DB_POSTGRESDB_PORT: "5432"
       DB_POSTGRESDB_DATABASE: n8n
       DB_POSTGRESDB_USER: columbus
-      DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD:-columbus}
+      DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
     volumes:
       - n8n_prod_data:/home/node/.n8n
     depends_on:
@@ -137,11 +138,13 @@ services:
     environment:
       NODE_ENV: production
       PORT: "4000"
-      DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres:5432/columbus
-      VECTOR_DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres:5432/columbus_vectors
+      DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/columbus
+      VECTOR_DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/columbus_vectors
       REDIS_URL: redis://redis:6379
       CORS_ORIGIN: ${CORS_ORIGIN:-https://columbusai.tech,https://www.columbusai.tech,https://admin.columbusai.tech,https://portal.columbusai.tech}
       SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET must be set in production}
+      WIDGET_SESSION_SECRET: ${WIDGET_SESSION_SECRET:?WIDGET_SESSION_SECRET is required}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:?OPENAI_API_KEY is required}
       N8N_DEMO_WEBHOOK_URL: http://n8n:5678/webhook/f7ceff32-3922-4ac8-a522-2b83995e5f04
       FOLLOWUP_WAIT_1_MINUTES: ${FOLLOWUP_WAIT_1_MINUTES:-1440}
       FOLLOWUP_WAIT_2_MINUTES: ${FOLLOWUP_WAIT_2_MINUTES:-2880}
@@ -272,8 +275,8 @@ services:
       - ../../.env.production
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres:5432/columbus
-      VECTOR_DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:-columbus}@postgres:5432/columbus_vectors
+      DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/columbus
+      VECTOR_DATABASE_URL: postgresql://columbus:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/columbus_vectors
       REDIS_URL: redis://redis:6379
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://api.columbusai.tech}
     depends_on:
