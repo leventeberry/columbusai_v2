@@ -10,9 +10,15 @@ const loginSchema = z.object({
   password: z.string().min(1),
 });
 
-function stashSetCookie(token: string): void {
+function appendSessionCookie(token: string): void {
+  const request = getRequest();
+  if (!request) return;
   const maxAge = 60 * 60 * 24 * 14;
   const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
+  const existing = request.headers.get("cookie") ?? "";
+  const pair = `${SESSION_COOKIE}=${encodeURIComponent(token)}`;
+  const merged = existing ? `${existing}; ${pair}` : pair;
+  request.headers.set("cookie", merged);
   const g = globalThis as typeof globalThis & { __columbusSetCookie?: string };
   g.__columbusSetCookie = `${SESSION_COOKIE}=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${secure}`;
 }
@@ -31,10 +37,8 @@ export const portalAuthLogin = createServerFn({ method: "POST" })
     };
     if (!res.ok) throw new Error(body.error ?? "Login failed");
     if (!body.sessionToken) throw new Error("Login failed");
-    stashSetCookie(body.sessionToken);
-    return apiFetch<PortalMeResponse>("/api/portal/me", {
-      headers: { Cookie: `${SESSION_COOKIE}=${encodeURIComponent(body.sessionToken)}` },
-    });
+    appendSessionCookie(body.sessionToken);
+    return apiFetch<PortalMeResponse>("/api/portal/me");
   });
 
 export const portalAuthLogout = createServerFn({ method: "POST" }).handler(async () => {

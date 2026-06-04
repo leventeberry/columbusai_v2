@@ -78,9 +78,11 @@ function LoginPage() {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Signing in…" : "Sign in"}
             </Button>
-            <p className="text-xs text-center text-muted-foreground">
-              Dev seed: kira@kdmdermatherapy.com / ColumbusDev2026!
-            </p>
+            {import.meta.env.DEV ? (
+              <p className="text-xs text-center text-muted-foreground">
+                Dev seed: kira@kdmdermatherapy.com / ColumbusDev2026!
+              </p>
+            ) : null}
           </form>
         </div>
       </div>
