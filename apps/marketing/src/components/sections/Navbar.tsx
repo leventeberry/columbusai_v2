@@ -102,13 +102,15 @@ export function Navbar() {
               </Link>
             ))}
             <div className="h-px bg-border my-2" />
-            <Link
-              to="/client"
+            <a
+              href="https://portal.columbusai.tech"
+              target="_blank"
+              rel="noopener noreferrer"
               onClick={() => setOpen(false)}
               className="px-3 py-2 text-sm text-muted-foreground"
             >
               Client Login
-            </Link>
+            </a>
             <Button
               onClick={handleDemo}
               className="bg-gradient-primary text-primary-foreground mt-2"

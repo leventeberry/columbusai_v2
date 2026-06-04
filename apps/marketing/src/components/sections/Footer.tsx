@@ -27,7 +27,7 @@ export function Footer() {
             <FLink to="/services">Reporting</FLink>
           </Col>
           <Col title="Access">
-            <FLink to="/client">Client Login</FLink>
+            <FExternalLink href="https://portal.columbusai.tech">Client Login</FExternalLink>
             <FExternalLink href={getAdminLoginUrl()}>Admin Login</FExternalLink>
             <FLink to="/contact">Request Demo</FLink>
           </Col>
@@ -79,8 +79,9 @@ function FExternalLink({ href, children }: { href: string; children: React.React
     <li>
       <a
         href={href}
-        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+        target="_blank"
         rel="noopener noreferrer"
+        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
         {children}
       </a>
