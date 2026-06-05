@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Mail, Clock, CheckCircle2, ArrowRight } from "lucide-react";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,24 +15,13 @@ import { toast } from "sonner";
 import { submitDemoLead } from "@/lib/api/submitDemoLead";
 import { CONTACT_EMAIL, BOOKING_LINK } from "@/lib/env";
 import { SectionHeading } from "./SectionHeading";
+import {
+  validateMarketingDemoForm,
+  type MarketingDemoFormInput,
+} from "@columbusai/leads/validation";
 
-const requestSchema = z.object({
-  firstName: z.string().trim().min(1, "First name is required").max(80),
-  lastName: z.string().trim().min(1, "Last name is required").max(80),
-  email: z.string().trim().email("Enter a valid email").max(255),
-  phone: z.string().trim().max(40).optional().or(z.literal("")),
-  company: z.string().trim().min(1, "Company is required").max(120),
-  website: z.string().trim().max(255).optional().or(z.literal("")),
-  role: z.string().trim().max(120).optional().or(z.literal("")),
-  industry: z.string().trim().max(120).optional().or(z.literal("")),
-  teamSize: z.string().max(40).optional().or(z.literal("")),
-  timeline: z.string().max(40).optional().or(z.literal("")),
-  budget: z.string().max(40).optional().or(z.literal("")),
-  automate: z.string().trim().min(1, "Tell us what you want to automate").max(2000),
-});
-
-type RequestData = z.infer<typeof requestSchema>;
-type Errors = Partial<Record<keyof RequestData, string>>;
+type RequestData = MarketingDemoFormInput;
+type Errors = Partial<Record<keyof RequestData | "_form", string>>;
 
 const teamSizes = ["1–10", "11–50", "51–200", "201–500", "500+"];
 const timelines = ["ASAP", "1–3 months", "3–6 months", "6+ months", "Just exploring"];
@@ -67,20 +55,15 @@ export function ContactSection() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const result = requestSchema.safeParse(values);
+    const result = validateMarketingDemoForm(values);
     if (!result.success) {
-      const fieldErrors: Errors = {};
-      for (const issue of result.error.issues) {
-        const k = issue.path[0] as keyof RequestData;
-        if (!fieldErrors[k]) fieldErrors[k] = issue.message;
-      }
-      setErrors(fieldErrors);
+      setErrors(result.errors as Errors);
       toast.error("Please fix the highlighted fields");
       return;
     }
     setLoading(true);
     try {
-      const res = await submitDemoLead(result.data);
+      const res = await submitDemoLead(values);
       if (!res.ok) {
         const formErrors = res.errors ?? {};
         if (formErrors._form) {

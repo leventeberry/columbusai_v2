@@ -1,26 +1,14 @@
-import { apiErrorsToFormErrors } from "@columbusai/leads/validation";
+import {
+  apiErrorsToFormErrors,
+  type MarketingDemoFormInput,
+} from "@columbusai/leads/validation";
 import { getApiBaseUrl } from "@/lib/env";
-
-export type DemoFormData = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone?: string;
-  company: string;
-  website?: string;
-  role?: string;
-  industry?: string;
-  teamSize?: string;
-  timeline?: string;
-  budget?: string;
-  automate: string;
-};
 
 export type SubmitDemoLeadResult =
   | { ok: true; id?: string }
   | { ok: false; errors: Record<string, string> };
 
-function toApiBody(data: DemoFormData): Record<string, string> {
+function toApiBody(data: MarketingDemoFormInput): Record<string, string> {
   return {
     first_name: data.firstName,
     last_name: data.lastName,
@@ -37,7 +25,9 @@ function toApiBody(data: DemoFormData): Record<string, string> {
   };
 }
 
-export async function submitDemoLead(data: DemoFormData): Promise<SubmitDemoLeadResult> {
+export async function submitDemoLead(
+  data: MarketingDemoFormInput,
+): Promise<SubmitDemoLeadResult> {
   const base = getApiBaseUrl();
   if (!base) {
     return {

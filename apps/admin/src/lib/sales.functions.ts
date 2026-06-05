@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { manualLeadSchema } from "@columbusai/leads/validation";
 import { assertAdminRole, requireApiSession } from "@/lib/auth-middleware";
 import { salesApiFetch } from "@/lib/sales-api.server";
 import type {
@@ -24,25 +25,7 @@ export type LeadActivityDto = {
 
 export const createLead = createServerFn({ method: "POST" })
   .middleware([requireApiSession])
-  .inputValidator((input) =>
-    z
-      .object({
-        fname: z.string().min(1),
-        lname: z.string().min(1),
-        email: z.string().email(),
-        phone: z.string().optional(),
-        company: z.string().optional(),
-        role: z.string().optional(),
-        industry: z.string().optional(),
-        teamSize: z.string().optional(),
-        whatAutomate: z.string().min(1),
-        budget: z.string().optional(),
-        timeline: z.string().optional(),
-        website: z.string().optional(),
-        notes: z.string().optional(),
-      })
-      .parse(input),
-  )
+  .inputValidator((input) => manualLeadSchema.parse(input))
   .handler(async ({ data, context }) => {
     await assertAdminRole(context.roles);
     const res = await salesApiFetch<{ lead: SalesLead }>("/api/leads", {

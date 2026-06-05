@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import { SalesLeadStatus } from "@columbusai/db";
+import { manualLeadSchema } from "@columbusai/leads/validation";
 import { routeParam } from "../../lib/route-params.js";
 import { z } from "zod";
 import * as sales from "../../lib/sales/repository.js";
@@ -25,21 +26,7 @@ export async function getLead(req: Request, res: Response): Promise<void> {
   res.json({ lead });
 }
 
-const createLeadSchema = z.object({
-  fname: z.string().min(1).max(200),
-  lname: z.string().min(1).max(200),
-  email: z.string().email().max(320),
-  phone: z.string().max(50).optional().default(""),
-  company: z.string().max(300).optional().default(""),
-  role: z.string().max(200).optional().default(""),
-  industry: z.string().max(200).optional().default(""),
-  teamSize: z.string().max(100).optional().default(""),
-  whatAutomate: z.string().min(1).max(1000),
-  budget: z.string().max(200).optional().default(""),
-  timeline: z.string().max(200).optional().default(""),
-  website: z.string().max(500).optional().default(""),
-  notes: z.string().max(5000).optional(),
-});
+const createLeadSchema = manualLeadSchema;
 
 export async function postCreateLead(req: Request, res: Response): Promise<void> {
   const body = createLeadSchema.safeParse(req.body);

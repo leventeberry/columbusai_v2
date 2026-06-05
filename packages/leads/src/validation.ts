@@ -104,3 +104,70 @@ export function normalizeWebsite(website: string | undefined): string {
   if (/^https?:\/\//i.test(s)) return s;
   return `https://${s}`;
 }
+
+/** Marketing demo form (camelCase) — maps to canonical contactPayloadSchema. */
+export type MarketingDemoFormInput = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  company: string;
+  website?: string;
+  role?: string;
+  industry?: string;
+  teamSize?: string;
+  timeline?: string;
+  budget?: string;
+  automate: string;
+};
+
+export function marketingFormToContactPayload(data: MarketingDemoFormInput) {
+  return {
+    fname: data.firstName.trim(),
+    lname: data.lastName.trim(),
+    email: data.email.trim(),
+    phone: data.phone?.trim() ?? "",
+    company: data.company.trim(),
+    website: data.website?.trim() ?? "",
+    role: data.role?.trim() ?? "",
+    industry: data.industry?.trim() ?? "",
+    team_size: data.teamSize?.trim() ?? "",
+    timeline: data.timeline?.trim() ?? "",
+    budget: data.budget?.trim() ?? "",
+    what_automate: data.automate.trim(),
+  };
+}
+
+export function validateMarketingDemoForm(
+  data: MarketingDemoFormInput,
+):
+  | { success: true; payload: z.infer<typeof contactPayloadSchema> }
+  | { success: false; errors: Record<string, string> } {
+  const result = contactPayloadSchema.safeParse(marketingFormToContactPayload(data));
+  if (result.success) {
+    return { success: true, payload: result.data };
+  }
+  return {
+    success: false,
+    errors: apiErrorsToFormErrors(zodErrorsToFieldErrors(result.error)),
+  };
+}
+
+/** Admin manual lead create — shared between API and admin server functions. */
+export const manualLeadSchema = z.object({
+  fname: z.string().min(1).max(200),
+  lname: z.string().min(1).max(200),
+  email: z.string().email().max(320),
+  phone: z.string().max(50).optional().default(""),
+  company: z.string().max(300).optional().default(""),
+  role: z.string().max(200).optional().default(""),
+  industry: z.string().max(200).optional().default(""),
+  teamSize: z.string().max(100).optional().default(""),
+  whatAutomate: z.string().min(1).max(1000),
+  budget: z.string().max(200).optional().default(""),
+  timeline: z.string().max(200).optional().default(""),
+  website: z.string().max(500).optional().default(""),
+  notes: z.string().max(5000).optional(),
+});
+
+export type ManualLeadInput = z.infer<typeof manualLeadSchema>;
