@@ -6,7 +6,56 @@
 
 ---
 
-## Sprint 1
+## Sprint 2
+
+**Theme:** Lead Intake + Follow-Up Workflow
+
+Sprint 2 adds the operational loop that makes the dashboard valuable: leads enter the system, follow-ups are scheduled, statuses progress through the documented lifecycle, and all changes are recorded as real activity events.
+
+### Sprint 2 Scope
+
+**In scope:**
+
+1. Manual lead creation (admin dialog + POST /api/leads)
+2. Lead status workflow: New -> Contacted -> Qualified -> Proposal Sent -> Won/Lost
+3. Editable lead notes with PATCH /api/leads/:id/notes
+4. Activity event log (lead_created, status_changed, note_updated)
+5. Real activity feed on dashboard (replaces mock data)
+6. Activity timeline in lead detail panel
+7. "Contacted" column in pipeline kanban
+8. Status change controls in lead detail panel
+
+**Out of scope:**
+
+- Public lead capture forms
+- AI scoring or enrichment
+- Email sequences or full task CRUD
+- Documents, messaging, client portal, billing, or AI modules
+
+### Sprint 2 Deliverables
+
+1. **Schema migration** - `contacted` added to SalesLeadStatus, SalesLeadActivity table
+2. **Activity API** - recordLeadActivity, listLeadActivity, listRecentActivity (raw SQL)
+3. **Lead creation API** - POST /api/leads with Zod validation + activity event
+4. **Notes/status API** - PATCH notes, PATCH status with activity recording
+5. **Create lead dialog** - Admin UI wired to "New lead" button on leads page
+6. **Lead detail panel** - Editable notes, status selector, real activity timeline
+7. **Dashboard activity** - Live events from GET /api/activity/recent replace mock feed
+8. **Pipeline update** - "Contacted" column, attention queue handles contacted leads
+
+### Sprint 2 Success Criteria
+
+- Admin can create a lead manually
+- Lead appears in dashboard attention queue
+- Lead status can move through the documented lifecycle
+- Lead notes can be edited and saved
+- Activity events record creation, notes, and status changes
+- Dashboard activity feed shows real events
+- Typecheck, build, and tests pass
+
+---
+
+## Sprint 1 (completed)
 
 **Theme:** Build Admin Dashboard MVP
 
