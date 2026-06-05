@@ -50,6 +50,52 @@ jobs:
       - name: Build
         run: pnpm build
 
+  integration:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: columbus
+          POSTGRES_PASSWORD: columbus
+          POSTGRES_DB: columbus
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U columbus"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://columbus:columbus@localhost:5432/columbus
+      ADMIN_API_TOKEN: ci-test-admin-token
+      SESSION_SECRET: ci-test-session-secret-not-for-production-use
+      INTEGRATION_TEST: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "26"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.12.4
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm db:generate
+
+      - name: Apply migrations
+        run: pnpm db:migrate:deploy
+
+      - name: Integration tests
+        run: pnpm --filter api test:integration
+
   docker:
     runs-on: ubuntu-latest
     steps:
