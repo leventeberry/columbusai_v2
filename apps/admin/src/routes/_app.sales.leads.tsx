@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { LeadPipeline } from "@/components/dashboard/lead-pipeline";
 import { LeadsTable } from "@/components/dashboard/leads-table";
 import { LeadDetailSheet } from "@/components/dashboard/lead-detail-sheet";
+import { CreateLeadDialog } from "@/components/dashboard/create-lead-dialog";
 import { PageHeader, Section } from "@/components/dashboard/page-header";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -26,6 +28,7 @@ export const Route = createFileRoute("/_app/sales/leads")({
 function LeadsPage() {
   const search = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
+  const [createOpen, setCreateOpen] = useState(false);
 
   const openLead = (leadId: string) => {
     void navigate({ search: (prev) => ({ ...prev, leadId }) });
@@ -46,6 +49,7 @@ function LeadsPage() {
           <Button
             size="sm"
             className="bg-gradient-to-r from-primary to-chart-2 text-primary-foreground"
+            onClick={() => setCreateOpen(true)}
           >
             <Plus className="mr-1 h-4 w-4" /> New lead
           </Button>
@@ -56,6 +60,7 @@ function LeadsPage() {
         <LeadsTable onOpenLead={openLead} />
       </Section>
       <LeadDetailSheet leadId={search.leadId} open={Boolean(search.leadId)} onOpenChange={closePanel} />
+      <CreateLeadDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={openLead} />
     </div>
   );
 }

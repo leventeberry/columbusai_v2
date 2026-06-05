@@ -20,6 +20,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const COLUMNS: { id: LeadStage; title: string; accent: string }[] = [
   { id: "new", title: "New", accent: "bg-info/40" },
+  { id: "contacted", title: "Contacted", accent: "bg-chart-4/40" },
   { id: "qualified", title: "Qualified", accent: "bg-chart-2/40" },
   { id: "proposal", title: "Proposal Sent", accent: "bg-primary/40" },
   { id: "negotiation", title: "Negotiation", accent: "bg-warning/40" },

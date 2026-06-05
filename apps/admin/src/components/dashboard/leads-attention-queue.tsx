@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { AlertCircle, Clock, Inbox } from "lucide-react";
+import { DashboardDataError } from "@/components/dashboard/dashboard-data-error";
 import { useDashboardOperations } from "@/hooks/use-dashboard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -34,7 +35,11 @@ type Props = {
 };
 
 export function LeadsAttentionQueue({ onOpenLead }: Props) {
-  const { attentionLeads, isLoading } = useDashboardOperations();
+  const { attentionLeads, isLoading, isError } = useDashboardOperations();
+
+  if (isError) {
+    return <DashboardDataError />;
+  }
 
   if (isLoading) {
     return (
@@ -61,7 +66,7 @@ export function LeadsAttentionQueue({ onOpenLead }: Props) {
   }
 
   return (
-    <ul className="space-y-2">
+    <ul className="max-h-[420px] space-y-2 overflow-y-auto pr-1">
       {attentionLeads.map((lead) => {
         const Icon = reasonIcon(lead.reason);
         const content = (
@@ -96,7 +101,12 @@ export function LeadsAttentionQueue({ onOpenLead }: Props) {
         if (onOpenLead) {
           return (
             <li key={lead.id}>
-              <button type="button" className="w-full" onClick={() => onOpenLead(lead.id)}>
+              <button
+                type="button"
+                className="w-full"
+                aria-label={`Open lead ${lead.company}`}
+                onClick={() => onOpenLead(lead.id)}
+              >
                 {content}
               </button>
             </li>

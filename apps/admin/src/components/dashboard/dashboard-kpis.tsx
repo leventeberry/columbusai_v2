@@ -1,16 +1,15 @@
 import { Inbox, Users, CheckSquare, MessageSquare, Coins } from "lucide-react";
 import { KpiCard } from "@/components/dashboard/kpi-card";
+import { DashboardDataError } from "@/components/dashboard/dashboard-data-error";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDashboardOperations } from "@/hooks/use-dashboard";
 
-const spark = (seed: number, n = 24) =>
-  Array.from({ length: n }, (_, i) => ({
-    x: i,
-    y: Math.round(50 + Math.sin(i / 3 + seed) * 18 + (i * (seed % 5)) / 2 + Math.cos(i + seed) * 6),
-  }));
-
 export function DashboardKpis() {
-  const { kpis, isLoading } = useDashboardOperations();
+  const { kpis, isLoading, isError } = useDashboardOperations();
+
+  if (isError) {
+    return <DashboardDataError />;
+  }
 
   if (isLoading) {
     return (
@@ -23,39 +22,13 @@ export function DashboardKpis() {
   }
 
   const cards = [
-    {
-      label: "New Leads",
-      value: String(kpis.newLeads.value),
-      delta: 0,
-      data: spark(1),
-      icon: Inbox,
-    },
-    {
-      label: "Active Clients",
-      value: String(kpis.activeClients.value),
-      delta: 0,
-      data: spark(2),
-      icon: Users,
-    },
-    {
-      label: "Tasks Due Today",
-      value: String(kpis.tasksDueToday.value),
-      delta: 0,
-      data: spark(3),
-      icon: CheckSquare,
-    },
-    {
-      label: "Unread Messages",
-      value: String(kpis.unreadMessages.value),
-      delta: 0,
-      data: spark(4),
-      icon: MessageSquare,
-    },
+    { label: "New Leads", value: String(kpis.newLeads.value), icon: Inbox },
+    { label: "Active Clients", value: String(kpis.activeClients.value), icon: Users },
+    { label: "Tasks Due Today", value: String(kpis.tasksDueToday.value), icon: CheckSquare },
+    { label: "Unread Messages", value: String(kpis.unreadMessages.value), icon: MessageSquare },
     {
       label: "Pipeline Value",
       value: `$${(kpis.pipelineValue.value / 1000).toFixed(0)}k`,
-      delta: 0,
-      data: spark(5),
       icon: Coins,
     },
   ];
@@ -67,9 +40,10 @@ export function DashboardKpis() {
           key={k.label}
           label={k.label}
           value={k.value}
-          delta={k.delta}
-          data={k.data}
+          delta={0}
+          data={[]}
           icon={k.icon}
+          showTrend={false}
         />
       ))}
     </div>

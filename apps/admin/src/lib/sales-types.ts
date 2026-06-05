@@ -1,6 +1,6 @@
 /** DTOs returned by the Columbus API sales endpoints (admin-normalized). */
 
-export type LeadStage = "new" | "qualified" | "proposal" | "negotiation" | "won" | "lost";
+export type LeadStage = "new" | "contacted" | "qualified" | "proposal" | "negotiation" | "won" | "lost";
 
 export type SalesLead = {
   id: string;

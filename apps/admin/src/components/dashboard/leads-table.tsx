@@ -36,6 +36,11 @@ export function LeadsTable({ onOpenLead }: Props) {
       if (urgencyFilter === "overdue") {
         if (!lead.nextFollowupAt || new Date(lead.nextFollowupAt).getTime() >= now) return false;
       }
+      if (urgencyFilter === "due_soon") {
+        if (!lead.nextFollowupAt) return false;
+        const due = new Date(lead.nextFollowupAt).getTime();
+        if (due < now || due - now >= 86_400_000) return false;
+      }
       if (urgencyFilter === "new" && lead.status !== "new") return false;
       return true;
     });
@@ -59,6 +64,7 @@ export function LeadsTable({ onOpenLead }: Props) {
           <SelectContent>
             <SelectItem value="all">All statuses</SelectItem>
             <SelectItem value="new">New</SelectItem>
+            <SelectItem value="contacted">Contacted</SelectItem>
             <SelectItem value="qualified">Qualified</SelectItem>
             <SelectItem value="disqualified">Disqualified</SelectItem>
           </SelectContent>
@@ -70,12 +76,13 @@ export function LeadsTable({ onOpenLead }: Props) {
           <SelectContent>
             <SelectItem value="all">All leads</SelectItem>
             <SelectItem value="overdue">Overdue follow-up</SelectItem>
+            <SelectItem value="due_soon">Due within 24h</SelectItem>
             <SelectItem value="new">New only</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
-      <div className="rounded-xl border border-border/60 bg-card/40">
+      <div className="overflow-x-auto rounded-xl border border-border/60 bg-card/40">
         <Table>
           <TableHeader>
             <TableRow>

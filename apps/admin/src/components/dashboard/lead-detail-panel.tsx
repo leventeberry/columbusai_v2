@@ -2,14 +2,40 @@ import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useConvertLead, useSalesLead } from "@/hooks/use-sales";
+import { useLeadActivity, useUpdateLeadNotes, useUpdateLeadStatus } from "@/hooks/use-lead-activity";
 import { buildDashboardTasks } from "@/lib/dashboard/adapters";
-import { useMemo } from "react";
-import { Clock, Mail, Phone, StickyNote } from "lucide-react";
+import { useMemo, useState, useEffect } from "react";
+import { Clock, Mail, Phone, StickyNote, Activity, Check, Pencil } from "lucide-react";
+
+const LEAD_STATUSES = [
+  { value: "new", label: "New" },
+  { value: "contacted", label: "Contacted" },
+  { value: "qualified", label: "Qualified" },
+  { value: "disqualified", label: "Disqualified" },
+] as const;
 
 export function LeadDetailPanel({ leadId }: { leadId: string }) {
   const { data: lead, isLoading, isError } = useSalesLead(leadId);
   const convert = useConvertLead();
+  const { data: activity, isLoading: activityLoading } = useLeadActivity(leadId);
+  const notesMutation = useUpdateLeadNotes();
+  const statusMutation = useUpdateLeadStatus();
+
+  const [editingNotes, setEditingNotes] = useState(false);
+  const [notesDraft, setNotesDraft] = useState("");
+
+  useEffect(() => {
+    if (lead) setNotesDraft(lead.notes ?? "");
+  }, [lead]);
 
   const relatedTasks = useMemo(() => {
     if (!lead) return [];
@@ -30,13 +56,39 @@ export function LeadDetailPanel({ leadId }: { leadId: string }) {
     return <p className="text-sm text-destructive">Lead not found or API error.</p>;
   }
 
+  const saveNotes = async () => {
+    await notesMutation.mutateAsync({ id: leadId, notes: notesDraft });
+    setEditingNotes(false);
+  };
+
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-lg font-semibold">{lead.company}</h2>
         <p className="text-sm text-muted-foreground">{lead.contact}</p>
-        <div className="mt-2 flex flex-wrap gap-2">
-          <Badge className="capitalize">{lead.status.replace(/_/g, " ")}</Badge>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          {lead.status !== "converted_to_opportunity" ? (
+            <Select
+              value={lead.status}
+              onValueChange={(value) =>
+                statusMutation.mutate({ id: leadId, status: value })
+              }
+              disabled={statusMutation.isPending}
+            >
+              <SelectTrigger className="h-7 w-auto min-w-[120px] text-xs capitalize">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {LEAD_STATUSES.map((s) => (
+                  <SelectItem key={s.value} value={s.value} className="text-xs capitalize">
+                    {s.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : (
+            <Badge className="capitalize">{lead.status.replace(/_/g, " ")}</Badge>
+          )}
           <Badge variant="outline" className="capitalize">
             {String(lead.pipelineStage).replace(/_/g, " ")}
           </Badge>
@@ -80,40 +132,85 @@ export function LeadDetailPanel({ leadId }: { leadId: string }) {
         </dl>
       </div>
 
-      {(lead.notes || lead.summary) && (
-        <div className="rounded-lg border border-border/60 bg-card/40 p-4">
+      {/* Editable notes */}
+      <div className="rounded-lg border border-border/60 bg-card/40 p-4">
+        <div className="flex items-center justify-between">
           <h3 className="flex items-center gap-2 text-xs font-medium uppercase text-muted-foreground">
             <StickyNote className="h-3.5 w-3.5" /> Notes
           </h3>
-          {lead.summary && <p className="mt-2 text-sm">{lead.summary}</p>}
-          {lead.notes && (
-            <p className="mt-2 text-sm text-muted-foreground whitespace-pre-wrap">{lead.notes}</p>
+          {!editingNotes && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 px-2 text-xs"
+              onClick={() => setEditingNotes(true)}
+            >
+              <Pencil className="mr-1 h-3 w-3" /> Edit
+            </Button>
           )}
         </div>
-      )}
+        {lead.summary && <p className="mt-2 text-sm">{lead.summary}</p>}
+        {editingNotes ? (
+          <div className="mt-2 space-y-2">
+            <Textarea
+              value={notesDraft}
+              onChange={(e) => setNotesDraft(e.target.value)}
+              rows={4}
+              className="text-sm"
+            />
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setNotesDraft(lead.notes ?? "");
+                  setEditingNotes(false);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button size="sm" disabled={notesMutation.isPending} onClick={saveNotes}>
+                <Check className="mr-1 h-3 w-3" />
+                {notesMutation.isPending ? "Saving…" : "Save"}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <p className="mt-2 min-h-5 whitespace-pre-wrap text-sm text-muted-foreground">
+            {lead.notes || "No notes yet."}
+          </p>
+        )}
+      </div>
 
+      {/* Activity timeline (real events from API) */}
       <div className="rounded-lg border border-border/60 bg-card/40 p-4">
-        <h3 className="text-xs font-medium uppercase text-muted-foreground">Timeline</h3>
-        <ul className="mt-3 space-y-2 text-sm">
-          <li className="flex justify-between gap-2 border-b border-border/40 pb-2">
-            <span>Lead created</span>
-            <span className="text-xs text-muted-foreground">
-              {new Date(lead.createdAt).toLocaleString()}
-            </span>
-          </li>
-          <li className="flex justify-between gap-2 border-b border-border/40 pb-2">
-            <span>Last updated</span>
-            <span className="text-xs text-muted-foreground">
-              {new Date(lead.updatedAt).toLocaleString()}
-            </span>
-          </li>
-          {lead.recommendedNextStep && (
-            <li className="text-muted-foreground">
-              <span className="font-medium text-foreground">Suggested: </span>
-              {lead.recommendedNextStep}
-            </li>
-          )}
-        </ul>
+        <h3 className="flex items-center gap-2 text-xs font-medium uppercase text-muted-foreground">
+          <Activity className="h-3.5 w-3.5" /> Activity
+        </h3>
+        {activityLoading ? (
+          <div className="mt-3 space-y-2">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-3/4" />
+          </div>
+        ) : activity && activity.length > 0 ? (
+          <ul className="mt-3 space-y-2 text-sm">
+            {activity.map((ev) => (
+              <li key={ev.id} className="flex justify-between gap-2 border-b border-border/40 pb-2 last:border-0">
+                <div>
+                  <span className="font-medium">{ev.title}</span>
+                  {ev.detail && (
+                    <span className="ml-1 text-muted-foreground">— {ev.detail}</span>
+                  )}
+                </div>
+                <span className="shrink-0 text-xs text-muted-foreground">
+                  {new Date(ev.createdAt).toLocaleString()}
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-3 text-sm text-muted-foreground">No activity yet.</p>
+        )}
       </div>
 
       {relatedTasks.length > 0 && (
@@ -153,11 +250,20 @@ export function LeadDetailPanel({ leadId }: { leadId: string }) {
         </Link>
       )}
 
-      {!lead.opportunityId && (
-        <Button size="sm" disabled={convert.isPending} onClick={() => convert.mutate(lead.id)}>
-          Convert to opportunity
-        </Button>
-      )}
+      <div className="flex flex-col gap-2 border-t border-border/60 pt-4">
+        {!lead.opportunityId && (
+          <Button size="sm" disabled={convert.isPending} onClick={() => convert.mutate(lead.id)}>
+            Convert to opportunity
+          </Button>
+        )}
+        <Link
+          to="/sales/leads/$leadId"
+          params={{ leadId: lead.id }}
+          className="text-center text-xs text-muted-foreground hover:text-primary hover:underline"
+        >
+          Open permalink
+        </Link>
+      </div>
     </div>
   );
 }

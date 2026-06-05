@@ -12,6 +12,93 @@ import type {
   StackTemplate,
 } from "@/lib/sales-types";
 
+export type LeadActivityDto = {
+  id: string;
+  createdAt: string;
+  leadId: string;
+  type: string;
+  title: string;
+  detail: string | null;
+  metadata: Record<string, string | number | boolean | null> | null;
+};
+
+export const createLead = createServerFn({ method: "POST" })
+  .middleware([requireApiSession])
+  .inputValidator((input) =>
+    z
+      .object({
+        fname: z.string().min(1),
+        lname: z.string().min(1),
+        email: z.string().email(),
+        phone: z.string().optional(),
+        company: z.string().optional(),
+        role: z.string().optional(),
+        industry: z.string().optional(),
+        teamSize: z.string().optional(),
+        whatAutomate: z.string().min(1),
+        budget: z.string().optional(),
+        timeline: z.string().optional(),
+        website: z.string().optional(),
+        notes: z.string().optional(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdminRole(context.roles);
+    const res = await salesApiFetch<{ lead: SalesLead }>("/api/leads", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+    return res.lead;
+  });
+
+export const updateLeadNotes = createServerFn({ method: "POST" })
+  .middleware([requireApiSession])
+  .inputValidator((input) =>
+    z.object({ id: z.string().uuid(), notes: z.string() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdminRole(context.roles);
+    const res = await salesApiFetch<{ lead: SalesLead }>(`/api/leads/${data.id}/notes`, {
+      method: "PATCH",
+      body: JSON.stringify({ notes: data.notes }),
+    });
+    return res.lead;
+  });
+
+export const updateLeadStatus = createServerFn({ method: "POST" })
+  .middleware([requireApiSession])
+  .inputValidator((input) =>
+    z.object({ id: z.string().uuid(), status: z.string().min(1) }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdminRole(context.roles);
+    const res = await salesApiFetch<{ lead: SalesLead }>(`/api/leads/${data.id}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ status: data.status }),
+    });
+    return res.lead;
+  });
+
+export const fetchLeadActivity = createServerFn({ method: "GET" })
+  .middleware([requireApiSession])
+  .inputValidator((input) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    await assertAdminRole(context.roles);
+    const res = await salesApiFetch<{ activity: LeadActivityDto[] }>(
+      `/api/leads/${data.id}/activity`,
+    );
+    return res.activity;
+  });
+
+export const fetchRecentActivity = createServerFn({ method: "GET" })
+  .middleware([requireApiSession])
+  .handler(async ({ context }) => {
+    await assertAdminRole(context.roles);
+    const data = await salesApiFetch<{ activity: LeadActivityDto[] }>("/api/activity/recent");
+    return data.activity;
+  });
+
 export const fetchSalesPipeline = createServerFn({ method: "GET" })
   .middleware([requireApiSession])
   .handler(async ({ context }) => {

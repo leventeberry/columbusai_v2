@@ -1,5 +1,14 @@
-import { audit as mockAudit } from "@/lib/mock/data";
+/**
+ * Dashboard data adapters — UI reads via useDashboardOperations().
+ *
+ * Swap points:
+ * - SEED_TASKS / MOCK_UNREAD_MESSAGES → admin tasks + inbox APIs
+ * - Activity feed is now real (Sprint 2) via GET /api/activity/recent
+ * - deriveTasksFromLeads can remain as supplemental follow-up tasks
+ */
 import type { SalesLead } from "@/lib/sales-types";
+import type { LeadActivityDto } from "@/lib/sales.functions";
+import { formatRelativeTime } from "./format";
 import type {
   AttentionLead,
   AttentionReason,
@@ -8,6 +17,11 @@ import type {
   DashboardTask,
   DataSource,
 } from "./types";
+
+export const ATTENTION_QUEUE_LIMIT = 8;
+
+/** Placeholder until unified inbox API exists. */
+export const MOCK_UNREAD_MESSAGES = 3;
 
 const MS_DAY = 86_400_000;
 const MS_HOUR = 3_600_000;
@@ -42,7 +56,10 @@ export function buildAttentionLeads(leads: SalesLead[]): AttentionLead[] {
       reason = "due_soon";
     } else if (now - created < 2 * MS_DAY && lead.status === "new") {
       reason = "new_lead";
-    } else if (lead.status === "qualified" && lead.pipelineStage === "qualified") {
+    } else if (
+      (lead.status === "contacted" || lead.status === "qualified") &&
+      (lead.pipelineStage === "contacted" || lead.pipelineStage === "qualified")
+    ) {
       const updated = new Date(lead.updatedAt).getTime();
       if (now - updated > 3 * MS_DAY) reason = "needs_action";
     }
@@ -63,7 +80,7 @@ export function buildAttentionLeads(leads: SalesLead[]): AttentionLead[] {
     });
   }
 
-  return items.sort((a, b) => b.urgency - a.urgency).slice(0, 12);
+  return items.sort((a, b) => b.urgency - a.urgency).slice(0, ATTENTION_QUEUE_LIMIT);
 }
 
 const SEED_TASKS: DashboardTask[] = [
@@ -125,7 +142,6 @@ export function deriveTasksFromLeads(leads: SalesLead[]): DashboardTask[] {
 
 export function buildDashboardTasks(leads: SalesLead[]): DashboardTask[] {
   const combined = [...deriveTasksFromLeads(leads), ...SEED_TASKS];
-  const now = Date.now();
   const endOfToday = new Date();
   endOfToday.setHours(23, 59, 59, 999);
 
@@ -142,33 +158,42 @@ export function buildDashboardTasks(leads: SalesLead[]): DashboardTask[] {
     .slice(0, 8);
 }
 
-export function buildDashboardActivity(leads: SalesLead[]): DashboardActivity[] {
-  const fromLeads: DashboardActivity[] = leads.slice(0, 5).map((lead) => ({
+const ACTIVITY_TYPE_MAP: Record<string, DashboardActivity["type"]> = {
+  lead_created: "lead",
+  status_changed: "lead",
+  note_updated: "lead",
+  followup_created: "workflow",
+  followup_completed: "workflow",
+};
+
+export function buildDashboardActivity(
+  recentActivity: LeadActivityDto[] | undefined,
+  leads: SalesLead[],
+  now = Date.now(),
+): DashboardActivity[] {
+  if (recentActivity && recentActivity.length > 0) {
+    return recentActivity.slice(0, 12).map((ev) => ({
+      id: ev.id,
+      type: ACTIVITY_TYPE_MAP[ev.type] ?? "system",
+      title: ev.title,
+      subtitle: ev.detail ?? "",
+      at: formatRelativeTime(ev.createdAt, now),
+      atIso: ev.createdAt,
+      leadId: ev.leadId,
+      source: "live" as DataSource,
+    }));
+  }
+
+  return leads.slice(0, 5).map((lead) => ({
     id: `act-lead-${lead.id}`,
     type: "lead" as const,
     title: `Lead updated — ${lead.company}`,
     subtitle: `${lead.contact} · ${lead.status.replace(/_/g, " ")}`,
-    at: new Date(lead.updatedAt).toLocaleString(),
+    at: formatRelativeTime(lead.updatedAt, now),
     atIso: lead.updatedAt,
     leadId: lead.id,
     source: "live" as DataSource,
   }));
-
-  const fromMock: DashboardActivity[] = mockAudit.slice(0, 6).map((e) => ({
-    id: `act-mock-${e.id}`,
-    type:
-      e.type === "workflow"
-        ? ("workflow" as const)
-        : e.type === "user"
-          ? ("system" as const)
-          : ("message" as const),
-    title: e.action,
-    subtitle: e.target ? `${e.target} · ${e.actor}` : e.actor,
-    at: e.at,
-    source: "mock" as DataSource,
-  }));
-
-  return [...fromLeads, ...fromMock].slice(0, 10);
 }
 
 export function buildDashboardKpis(
@@ -182,6 +207,9 @@ export function buildDashboardKpis(
 ): DashboardKpis {
   const newLeadCount = leads.filter((l) => l.status === "new").length;
   const dueTodayCount = tasks.filter((t) => t.status === "open" || t.status === "overdue").length;
+  const hasDerivedTasks = tasks.some((t) => t.source === "derived");
+  const tasksSource: DataSource =
+    tasks.length === 0 ? "mock" : hasDerivedTasks ? "derived" : "mock";
 
   return {
     newLeads: {
@@ -189,8 +217,8 @@ export function buildDashboardKpis(
       source: "live",
     },
     activeClients: { value: stats?.activeClients ?? 0, source: "live" },
-    tasksDueToday: { value: dueTodayCount, source: tasks.some((t) => t.source === "live") ? "live" : "derived" },
-    unreadMessages: { value: 3, source: "mock" },
+    tasksDueToday: { value: dueTodayCount, source: tasksSource },
+    unreadMessages: { value: MOCK_UNREAD_MESSAGES, source: "mock" },
     pipelineValue: { value: stats?.pipelineValue ?? 0, source: "live" },
   };
 }

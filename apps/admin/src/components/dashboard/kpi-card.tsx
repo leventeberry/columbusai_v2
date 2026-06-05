@@ -9,12 +9,15 @@ export function KpiCard({
   delta,
   data,
   icon: Icon,
+  showTrend = true,
 }: {
   label: string;
   value: string;
   delta: number;
   data: { x: number; y: number }[];
   icon: LucideIcon;
+  /** Operational dashboard hides fake trend charts. */
+  showTrend?: boolean;
 }) {
   const positive = delta >= 0;
   return (
@@ -26,20 +29,26 @@ export function KpiCard({
           </span>
           {label}
         </div>
-        <span
-          className={cn(
-            "inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[11px] font-medium",
-            positive ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive",
-          )}
-        >
-          {positive ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
-          {Math.abs(delta).toFixed(1)}%
-        </span>
+        {showTrend && (
+          <span
+            className={cn(
+              "inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[11px] font-medium",
+              positive ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive",
+            )}
+          >
+            {positive ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+            {Math.abs(delta).toFixed(1)}%
+          </span>
+        )}
       </div>
-      <div className="mt-3 font-mono text-2xl font-semibold tracking-tight">{value}</div>
-      <div className="mt-1">
-        <Sparkline data={data} positive={positive} />
+      <div className={cn("font-mono text-2xl font-semibold tracking-tight", showTrend ? "mt-3" : "mt-4")}>
+        {value}
       </div>
+      {showTrend && (
+        <div className="mt-1">
+          <Sparkline data={data} positive={positive} />
+        </div>
+      )}
     </div>
   );
 }

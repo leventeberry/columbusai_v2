@@ -1,5 +1,6 @@
 import { Activity, Inbox, MessageSquare, UserPlus, Workflow } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { DashboardDataError } from "@/components/dashboard/dashboard-data-error";
 import { useDashboardOperations } from "@/hooks/use-dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { DashboardActivity } from "@/lib/dashboard/types";
@@ -21,7 +22,11 @@ function activityIcon(type: DashboardActivity["type"]) {
 }
 
 export function RecentActivityFeed() {
-  const { activity, isLoading } = useDashboardOperations();
+  const { activity, isLoading, isError } = useDashboardOperations();
+
+  if (isError) {
+    return <DashboardDataError />;
+  }
 
   if (isLoading) {
     return (
@@ -29,6 +34,18 @@ export function RecentActivityFeed() {
         {Array.from({ length: 5 }).map((_, i) => (
           <Skeleton key={i} className="h-12 w-full rounded-lg" />
         ))}
+      </div>
+    );
+  }
+
+  if (activity.length === 0) {
+    return (
+      <div className="rounded-lg border border-dashed border-border/60 bg-card/30 p-8 text-center">
+        <Activity className="mx-auto h-8 w-8 text-muted-foreground/50" />
+        <p className="mt-3 text-sm font-medium">No recent activity</p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Lead and client changes will appear here.
+        </p>
       </div>
     );
   }
