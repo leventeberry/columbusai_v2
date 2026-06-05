@@ -227,6 +227,22 @@
           "name": "Postgres account"
         }
       }
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO sales.lead_activity (lead_id, type, title, detail, metadata)\nVALUES (\n  '{{ $('Normalize Lead').item.json.id }}'::uuid,\n  'followup_sent',\n  'Follow-up email sent',\n  'Automated follow-up {{ $('Normalize Lead').item.json.followup_count + 1 }} of 2',\n  jsonb_build_object(\n    'source', 'n8n',\n    'followup_count', {{ $('Normalize Lead').item.json.followup_count + 1 }}\n  )\n);",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [720, 480],
+      "id": "fu-activity-001",
+      "name": "Record Follow-Up Activity",
+      "credentials": {
+        "postgres": {
+          "name": "Postgres account"
+        }
+      }
     }
   ],
   "connections": {
@@ -264,6 +280,9 @@
       "main": [[{ "node": "Mark Follow-Up Sent", "type": "main", "index": 0 }]]
     },
     "Mark Follow-Up Sent": {
+      "main": [[{ "node": "Record Follow-Up Activity", "type": "main", "index": 0 }]]
+    },
+    "Record Follow-Up Activity": {
       "main": [[{ "node": "Loop Over Items", "type": "main", "index": 0 }]]
     }
   },

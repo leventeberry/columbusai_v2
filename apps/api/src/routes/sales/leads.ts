@@ -126,13 +126,27 @@ export async function postConvertLead(req: Request, res: Response): Promise<void
     res.status(400).json({ error: "Invalid body" });
     return;
   }
-  const opportunity = await sales.convertLeadToOpportunity(routeParam(req.params.id), {
+  const leadId = routeParam(req.params.id);
+  const before = await sales.getLeadById(leadId);
+  const opportunity = await sales.convertLeadToOpportunity(leadId, {
     stage: body.data.stage,
     estimatedValue: body.data.estimatedValue,
   });
   if (!opportunity) {
     res.status(404).json({ error: "Lead not found" });
     return;
+  }
+  if (before) {
+    await recordLeadActivity({
+      leadId,
+      type: "lead_converted",
+      title: "Converted to opportunity",
+      detail: `${before.company} → ${opportunity.stage.replace(/_/g, " ")}`,
+      metadata: {
+        opportunityId: opportunity.id,
+        fromStatus: before.status,
+      },
+    });
   }
   res.status(201).json({ opportunity });
 }

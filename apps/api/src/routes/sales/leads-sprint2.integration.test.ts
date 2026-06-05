@@ -169,4 +169,17 @@ describe("Sprint 2 leads workflow (integration)", { skip: !runIntegration }, () 
     assert.ok(lead);
     assert.ok(lead.activity.length >= 3);
   });
+
+  it("POST /api/leads/:id/convert-to-opportunity records lead_converted activity", async () => {
+    const res = await fetch(`${baseUrl}/api/leads/${leadId}/convert-to-opportunity`, {
+      method: "POST",
+      headers: adminHeaders(),
+      body: JSON.stringify({ stage: "qualified" }),
+    });
+    assert.equal(res.status, 201);
+    const events = await prisma.salesLeadActivity.findMany({
+      where: { leadId, type: "lead_converted" },
+    });
+    assert.ok(events.length >= 1);
+  });
 });
