@@ -86,7 +86,7 @@ export PATH="$HOME/.nvm/versions/node/v26.3.0/bin:$PATH"
 pnpm --filter api test:integration
 ```
 
-Covers: create lead, activity events, status/notes patches, activity list endpoints, `SalesLead.activity` relation.
+Covers: create lead, activity events, status/notes patches, convert-to-opportunity, activity list endpoints, `SalesLead.activity` relation.
 
 ### Admin
 
@@ -99,9 +99,14 @@ Admin UI flows depend on the same API via TanStack server functions. Adapter-lev
 | Item | Priority | Notes |
 |------|----------|--------|
 | Cursor/shell defaulting to Node 20 | High | Document in README; consider `engines` enforcement in CI only |
-| Browser E2E for admin Sprint 2 flows | Medium | Create lead dialog, notes save, status select, activity timeline |
-| `SEED_TASKS` / mock unread messages on dashboard | Low | Pre-existing Sprint 1 adapter debt; not Sprint 2 |
+| Browser E2E for admin flows | Medium | Create lead dialog, notes save, status select, activity timeline |
+| Workflow monitoring UI (mock) | Medium | Replace `workflow-monitoring.tsx` mock data when n8n visibility is scoped |
+| Legacy `apps/web` lead intake split-brain | Medium | Sprint 4 — route to `/api/leads/demo` or retire |
 | Demo lead path activity events | Resolved | `insertLead` records `lead_created` for demo_request leads |
+| Dashboard `SEED_TASKS` / mock unread KPI | Resolved | Removed in Sprint 3 |
+| Shared manual lead validation | Resolved | `manualLeadSchema` in `@columbusai/leads/validation` |
+| Follow-up activity visibility | Resolved | n8n `demo-follow-up` writes `followup_sent` events |
+| API integration tests in CI | Resolved | `.github/workflows/ci.yml` `integration` job |
 
 ---
 
@@ -119,6 +124,6 @@ pnpm db:migrate:deploy
 pnpm typecheck
 pnpm build
 pnpm --filter api test
-INTEGRATION_TEST=1 pnpm --filter api test
+pnpm --filter api test:integration
 pnpm --filter admin test
 ```

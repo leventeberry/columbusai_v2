@@ -6,7 +6,51 @@
 
 ---
 
-## Sprint 2
+## Sprint 3
+
+**Theme:** Operational Trust — remove mock noise, harden the canonical funnel, make automation visible in the lead record
+
+Sprint 3 makes the admin home dashboard trustworthy and closes observability gaps on the path that already works (marketing demo → sales.leads → admin CRM → n8n follow-up).
+
+### Sprint 3 Scope
+
+**In scope:**
+
+1. Remove mock dashboard tasks and unread-messages KPI
+2. Improve dashboard error messages (session vs API vs permissions)
+3. Wire marketing demo form to shared `@columbusai/leads` validation
+4. Record `followup_sent` activity from n8n follow-up workflow
+5. Record `lead_converted` activity on convert-to-opportunity
+6. Shared `manualLeadSchema` in `@columbusai/leads` for API + admin
+7. Run API integration tests in CI with Postgres
+
+**Out of scope:**
+
+- Chat-to-lead bridge
+- Full workflow monitoring UI
+- Legacy web intake retirement (Sprint 4)
+- Messages/documents modules
+
+### Sprint 3 Deliverables
+
+1. **Dashboard mock removal** — no `SEED_TASKS` or fake unread KPI; clearer error UX
+2. **Shared validation** — marketing form + manual lead create use `@columbusai/leads/validation`
+3. **Follow-up visibility** — n8n writes `followup_sent` to `sales.lead_activity`
+4. **Convert audit** — `lead_converted` activity on opportunity creation
+5. **CI integration job** — Postgres service + `pnpm --filter api test:integration`
+
+### Sprint 3 Success Criteria
+
+- Dashboard home shows only live-derived tasks
+- No fake unread count on KPI row
+- Marketing form validates with shared backend schema
+- Follow-up email appears in activity feed for test leads
+- Convert-to-opportunity creates activity event
+- Integration tests run in CI
+
+---
+
+## Sprint 2 (completed)
 
 **Theme:** Lead Intake + Follow-Up Workflow
 
@@ -35,7 +79,7 @@ Sprint 2 adds the operational loop that makes the dashboard valuable: leads ente
 ### Sprint 2 Deliverables
 
 1. **Schema migration** - `contacted` added to SalesLeadStatus, SalesLeadActivity table
-2. **Activity API** - recordLeadActivity, listLeadActivity, listRecentActivity (raw SQL)
+2. **Activity API** - recordLeadActivity, listLeadActivity, listRecentActivity (Prisma client)
 3. **Lead creation API** - POST /api/leads with Zod validation + activity event
 4. **Notes/status API** - PATCH notes, PATCH status with activity recording
 5. **Create lead dialog** - Admin UI wired to "New lead" button on leads page
