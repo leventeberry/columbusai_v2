@@ -26,6 +26,7 @@ export function pipelineStageForLead(lead: SalesLead, opportunity?: SalesOpportu
   if (lead.status === "converted_to_opportunity") return "qualified";
   if (lead.status === "disqualified") return "lost";
   if (lead.status === "qualified") return "qualified";
+  if (lead.status === "contacted") return "contacted";
   return "new";
 }
 

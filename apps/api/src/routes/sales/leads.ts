@@ -3,6 +3,11 @@ import { SalesLeadStatus } from "@columbusai/db";
 import { routeParam } from "../../lib/route-params.js";
 import { z } from "zod";
 import * as sales from "../../lib/sales/repository.js";
+import {
+  recordLeadActivity,
+  listLeadActivity,
+  listRecentActivity,
+} from "../../lib/sales/activity.js";
 
 const statusSchema = z.enum(SalesLeadStatus);
 
@@ -20,6 +25,39 @@ export async function getLead(req: Request, res: Response): Promise<void> {
   res.json({ lead });
 }
 
+const createLeadSchema = z.object({
+  fname: z.string().min(1).max(200),
+  lname: z.string().min(1).max(200),
+  email: z.string().email().max(320),
+  phone: z.string().max(50).optional().default(""),
+  company: z.string().max(300).optional().default(""),
+  role: z.string().max(200).optional().default(""),
+  industry: z.string().max(200).optional().default(""),
+  teamSize: z.string().max(100).optional().default(""),
+  whatAutomate: z.string().min(1).max(1000),
+  budget: z.string().max(200).optional().default(""),
+  timeline: z.string().max(200).optional().default(""),
+  website: z.string().max(500).optional().default(""),
+  notes: z.string().max(5000).optional(),
+});
+
+export async function postCreateLead(req: Request, res: Response): Promise<void> {
+  const body = createLeadSchema.safeParse(req.body);
+  if (!body.success) {
+    res.status(400).json({ error: "Invalid body", details: z.flattenError(body.error) });
+    return;
+  }
+  const lead = await sales.createManualLead(body.data);
+  await recordLeadActivity({
+    leadId: lead.id,
+    type: "lead_created",
+    title: "Lead created",
+    detail: `${lead.contact} — ${lead.service}`,
+    metadata: { source: "manual" },
+  });
+  res.status(201).json({ lead });
+}
+
 export async function patchLeadStatus(req: Request, res: Response): Promise<void> {
   const body = z
     .object({
@@ -34,6 +72,7 @@ export async function patchLeadStatus(req: Request, res: Response): Promise<void
   }
 
   const id = routeParam(req.params.id);
+  const before = await sales.getLeadById(id);
   const result = body.data.pipelineStage
     ? await sales.updateLeadPipelineStage(id, body.data.pipelineStage)
     : await sales.updateLeadStatus(id, body.data.status!);
@@ -42,7 +81,51 @@ export async function patchLeadStatus(req: Request, res: Response): Promise<void
     res.status(404).json({ error: "Lead not found" });
     return;
   }
+
+  const afterStatus = "status" in result ? result.status : (result as { stage?: string }).stage;
+  if (before && afterStatus && afterStatus !== before.status) {
+    await recordLeadActivity({
+      leadId: id,
+      type: "status_changed",
+      title: "Status changed",
+      detail: `${before.status} → ${afterStatus}`,
+      metadata: { from: before.status, to: afterStatus },
+    });
+  }
+
   res.json({ lead: result });
+}
+
+export async function patchLeadNotes(req: Request, res: Response): Promise<void> {
+  const body = z.object({ notes: z.string().max(10000) }).safeParse(req.body);
+  if (!body.success) {
+    res.status(400).json({ error: "Invalid body", details: z.flattenError(body.error) });
+    return;
+  }
+  const id = routeParam(req.params.id);
+  const lead = await sales.updateLeadNotes(id, body.data.notes);
+  if (!lead) {
+    res.status(404).json({ error: "Lead not found" });
+    return;
+  }
+  await recordLeadActivity({
+    leadId: id,
+    type: "note_updated",
+    title: "Notes updated",
+    detail: body.data.notes.slice(0, 120) || null,
+  });
+  res.json({ lead });
+}
+
+export async function getLeadActivity(req: Request, res: Response): Promise<void> {
+  const id = routeParam(req.params.id);
+  const activity = await listLeadActivity(id);
+  res.json({ activity });
+}
+
+export async function getRecentActivity(_req: Request, res: Response): Promise<void> {
+  const activity = await listRecentActivity();
+  res.json({ activity });
 }
 
 export async function postConvertLead(req: Request, res: Response): Promise<void> {

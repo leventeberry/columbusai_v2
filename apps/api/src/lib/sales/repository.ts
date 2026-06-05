@@ -67,6 +67,64 @@ export async function createDemoLead(input: DemoLeadInput) {
   return serializeLead(created, created.opportunity);
 }
 
+export type ManualLeadInput = {
+  fname: string;
+  lname: string;
+  email: string;
+  phone?: string;
+  company?: string;
+  role?: string;
+  industry?: string;
+  teamSize?: string;
+  whatAutomate: string;
+  budget?: string;
+  timeline?: string;
+  website?: string;
+  notes?: string;
+};
+
+export async function createManualLead(input: ManualLeadInput): Promise<LeadDto> {
+  const followup = resolveLeadFollowupInit(new Date());
+  const created = await prisma.salesLead.create({
+    data: {
+      fname: input.fname,
+      lname: input.lname,
+      email: input.email,
+      phone: input.phone ?? "",
+      company: input.company ?? "",
+      role: input.role ?? "",
+      industry: input.industry ?? "",
+      teamSize: input.teamSize ?? "",
+      whatAutomate: input.whatAutomate,
+      budget: input.budget ?? "",
+      timeline: input.timeline ?? "",
+      website: input.website ?? "",
+      notes: input.notes ?? null,
+      status: "new",
+      source: "manual",
+      followupCount: 0,
+      followupTemplate: followup.followupTemplate,
+      nextFollowupAt: followup.nextFollowupAt,
+    },
+    include: { opportunity: true },
+  });
+  return serializeLead(created, created.opportunity);
+}
+
+export async function updateLeadNotes(id: string, notes: string): Promise<LeadDto | null> {
+  try {
+    const updated = await prisma.salesLead.update({
+      where: { id },
+      data: { notes },
+      include: { opportunity: true },
+    });
+    return serializeLead(updated, updated.opportunity);
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2025") return null;
+    throw e;
+  }
+}
+
 export async function listLeads(): Promise<LeadDto[]> {
   const rows = await prisma.salesLead.findMany({
     include: { opportunity: true },
@@ -85,6 +143,7 @@ export async function getLeadById(id: string): Promise<LeadDto | null> {
 
 const LEAD_STATUS_TO_PIPELINE: Record<SalesLeadStatus, string> = {
   new: "new",
+  contacted: "contacted",
   qualified: "qualified",
   disqualified: "lost",
   converted_to_opportunity: "qualified",
@@ -92,6 +151,7 @@ const LEAD_STATUS_TO_PIPELINE: Record<SalesLeadStatus, string> = {
 
 const PIPELINE_TO_LEAD_STATUS: Record<string, SalesLeadStatus> = {
   new: "new",
+  contacted: "contacted",
   qualified: "qualified",
   lost: "disqualified",
 };
@@ -342,7 +402,7 @@ export async function getSalesStats(): Promise<SalesStatsDto> {
   for (const row of oppCounts) opportunitiesByStage[row.stage] = row._count._all;
 
   const openLeads =
-    (leadsByStatus.new ?? 0) + (leadsByStatus.qualified ?? 0);
+    (leadsByStatus.new ?? 0) + (leadsByStatus.contacted ?? 0) + (leadsByStatus.qualified ?? 0);
 
   const activeOpportunities = Object.entries(opportunitiesByStage)
     .filter(([s]) => s !== "won" && s !== "lost")

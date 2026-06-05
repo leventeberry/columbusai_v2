@@ -9,7 +9,8 @@
     "start": "node dist/index.js",
     "dev": "tsx watch src/index.ts",
     "lint": "tsc --noEmit",
-    "test": "node --import tsx --test $(find src -name '*.test.ts' -print | sort)"
+    "test": "node --import tsx --test $(find src -name '*.test.ts' ! -name '*.integration.test.ts' -print | sort)",
+    "test:integration": "INTEGRATION_TEST=1 node --import tsx --test --test-force-exit $(find src -name '*.integration.test.ts' -print | sort)"
   },
   "dependencies": {
     "@columbusai/db": "workspace:*",

@@ -14,7 +14,11 @@ import { AppUserRole } from "@columbusai/db";
 import {
   getLeads,
   getLead,
+  postCreateLead,
   patchLeadStatus,
+  patchLeadNotes,
+  getLeadActivity,
+  getRecentActivity,
   postConvertLead,
   getPipeline,
   getSalesStats,
@@ -151,10 +155,14 @@ export function createApp(): express.Application {
   );
 
   app.get("/api/leads", adminRead, asyncHandler(getLeads));
+  app.post("/api/leads", adminWrite, asyncHandler(postCreateLead));
   app.get("/api/leads/pipeline", adminRead, asyncHandler(getPipeline));
   app.get("/api/sales/stats", adminRead, asyncHandler(getSalesStats));
+  app.get("/api/activity/recent", adminRead, asyncHandler(getRecentActivity));
   app.get("/api/leads/:id", adminRead, asyncHandler(getLead));
   app.patch("/api/leads/:id/status", adminWrite, asyncHandler(patchLeadStatus));
+  app.patch("/api/leads/:id/notes", adminWrite, asyncHandler(patchLeadNotes));
+  app.get("/api/leads/:id/activity", adminRead, asyncHandler(getLeadActivity));
   app.post("/api/leads/:id/convert-to-opportunity", adminWrite, asyncHandler(postConvertLead));
   app.get("/api/opportunities", adminRead, asyncHandler(getOpportunities));
   app.get("/api/opportunities/:id", adminRead, asyncHandler(getOpportunity));
