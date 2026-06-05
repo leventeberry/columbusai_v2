@@ -66,4 +66,20 @@ describe("Sprint 2 admin smoke", () => {
     const result = buildAttentionLeads([stale]);
     assert.ok(result.some((l) => l.id === "lead-1" && l.reason === "needs_action"));
   });
+
+  it("maps followup_sent events to workflow type", () => {
+    const events: LeadActivityDto[] = [
+      {
+        id: "ev-2",
+        createdAt: "2026-06-04T12:00:00.000Z",
+        leadId: "lead-1",
+        type: "followup_sent",
+        title: "Follow-up email sent",
+        detail: "Automated follow-up 1 of 2",
+        metadata: { source: "n8n", followup_count: 1 },
+      },
+    ];
+    const activity = buildDashboardActivity(events, []);
+    assert.equal(activity[0]?.type, "workflow");
+  });
 });

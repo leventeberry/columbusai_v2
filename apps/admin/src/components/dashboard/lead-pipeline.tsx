@@ -17,6 +17,8 @@ import { pipelineCardToLeadCard } from "@/lib/sales-types";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DashboardDataError } from "@/components/dashboard/dashboard-data-error";
+import { formatDashboardError } from "@/lib/dashboard/error-message";
 
 const COLUMNS: { id: LeadStage; title: string; accent: string }[] = [
   { id: "new", title: "New", accent: "bg-info/40" },
@@ -154,7 +156,7 @@ export function LeadPipeline({
   /** When set, lead cards open side panel instead of navigating away. */
   onSelectLead?: (leadId: string) => void;
 } = {}) {
-  const { data: cards, isLoading, isError } = useSalesPipeline();
+  const { data: cards, isLoading, isError, error } = useSalesPipeline();
   const updateStage = useUpdatePipelineStage();
   const items = useMemo(() => (cards ?? []).map(pipelineCardToLeadCard), [cards]);
   const [active, setActive] = useState<PipelineLeadCard | null>(null);
@@ -188,11 +190,7 @@ export function LeadPipeline({
   }
 
   if (isError) {
-    return (
-      <p className="text-sm text-destructive">
-        Could not load pipeline. Check API connectivity and ADMIN_API_TOKEN.
-      </p>
-    );
+    return <DashboardDataError message={formatDashboardError(error)} />;
   }
 
   return (

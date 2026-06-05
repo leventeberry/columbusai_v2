@@ -1,20 +1,20 @@
-import { Inbox, Users, CheckSquare, MessageSquare, Coins } from "lucide-react";
+import { Inbox, Users, CheckSquare, Coins } from "lucide-react";
 import { KpiCard } from "@/components/dashboard/kpi-card";
 import { DashboardDataError } from "@/components/dashboard/dashboard-data-error";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDashboardOperations } from "@/hooks/use-dashboard";
 
 export function DashboardKpis() {
-  const { kpis, isLoading, isError } = useDashboardOperations();
+  const { kpis, isLoading, isError, errorMessage } = useDashboardOperations();
 
   if (isError) {
-    return <DashboardDataError />;
+    return <DashboardDataError message={errorMessage} />;
   }
 
   if (isLoading) {
     return (
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-        {Array.from({ length: 5 }).map((_, i) => (
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
           <Skeleton key={i} className="h-28 rounded-xl" />
         ))}
       </div>
@@ -25,7 +25,6 @@ export function DashboardKpis() {
     { label: "New Leads", value: String(kpis.newLeads.value), icon: Inbox },
     { label: "Active Clients", value: String(kpis.activeClients.value), icon: Users },
     { label: "Tasks Due Today", value: String(kpis.tasksDueToday.value), icon: CheckSquare },
-    { label: "Unread Messages", value: String(kpis.unreadMessages.value), icon: MessageSquare },
     {
       label: "Pipeline Value",
       value: `$${(kpis.pipelineValue.value / 1000).toFixed(0)}k`,
@@ -34,7 +33,7 @@ export function DashboardKpis() {
   ];
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       {cards.map((k) => (
         <KpiCard
           key={k.label}

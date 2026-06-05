@@ -2,9 +2,9 @@
  * Dashboard data adapters — UI reads via useDashboardOperations().
  *
  * Swap points:
- * - SEED_TASKS / MOCK_UNREAD_MESSAGES → admin tasks + inbox APIs
- * - Activity feed is now real (Sprint 2) via GET /api/activity/recent
- * - deriveTasksFromLeads can remain as supplemental follow-up tasks
+ * - Inbox KPI → unified inbox API (removed in Sprint 3 until real)
+ * - Activity feed via GET /api/activity/recent
+ * - deriveTasksFromLeads supplies follow-up tasks from live leads
  */
 import type { SalesLead } from "@/lib/sales-types";
 import type { LeadActivityDto } from "@/lib/sales.functions";
@@ -20,11 +20,7 @@ import type {
 
 export const ATTENTION_QUEUE_LIMIT = 8;
 
-/** Placeholder until unified inbox API exists. */
-export const MOCK_UNREAD_MESSAGES = 3;
-
 const MS_DAY = 86_400_000;
-const MS_HOUR = 3_600_000;
 
 function reasonMeta(reason: AttentionReason): { label: string; urgency: number } {
   switch (reason) {
@@ -83,39 +79,6 @@ export function buildAttentionLeads(leads: SalesLead[]): AttentionLead[] {
   return items.sort((a, b) => b.urgency - a.urgency).slice(0, ATTENTION_QUEUE_LIMIT);
 }
 
-const SEED_TASKS: DashboardTask[] = [
-  {
-    id: "task-1",
-    title: "Review onboarding checklist for Aperture Health",
-    dueDate: new Date().toISOString(),
-    priority: "high",
-    status: "open",
-    relatedType: "client",
-    relatedLabel: "Aperture Health",
-    source: "mock",
-  },
-  {
-    id: "task-2",
-    title: "Send proposal follow-up to Helio Robotics",
-    dueDate: new Date(Date.now() - MS_DAY).toISOString(),
-    priority: "critical",
-    status: "overdue",
-    relatedType: "lead",
-    relatedLabel: "Helio Robotics",
-    source: "mock",
-  },
-  {
-    id: "task-3",
-    title: "Confirm portal access for new client",
-    dueDate: new Date(Date.now() + MS_HOUR * 4).toISOString(),
-    priority: "medium",
-    status: "open",
-    relatedType: "client",
-    relatedLabel: "Northwind Logistics",
-    source: "mock",
-  },
-];
-
 export function deriveTasksFromLeads(leads: SalesLead[]): DashboardTask[] {
   const now = Date.now();
   const derived: DashboardTask[] = [];
@@ -141,11 +104,10 @@ export function deriveTasksFromLeads(leads: SalesLead[]): DashboardTask[] {
 }
 
 export function buildDashboardTasks(leads: SalesLead[]): DashboardTask[] {
-  const combined = [...deriveTasksFromLeads(leads), ...SEED_TASKS];
   const endOfToday = new Date();
   endOfToday.setHours(23, 59, 59, 999);
 
-  return combined
+  return deriveTasksFromLeads(leads)
     .filter((t) => {
       const due = new Date(t.dueDate).getTime();
       return t.status === "overdue" || due <= endOfToday.getTime();
@@ -162,6 +124,8 @@ const ACTIVITY_TYPE_MAP: Record<string, DashboardActivity["type"]> = {
   lead_created: "lead",
   status_changed: "lead",
   note_updated: "lead",
+  lead_converted: "lead",
+  followup_sent: "workflow",
   followup_created: "workflow",
   followup_completed: "workflow",
 };
@@ -207,9 +171,6 @@ export function buildDashboardKpis(
 ): DashboardKpis {
   const newLeadCount = leads.filter((l) => l.status === "new").length;
   const dueTodayCount = tasks.filter((t) => t.status === "open" || t.status === "overdue").length;
-  const hasDerivedTasks = tasks.some((t) => t.source === "derived");
-  const tasksSource: DataSource =
-    tasks.length === 0 ? "mock" : hasDerivedTasks ? "derived" : "mock";
 
   return {
     newLeads: {
@@ -217,8 +178,7 @@ export function buildDashboardKpis(
       source: "live",
     },
     activeClients: { value: stats?.activeClients ?? 0, source: "live" },
-    tasksDueToday: { value: dueTodayCount, source: tasksSource },
-    unreadMessages: { value: MOCK_UNREAD_MESSAGES, source: "mock" },
+    tasksDueToday: { value: dueTodayCount, source: "derived" },
     pipelineValue: { value: stats?.pipelineValue ?? 0, source: "live" },
   };
 }

@@ -47,6 +47,5 @@ export type DashboardKpis = {
   newLeads: { value: number; source: DataSource };
   activeClients: { value: number; source: DataSource };
   tasksDueToday: { value: number; source: DataSource };
-  unreadMessages: { value: number; source: DataSource };
   pipelineValue: { value: number; source: DataSource };
 };

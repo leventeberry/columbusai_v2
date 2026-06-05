@@ -3,7 +3,6 @@ import { describe, it } from "node:test";
 import type { SalesLead } from "@/lib/sales-types";
 import {
   ATTENTION_QUEUE_LIMIT,
-  MOCK_UNREAD_MESSAGES,
   buildAttentionLeads,
   buildDashboardActivity,
   buildDashboardKpis,
@@ -73,7 +72,7 @@ describe("buildAttentionLeads", () => {
 });
 
 describe("buildDashboardKpis", () => {
-  it("labels tasks KPI source as derived when follow-up tasks exist", () => {
+  it("labels tasks KPI source as derived", () => {
     const leads = [
       baseLead({
         nextFollowupAt: new Date("2026-06-04T14:00:00.000Z").toISOString(),
@@ -85,10 +84,16 @@ describe("buildDashboardKpis", () => {
     assert.ok(kpis.tasksDueToday.value >= 1);
   });
 
-  it("uses mock unread messages constant", () => {
+  it("does not include mock unread messages KPI", () => {
     const kpis = buildDashboardKpis(null, [], []);
-    assert.equal(kpis.unreadMessages.value, MOCK_UNREAD_MESSAGES);
-    assert.equal(kpis.unreadMessages.source, "mock");
+    assert.equal("unreadMessages" in kpis, false);
+  });
+});
+
+describe("buildDashboardTasks", () => {
+  it("uses only derived follow-up tasks", () => {
+    const tasks = buildDashboardTasks([]);
+    assert.equal(tasks.length, 0);
   });
 });
 

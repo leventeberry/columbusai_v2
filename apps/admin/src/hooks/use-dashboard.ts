@@ -7,10 +7,21 @@ import {
   buildDashboardKpis,
   buildDashboardTasks,
 } from "@/lib/dashboard/adapters";
+import { formatDashboardError } from "@/lib/dashboard/error-message";
 
 export function useDashboardOperations() {
-  const { data: stats, isLoading: statsLoading, isError: statsError } = useSalesStats();
-  const { data: leads, isLoading: leadsLoading, isError: leadsError } = useSalesLeads();
+  const {
+    data: stats,
+    isLoading: statsLoading,
+    isError: statsError,
+    error: statsErr,
+  } = useSalesStats();
+  const {
+    data: leads,
+    isLoading: leadsLoading,
+    isError: leadsError,
+    error: leadsErr,
+  } = useSalesLeads();
   const { data: recentActivity } = useRecentActivity();
 
   const leadList = leads ?? [];
@@ -26,6 +37,11 @@ export function useDashboardOperations() {
     [stats, leadList, tasks],
   );
 
+  const errorMessage = useMemo(() => {
+    if (!statsError && !leadsError) return undefined;
+    return formatDashboardError(leadsErr ?? statsErr);
+  }, [statsError, leadsError, statsErr, leadsErr]);
+
   return {
     kpis,
     attentionLeads,
@@ -33,5 +49,6 @@ export function useDashboardOperations() {
     activity,
     isLoading: statsLoading || leadsLoading,
     isError: statsError || leadsError,
+    errorMessage,
   };
 }

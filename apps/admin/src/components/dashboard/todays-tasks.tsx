@@ -57,10 +57,10 @@ function TaskRow({ task }: { task: DashboardTask }) {
 }
 
 export function TodaysTasks() {
-  const { tasks, isLoading, isError } = useDashboardOperations();
+  const { tasks, isLoading, isError, errorMessage } = useDashboardOperations();
 
   if (isError) {
-    return <DashboardDataError />;
+    return <DashboardDataError message={errorMessage} />;
   }
 
   if (isLoading) {

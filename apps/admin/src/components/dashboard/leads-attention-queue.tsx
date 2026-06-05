@@ -35,10 +35,10 @@ type Props = {
 };
 
 export function LeadsAttentionQueue({ onOpenLead }: Props) {
-  const { attentionLeads, isLoading, isError } = useDashboardOperations();
+  const { attentionLeads, isLoading, isError, errorMessage } = useDashboardOperations();
 
   if (isError) {
-    return <DashboardDataError />;
+    return <DashboardDataError message={errorMessage} />;
   }
 
   if (isLoading) {

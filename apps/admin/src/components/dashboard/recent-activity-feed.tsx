@@ -22,10 +22,10 @@ function activityIcon(type: DashboardActivity["type"]) {
 }
 
 export function RecentActivityFeed() {
-  const { activity, isLoading, isError } = useDashboardOperations();
+  const { activity, isLoading, isError, errorMessage } = useDashboardOperations();
 
   if (isError) {
-    return <DashboardDataError />;
+    return <DashboardDataError message={errorMessage} />;
   }
 
   if (isLoading) {
