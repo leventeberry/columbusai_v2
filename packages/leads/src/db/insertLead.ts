@@ -32,4 +32,15 @@ export async function insertLead(lead: Lead): Promise<void> {
       nextFollowupAt: followup.nextFollowupAt,
     },
   });
+
+  const contactName = `${lead.fname} ${lead.lname}`.trim();
+  await getPrisma().salesLeadActivity.create({
+    data: {
+      leadId: lead.id,
+      type: "lead_created",
+      title: "Lead created",
+      detail: `${contactName} — ${lead.what_automate}`,
+      metadata: { source: "demo_request" },
+    },
+  });
 }

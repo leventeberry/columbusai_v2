@@ -2,6 +2,7 @@
 
 enum SalesLeadStatus {
   new
+  contacted
   qualified
   disqualified
   converted_to_opportunity

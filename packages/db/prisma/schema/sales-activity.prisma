@@ -1,0 +1,19 @@
+// --- sales schema: lead activity event log ---
+
+model SalesLeadActivity {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  leadId String    @map("lead_id") @db.Uuid
+  lead   SalesLead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  type   String
+  title  String
+  detail String?
+  metadata Json?
+
+  @@index([leadId, createdAt(sort: Desc)])
+  @@index([createdAt(sort: Desc)])
+  @@map("lead_activity")
+  @@schema("sales")
+}
