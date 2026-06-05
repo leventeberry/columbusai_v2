@@ -11,7 +11,7 @@
 | **Web (legacy)** | `apps/web` | http://localhost:3010 (Docker profile `legacy`) | Previous Next.js marketing site |
 | **n8n** | docker service `n8n` | http://localhost:5678 | Automation workflow builder |
 
-Copy [`.env.local.example`](.env.local.example) to [`.env.local`](.env.local) at repo root (see [docs/env.md](docs/env.md) and [docs/local-development.md](docs/local-development.md)).
+Copy [`.env.local.example`](.env.local.example) to [`.env.local`](.env.local) at repo root (see [docs/architecture/environment.md](docs/architecture/environment.md) and [docs/architecture/local-development.md](docs/architecture/local-development.md)).
 
 ```bash
 # From repo root (Node 26+, pnpm via Corepack)
@@ -23,7 +23,7 @@ make up-dev          # same stack, foreground logs (debug)
 make dev-marketing   # host-only marketing (no Docker)
 ```
 
-**Marketing** uses TanStack Start (Vite). Chat calls `VITE_API_URL` (default `http://localhost:4000`). Demo requests POST to `POST /api/leads/demo` on the API (`@columbusai/leads` shared package). See [docs/demo-request-workflow.md](docs/demo-request-workflow.md).
+**Marketing** uses TanStack Start (Vite). Chat calls `VITE_API_URL` (default `http://localhost:4000`). Demo requests POST to `POST /api/leads/demo` on the API (`@columbusai/leads` shared package). See [docs/workflows/demo-request-workflow.md](docs/workflows/demo-request-workflow.md).
 
 ## Hermes agent runner (repo-local)
 
@@ -103,7 +103,7 @@ Copy `.env.example` to `.env` and set `NEXT_PUBLIC_CONTACT_EMAIL` / `NEXT_PUBLIC
 
 Phase 1 adds Postgres, Prisma (chat schema), message persistence endpoints, and a minimal `/dev/messages` UI. No OpenAI yet; schema is Responses API–ready.
 
-**One Postgres, three databases:** A single `pgvector/pg16` container (`postgres`, host port 5432) hosts **columbus** (platform / Prisma / leads), **columbus_vectors** (RAG / pgvector), and **n8n** (local n8n metadata). **Migrations** (`db:migrate` / `db-migrate.sh`) apply only to **columbus** (`DATABASE_URL`). The vector DB has no Prisma migrations; its schema is created by the app on first ingest or retrieval (`ensureVectorSchema` in `apps/web/lib/vector-db.ts`). See [docs/postgres.md](docs/postgres.md) for one-time setup on existing volumes.
+**One Postgres, three databases:** A single `pgvector/pg16` container (`postgres`, host port 5432) hosts **columbus** (platform / Prisma / leads), **columbus_vectors** (RAG / pgvector), and **n8n** (local n8n metadata). **Migrations** (`db:migrate` / `db-migrate.sh`) apply only to **columbus** (`DATABASE_URL`). The vector DB has no Prisma migrations; its schema is created by the app on first ingest or retrieval (`ensureVectorSchema` in `apps/web/lib/vector-db.ts`). See [docs/architecture/postgres.md](docs/architecture/postgres.md) for one-time setup on existing volumes.
 
 **Prereq:** Postgres (run locally or via Docker Compose).
 
@@ -219,7 +219,7 @@ Production runs on a single VPS (e.g. Hostinger) with Traefik TLS and [infra/doc
 
 Legacy Next.js (optional): `docker compose --profile legacy up -d web` → `app.columbusai.tech`.
 
-**Prereq:** Docker Compose v2.1+, `.env.production` from [`.env.production.example`](.env.production.example) (`DOMAIN`, `ACME_EMAIL`, `POSTGRES_PASSWORD`, `OPENAI_API_KEY`, `CORS_ORIGIN`, `VITE_API_URL`). See [docs/env.md](docs/env.md).
+**Prereq:** Docker Compose v2.1+, `.env.production` from [`.env.production.example`](.env.production.example) (`DOMAIN`, `ACME_EMAIL`, `POSTGRES_PASSWORD`, `OPENAI_API_KEY`, `CORS_ORIGIN`, `VITE_API_URL`). See [docs/architecture/environment.md](docs/architecture/environment.md).
 
 ### Start prod stack
 
@@ -235,7 +235,7 @@ make verify-prod
 curl -sf https://api.columbusai.tech/api/health
 ```
 
-Full runbook: [docs/deployment-runbook.md](docs/deployment-runbook.md).
+Full runbook: [docs/architecture/deployment.md](docs/architecture/deployment.md).
 
 ### Required env vars in prod
 

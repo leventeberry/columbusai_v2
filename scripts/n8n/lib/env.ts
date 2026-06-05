@@ -32,7 +32,7 @@ function requireVar(name: string): string {
       console.error("  3. Set N8N_API_URL and N8N_API_KEY in .env.local");
       console.error("");
       console.error("Production sync: COLUMBUS_ENV=production pnpm n8n:list (uses .env.production).");
-      console.error("See docs/n8n-local-dev.md");
+      console.error("See docs/architecture/n8n-local-dev.md");
     }
     process.exit(1);
   }

@@ -1,0 +1,308 @@
+# Current Sprint
+
+**Status:** Active sprint definition  
+**Last updated:** June 2026  
+**Primary references:** [First Sellable Product](../product/first-sellable-product.md), [Admin Portal](../product/admin-portal.md), [Lead Lifecycle](../workflows/lead-lifecycle.md)
+
+---
+
+## Sprint 1
+
+**Theme:** Build Admin Dashboard MVP
+
+This sprint is the first implementation sprint that turns the product and architecture documentation into a concrete owner-facing operational experience.
+
+The goal is to build the smallest useful Admin Dashboard that helps a business owner understand, within 30 seconds, what requires attention right now.
+
+This sprint should prioritize operational visibility over breadth.
+
+---
+
+## Sprint Objective
+
+Deliver an MVP admin dashboard experience that gives the owner immediate visibility into:
+
+- new leads
+- leads requiring follow-up
+- tasks requiring attention
+- recent activity
+- core KPI snapshots
+
+This sprint should create the foundation for later admin pages without trying to complete the entire platform in one pass.
+
+---
+
+## Sprint Scope
+
+### In scope
+
+1. Dashboard shell
+2. Leads page
+3. Lead detail page
+4. Tasks widget
+5. Activity feed
+6. KPI cards
+
+### Out of scope
+
+The following are intentionally not Sprint 1 priorities unless required to support the listed MVP work:
+
+- full documents module
+- full messaging module
+- full automations management UI
+- advanced analytics dashboards
+- billing
+- marketplace or enterprise features
+- workflow builder functionality
+- native mobile features
+
+---
+
+## Sprint Deliverables
+
+### 1. Dashboard shell
+
+Create the structural dashboard experience that will become the owner's home screen.
+
+**Purpose:**
+
+- Establish the MVP admin portal landing page
+- Define layout, priority zones, and information hierarchy
+
+**Must include:**
+
+- page header
+- primary KPI card row
+- operational widgets section
+- recent activity section
+- clear drill-down paths into detail pages
+
+**Success criteria:**
+
+- The dashboard reads as an operations center, not a reporting page
+- The most important information is visible without scrolling deeply
+
+---
+
+### 2. Leads page
+
+Create the operational list view for leads.
+
+**Purpose:**
+
+- Give the owner a clear place to manage active prospects
+
+**Must include:**
+
+- lead table or list
+- stage visibility
+- last activity
+- next follow-up
+- filters for urgent operational use
+
+**Success criteria:**
+
+- The owner can identify which leads need action immediately
+- The page reflects the documented lead lifecycle rather than ad hoc statuses
+
+---
+
+### 3. Lead detail page
+
+Create a focused lead detail experience that supports action and context.
+
+**Purpose:**
+
+- Make it easy to review a single lead and decide the next step
+
+**Must include:**
+
+- lead profile summary
+- current stage
+- notes
+- activity history
+- communication/follow-up context
+- clear next-action controls
+
+**Success criteria:**
+
+- The owner can open a lead and understand status, context, and next step without leaving the page repeatedly
+
+---
+
+### 4. Tasks widget
+
+Create a dashboard widget that surfaces tasks requiring attention.
+
+**Purpose:**
+
+- Make today’s work visible from the home screen
+
+**Must include:**
+
+- due today
+- overdue
+- priority indication
+- deep links to task or related record
+
+**Success criteria:**
+
+- The owner can immediately identify overdue or urgent work
+- The widget supports action, not passive browsing
+
+---
+
+### 5. Activity feed
+
+Create a recent activity component for operational context.
+
+**Purpose:**
+
+- Show what changed across leads, clients, tasks, and workflows
+
+**Must include:**
+
+- recent status changes
+- recent follow-up-related activity
+- recent task or onboarding events
+- timestamps and linked record context
+
+**Success criteria:**
+
+- The owner can quickly understand what changed since last login
+- The feed supports triage rather than becoming noise
+
+---
+
+### 6. KPI cards
+
+Create a minimal KPI card set focused on operational value.
+
+**Purpose:**
+
+- Give the owner immediate quantitative context
+
+**Recommended MVP cards:**
+
+- new leads
+- follow-ups due
+- active clients
+- overdue tasks
+
+**Rules:**
+
+- KPI cards must connect to action or urgency
+- Do not include vanity metrics
+- Do not turn Sprint 1 into a reporting build
+
+**Success criteria:**
+
+- KPI cards improve orientation without distracting from action widgets
+
+---
+
+## Functional Priorities
+
+The order of importance for Sprint 1 should be:
+
+1. Make urgent work visible
+2. Make lead follow-up clear
+3. Make next actions obvious
+4. Make context easy to access
+5. Make the dashboard feel trustworthy and focused
+
+Notably, Sprint 1 should not optimize for:
+
+- customization
+- enterprise flexibility
+- dense analytics
+- aesthetic polish over workflow clarity
+
+---
+
+## Data Priorities
+
+Sprint 1 should primarily rely on the documented operational data model:
+
+- `sales.leads`
+- lead status / follow-up fields
+- `sales.clients`
+- task/work-item data where relevant
+- recent activity records
+
+Where implementation gaps exist, prefer the smallest safe path that preserves the documented long-term model rather than inventing a separate temporary product model.
+
+---
+
+## UX Priorities
+
+Sprint 1 UI should optimize for:
+
+- clarity over density
+- urgency over completeness
+- actionable summaries over passive charts
+- obvious drill-downs over hidden navigation
+- mobile-aware layouts where reasonable
+
+UI patterns should follow:
+
+- [Admin Portal](../product/admin-portal.md)
+- [Product Rules](../cursor/product-rules.md)
+- [Implementation Rules](../cursor/implementation-rules.md)
+
+---
+
+## Acceptance Criteria
+
+Sprint 1 is successful if an owner can log in and quickly answer:
+
+- Do I have new leads?
+- Which leads need follow-up?
+- What work is overdue?
+- What changed recently?
+- Where should I click next?
+
+If the dashboard still feels like a generic SaaS homepage or passive reporting surface, Sprint 1 is not complete.
+
+---
+
+## Guardrails
+
+During Sprint 1:
+
+- Do not add undocumented lifecycle states
+- Do not add extra admin navigation sections
+- Do not let analytics overtake operations
+- Do not build workflow-builder UX
+- Do not add enterprise abstractions
+
+If implementation pressure pushes outside these boundaries, stop and reconcile with the docs first.
+
+---
+
+## Dependencies
+
+Sprint 1 depends on and should stay aligned with:
+
+- [First Sellable Product](../product/first-sellable-product.md)
+- [Admin Portal](../product/admin-portal.md)
+- [Lead Lifecycle](../workflows/lead-lifecycle.md)
+- [System Overview](../architecture/system-overview.md)
+- [Project Rules](../cursor/project-rules.md)
+- [Product Rules](../cursor/product-rules.md)
+- [Architecture Rules](../cursor/architecture-rules.md)
+- [Implementation Rules](../cursor/implementation-rules.md)
+
+---
+
+## Recommended Follow-Up After Sprint 1
+
+If Sprint 1 lands successfully, the next likely priorities should be:
+
+1. Complete Tasks page and task management workflows
+2. Expand lead detail and qualification/proposal workflows
+3. Build client list and client detail operational views
+4. Add outstanding documents visibility
+5. Improve automation failure visibility
+
+Those should only happen after the dashboard MVP is coherent and operationally useful.

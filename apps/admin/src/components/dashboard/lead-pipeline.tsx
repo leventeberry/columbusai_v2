@@ -27,7 +27,15 @@ const COLUMNS: { id: LeadStage; title: string; accent: string }[] = [
   { id: "lost", title: "Lost", accent: "bg-destructive/40" },
 ];
 
-function LeadCard({ lead, dragging }: { lead: PipelineLeadCard; dragging?: boolean }) {
+function LeadCard({
+  lead,
+  dragging,
+  onSelectLead,
+}: {
+  lead: PipelineLeadCard;
+  dragging?: boolean;
+  onSelectLead?: (leadId: string) => void;
+}) {
   const scoreTone =
     lead.score >= 85 ? "text-success" : lead.score >= 70 ? "text-warning" : "text-muted-foreground";
   const detailTo =
@@ -37,15 +45,13 @@ function LeadCard({ lead, dragging }: { lead: PipelineLeadCard; dragging?: boole
   const detailParams =
     lead.entityType === "opportunity" ? { opportunityId: lead.id } : { leadId: lead.id };
 
-  return (
-    <Link
-      to={detailTo}
-      params={detailParams}
-      className={cn(
-        "block rounded-lg border border-border/60 bg-card/80 p-3 text-sm shadow-card transition-colors hover:border-primary/40",
-        dragging && "rotate-1 ring-1 ring-primary/40",
-      )}
-    >
+  const cardClass = cn(
+    "block w-full rounded-lg border border-border/60 bg-card/80 p-3 text-sm shadow-card transition-colors hover:border-primary/40",
+    dragging && "rotate-1 ring-1 ring-primary/40",
+  );
+
+  const inner = (
+    <>
       <div className="flex items-start justify-between gap-2">
         <div className="font-medium leading-tight">{lead.company}</div>
         <span className={cn("font-mono text-xs", scoreTone)}>{lead.score}</span>
@@ -62,11 +68,31 @@ function LeadCard({ lead, dragging }: { lead: PipelineLeadCard; dragging?: boole
           ${(lead.value / 1000).toFixed(0)}k
         </span>
       </div>
+    </>
+  );
+
+  if (lead.entityType === "lead" && onSelectLead) {
+    return (
+      <button type="button" className={cn(cardClass, "text-left")} onClick={() => onSelectLead(lead.id)}>
+        {inner}
+      </button>
+    );
+  }
+
+  return (
+    <Link to={detailTo} params={detailParams} className={cardClass}>
+      {inner}
     </Link>
   );
 }
 
-function DraggableLead({ lead }: { lead: PipelineLeadCard }) {
+function DraggableLead({
+  lead,
+  onSelectLead,
+}: {
+  lead: PipelineLeadCard;
+  onSelectLead?: (leadId: string) => void;
+}) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: lead.id });
   return (
     <div
@@ -75,12 +101,20 @@ function DraggableLead({ lead }: { lead: PipelineLeadCard }) {
       {...attributes}
       className={cn("cursor-grab active:cursor-grabbing", isDragging && "opacity-40")}
     >
-      <LeadCard lead={lead} />
+      <LeadCard lead={lead} onSelectLead={onSelectLead} />
     </div>
   );
 }
 
-function Column({ col, leads }: { col: (typeof COLUMNS)[number]; leads: PipelineLeadCard[] }) {
+function Column({
+  col,
+  leads,
+  onSelectLead,
+}: {
+  col: (typeof COLUMNS)[number];
+  leads: PipelineLeadCard[];
+  onSelectLead?: (leadId: string) => void;
+}) {
   const { setNodeRef, isOver } = useDroppable({ id: col.id });
   const total = leads.reduce((s, l) => s + l.value, 0);
   return (
@@ -101,7 +135,7 @@ function Column({ col, leads }: { col: (typeof COLUMNS)[number]; leads: Pipeline
       </div>
       <div className="flex flex-1 flex-col gap-2 p-2">
         {leads.map((l) => (
-          <DraggableLead key={`${l.entityType}-${l.id}`} lead={l} />
+          <DraggableLead key={`${l.entityType}-${l.id}`} lead={l} onSelectLead={onSelectLead} />
         ))}
         {leads.length === 0 && (
           <div className="grid h-16 place-items-center rounded-md border border-dashed border-border/50 text-xs text-muted-foreground">
@@ -113,12 +147,17 @@ function Column({ col, leads }: { col: (typeof COLUMNS)[number]; leads: Pipeline
   );
 }
 
-export function LeadPipeline() {
+export function LeadPipeline({
+  onSelectLead,
+}: {
+  /** When set, lead cards open side panel instead of navigating away. */
+  onSelectLead?: (leadId: string) => void;
+} = {}) {
   const { data: cards, isLoading, isError } = useSalesPipeline();
   const updateStage = useUpdatePipelineStage();
   const items = useMemo(() => (cards ?? []).map(pipelineCardToLeadCard), [cards]);
   const [active, setActive] = useState<PipelineLeadCard | null>(null);
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
 
   function onDragStart(e: DragStartEvent) {
     setActive(items.find((i) => i.id === e.active.id) ?? null);
@@ -159,7 +198,12 @@ export function LeadPipeline() {
     <DndContext sensors={sensors} onDragStart={onDragStart} onDragEnd={onDragEnd}>
       <div className="flex gap-3 overflow-x-auto pb-1">
         {COLUMNS.map((c) => (
-          <Column key={c.id} col={c} leads={items.filter((l) => l.stage === c.id)} />
+          <Column
+            key={c.id}
+            col={c}
+            leads={items.filter((l) => l.stage === c.id)}
+            onSelectLead={onSelectLead}
+          />
         ))}
       </div>
       <DragOverlay>{active ? <LeadCard lead={active} dragging /> : null}</DragOverlay>

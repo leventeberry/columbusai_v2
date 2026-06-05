@@ -68,7 +68,7 @@ preflight_ssh() {
   fi
   echo "Cannot reach the VPS over SSH." >&2
   echo "  Test: ssh ${SSH_TARGET} 'echo ok'" >&2
-  echo "  See docs/vps-ssh-setup.md" >&2
+  echo "  See docs/architecture/vps-ssh-setup.md" >&2
   exit 1
 }
 

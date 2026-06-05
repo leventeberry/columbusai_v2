@@ -14,6 +14,9 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppTasksRouteImport } from './routes/_app.tasks'
+import { Route as AppMessagesRouteImport } from './routes/_app.messages'
+import { Route as AppDocumentsRouteImport } from './routes/_app.documents'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppClientsIndexRouteImport } from './routes/_app.clients.index'
 import { Route as AppSalesOpportunitiesRouteImport } from './routes/_app.sales.opportunities'
@@ -68,6 +71,21 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppTasksRoute = AppTasksRouteImport.update({
+  id: '/tasks',
+  path: '/tasks',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMessagesRoute = AppMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDocumentsRoute = AppDocumentsRouteImport.update({
+  id: '/documents',
+  path: '/documents',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
@@ -231,6 +249,9 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/unauthorized': typeof UnauthorizedRoute
   '/dashboard': typeof AppDashboardRoute
+  '/documents': typeof AppDocumentsRoute
+  '/messages': typeof AppMessagesRoute
+  '/tasks': typeof AppTasksRoute
   '/admin/audit': typeof AppAdminAuditRoute
   '/admin/billing': typeof AppAdminBillingRoute
   '/admin/settings': typeof AppAdminSettingsRoute
@@ -267,6 +288,9 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/unauthorized': typeof UnauthorizedRoute
   '/dashboard': typeof AppDashboardRoute
+  '/documents': typeof AppDocumentsRoute
+  '/messages': typeof AppMessagesRoute
+  '/tasks': typeof AppTasksRoute
   '/admin/audit': typeof AppAdminAuditRoute
   '/admin/billing': typeof AppAdminBillingRoute
   '/admin/settings': typeof AppAdminSettingsRoute
@@ -305,6 +329,9 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/unauthorized': typeof UnauthorizedRoute
   '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/documents': typeof AppDocumentsRoute
+  '/_app/messages': typeof AppMessagesRoute
+  '/_app/tasks': typeof AppTasksRoute
   '/_app/admin/audit': typeof AppAdminAuditRoute
   '/_app/admin/billing': typeof AppAdminBillingRoute
   '/_app/admin/settings': typeof AppAdminSettingsRoute
@@ -343,6 +370,9 @@ export interface FileRouteTypes {
     | '/signup'
     | '/unauthorized'
     | '/dashboard'
+    | '/documents'
+    | '/messages'
+    | '/tasks'
     | '/admin/audit'
     | '/admin/billing'
     | '/admin/settings'
@@ -379,6 +409,9 @@ export interface FileRouteTypes {
     | '/signup'
     | '/unauthorized'
     | '/dashboard'
+    | '/documents'
+    | '/messages'
+    | '/tasks'
     | '/admin/audit'
     | '/admin/billing'
     | '/admin/settings'
@@ -416,6 +449,9 @@ export interface FileRouteTypes {
     | '/signup'
     | '/unauthorized'
     | '/_app/dashboard'
+    | '/_app/documents'
+    | '/_app/messages'
+    | '/_app/tasks'
     | '/_app/admin/audit'
     | '/_app/admin/billing'
     | '/_app/admin/settings'
@@ -491,6 +527,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_app/tasks': {
+      id: '/_app/tasks'
+      path: '/tasks'
+      fullPath: '/tasks'
+      preLoaderRoute: typeof AppTasksRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/messages': {
+      id: '/_app/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof AppMessagesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/documents': {
+      id: '/_app/documents'
+      path: '/documents'
+      fullPath: '/documents'
+      preLoaderRoute: typeof AppDocumentsRouteImport
+      parentRoute: typeof AppRoute
     }
     '/_app/dashboard': {
       id: '/_app/dashboard'
@@ -733,6 +790,9 @@ const AppSalesOpportunitiesRouteWithChildren =
 
 interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
+  AppDocumentsRoute: typeof AppDocumentsRoute
+  AppMessagesRoute: typeof AppMessagesRoute
+  AppTasksRoute: typeof AppTasksRoute
   AppAdminAuditRoute: typeof AppAdminAuditRoute
   AppAdminBillingRoute: typeof AppAdminBillingRoute
   AppAdminSettingsRoute: typeof AppAdminSettingsRoute
@@ -764,6 +824,9 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
+  AppDocumentsRoute: AppDocumentsRoute,
+  AppMessagesRoute: AppMessagesRoute,
+  AppTasksRoute: AppTasksRoute,
   AppAdminAuditRoute: AppAdminAuditRoute,
   AppAdminBillingRoute: AppAdminBillingRoute,
   AppAdminSettingsRoute: AppAdminSettingsRoute,

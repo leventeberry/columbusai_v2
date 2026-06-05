@@ -28,4 +28,4 @@ run build pnpm build
 run docker-build $COMPOSE build
 
 echo ""
-echo "Done. Review logs in logs/maintenance/ and docs/maintenance.md"
+echo "Done. Review logs in logs/maintenance/ and docs/standards/maintenance.md"

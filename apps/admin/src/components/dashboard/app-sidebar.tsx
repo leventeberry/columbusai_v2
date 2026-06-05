@@ -2,28 +2,18 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard,
   Users,
-  Workflow,
-  Bot,
-  Plug,
-  BookOpen,
-  UsersRound,
   CheckSquare,
-  Rocket,
-  Activity,
-  BarChart3,
-  Gauge,
-  Coins,
-  ShieldCheck,
-  ScrollText,
+  FileText,
+  MessageSquare,
   Settings,
   Inbox,
-  MessageSquare,
-  Target,
   Sparkles,
-  Boxes,
-  ListChecks,
-  Globe,
-  KeyRound,
+  ShieldCheck,
+  ChevronDown,
+  Workflow,
+  Bot,
+  Target,
+  Activity,
 } from "lucide-react";
 import {
   Sidebar,
@@ -37,36 +27,35 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import type { LucideIcon } from "lucide-react";
 import { useAuth, type AppRole } from "@/hooks/use-auth";
 
 type NavItem = { title: string; url: string; icon: LucideIcon };
 type NavGroup = { label: string; items: NavItem[]; requiresRole?: AppRole[] };
 
-const NAV: NavGroup[] = [
+/** Sprint 1 primary navigation — see docs/product/admin-dashboard-mvp.md */
+const PRIMARY_NAV: NavItem[] = [
+  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+  { title: "Leads", url: "/sales/leads", icon: Inbox },
+  { title: "Clients", url: "/clients", icon: Users },
+  { title: "Tasks", url: "/tasks", icon: CheckSquare },
+  { title: "Documents", url: "/documents", icon: FileText },
+  { title: "Messages", url: "/messages", icon: MessageSquare },
+  { title: "Settings", url: "/admin/settings", icon: Settings },
+];
+
+/** Advanced modules — available but de-emphasized during Sprint 1 */
+const MORE_NAV: NavGroup[] = [
   {
-    label: "Overview",
-    items: [{ title: "Dashboard", url: "/dashboard", icon: LayoutDashboard }],
-  },
-  {
-    label: "Sales",
+    label: "Sales (more)",
     items: [
-      { title: "Leads", url: "/sales/leads", icon: Inbox },
       { title: "Opportunities", url: "/sales/opportunities", icon: Target },
       { title: "Conversations", url: "/sales/conversations", icon: MessageSquare },
-    ],
-  },
-  {
-    label: "Clients",
-    items: [{ title: "Active Clients", url: "/clients", icon: Users }],
-  },
-  {
-    label: "Provisioning",
-    items: [
-      { title: "Queue", url: "/provisioning/queue", icon: ListChecks },
-      { title: "Templates", url: "/provisioning/templates", icon: Boxes },
-      { title: "Domains", url: "/provisioning/domains", icon: Globe },
-      { title: "Secrets", url: "/provisioning/secrets", icon: KeyRound },
     ],
   },
   {
@@ -74,36 +63,11 @@ const NAV: NavGroup[] = [
     items: [
       { title: "Workflows", url: "/automation/workflows", icon: Workflow },
       { title: "AI Agents", url: "/automation/agents", icon: Bot },
-      { title: "Integrations", url: "/automation/integrations", icon: Plug },
-      { title: "Knowledge Base", url: "/automation/knowledge", icon: BookOpen },
     ],
   },
   {
     label: "Operations",
-    items: [
-      { title: "Team", url: "/operations/team", icon: UsersRound },
-      { title: "Tasks", url: "/operations/tasks", icon: CheckSquare },
-      { title: "Deployments", url: "/operations/deployments", icon: Rocket },
-      { title: "System Health", url: "/operations/health", icon: Activity },
-    ],
-  },
-  {
-    label: "Analytics",
-    items: [
-      { title: "Revenue", url: "/analytics/revenue", icon: Coins },
-      { title: "Usage", url: "/analytics/usage", icon: BarChart3 },
-      { title: "Performance", url: "/analytics/performance", icon: Gauge },
-    ],
-  },
-  {
-    label: "Administration",
-    requiresRole: ["admin"],
-    items: [
-      { title: "Team & Roles", url: "/admin/team", icon: UsersRound },
-      { title: "Billing", url: "/admin/billing", icon: Coins },
-      { title: "Audit Log", url: "/admin/audit", icon: ScrollText },
-      { title: "Settings", url: "/admin/settings", icon: Settings },
-    ],
+    items: [{ title: "System Health", url: "/operations/health", icon: Activity }],
   },
 ];
 
@@ -115,7 +79,7 @@ const ROLE_LABELS: Record<AppRole, string> = {
 
 export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { profile, user, roles, hasAnyRole } = useAuth();
+  const { profile, user, roles } = useAuth();
   const isActive = (url: string) =>
     url === "/dashboard" ? pathname === url : pathname === url || pathname.startsWith(url + "/");
 
@@ -143,25 +107,62 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-        {NAV.filter((g) => !g.requiresRole || hasAnyRole(g.requiresRole)).map((group) => (
-          <SidebarGroup key={group.label}>
-            <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {group.items.map((item) => (
-                  <SidebarMenuItem key={item.url}>
-                    <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
-                      <Link to={item.url}>
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
+        <SidebarGroup>
+          <SidebarGroupLabel>Operations</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {PRIMARY_NAV.map((item) => (
+                <SidebarMenuItem key={item.url}>
+                  <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
+                    <Link to={item.url}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <Collapsible defaultOpen={false} className="group/collapsible">
+          <SidebarGroup>
+            <SidebarGroupLabel asChild>
+              <CollapsibleTrigger className="flex w-full items-center gap-1 [&[data-state=open]>svg]:rotate-180">
+                More modules
+                <ChevronDown className="ml-auto h-3.5 w-3.5 transition-transform" />
+              </CollapsibleTrigger>
+            </SidebarGroupLabel>
+            <CollapsibleContent>
+              {MORE_NAV.map((group) => (
+                <SidebarGroup key={group.label} className="pt-0">
+                  <SidebarGroupLabel className="text-[10px] uppercase tracking-wide text-muted-foreground/80">
+                    {group.label}
+                  </SidebarGroupLabel>
+                  <SidebarGroupContent>
+                    <SidebarMenu>
+                      {group.items.map((item) => (
+                        <SidebarMenuItem key={item.url}>
+                          <SidebarMenuButton
+                            asChild
+                            isActive={isActive(item.url)}
+                            tooltip={item.title}
+                            className="opacity-80"
+                          >
+                            <Link to={item.url}>
+                              <item.icon className="h-4 w-4" />
+                              <span>{item.title}</span>
+                            </Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      ))}
+                    </SidebarMenu>
+                  </SidebarGroupContent>
+                </SidebarGroup>
+              ))}
+            </CollapsibleContent>
           </SidebarGroup>
-        ))}
+        </Collapsible>
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border">

@@ -1,13 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { LeadPipeline } from "@/components/dashboard/lead-pipeline";
-import { ClientsTable } from "@/components/dashboard/clients-table";
-import { SalesKpis } from "@/components/dashboard/sales-kpis";
-import { WorkflowMonitoring } from "@/components/dashboard/workflow-monitoring";
-import { AgentControl } from "@/components/dashboard/agent-control";
-import { SystemHealth } from "@/components/dashboard/system-health";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { DashboardKpis } from "@/components/dashboard/dashboard-kpis";
+import { LeadsAttentionQueue } from "@/components/dashboard/leads-attention-queue";
+import { TodaysTasks } from "@/components/dashboard/todays-tasks";
+import { RecentActivityFeed } from "@/components/dashboard/recent-activity-feed";
 import { PageHeader, Section } from "@/components/dashboard/page-header";
 import { Button } from "@/components/ui/button";
-import { useSalesStats } from "@/hooks/use-sales";
 
 export const Route = createFileRoute("/_app/dashboard")({
   head: () => ({
@@ -15,7 +12,7 @@ export const Route = createFileRoute("/_app/dashboard")({
       { title: "Dashboard — Columbus AI" },
       {
         name: "description",
-        content: "Executive overview of revenue, clients, leads, and AI automations.",
+        content: "Operational overview — what requires your attention right now.",
       },
     ],
   }),
@@ -23,58 +20,35 @@ export const Route = createFileRoute("/_app/dashboard")({
 });
 
 function DashboardPage() {
-  const { data: stats } = useSalesStats();
-  const clientCount = stats?.activeClients ?? 0;
-
   return (
     <div className="space-y-8">
       <PageHeader
-        title="Executive overview"
-        subtitle="Real-time pulse on revenue, clients, and AI operations."
+        title="Operations overview"
+        subtitle="What needs your attention right now."
         actions={
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">
-              Export
-            </Button>
-            <Button
-              size="sm"
-              className="bg-gradient-to-r from-primary to-chart-2 text-primary-foreground"
-            >
-              New workflow
-            </Button>
-          </div>
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/sales/leads">View leads</Link>
+          </Button>
         }
       />
 
-      <SalesKpis />
+      <DashboardKpis />
 
-      <Section title="Lead pipeline" subtitle="Drag cards across stages to update.">
-        <LeadPipeline />
-      </Section>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Section
+          title="Leads requiring attention"
+          subtitle="Follow-ups due, new inquiries, and leads needing review."
+        >
+          <LeadsAttentionQueue />
+        </Section>
 
-      <Section
-        title="Active clients"
-        subtitle={`${clientCount} sales clients · sorted by recent activity.`}
-      >
-        <ClientsTable />
-      </Section>
+        <Section title="Today's tasks" subtitle="Due today and overdue across your business.">
+          <TodaysTasks />
+        </Section>
+      </div>
 
-      <Section
-        title="Workflow monitoring"
-        subtitle="Live execution status across all environments."
-      >
-        <WorkflowMonitoring />
-      </Section>
-
-      <Section
-        title="AI agent control center"
-        subtitle="Manage your fleet of production AI agents."
-      >
-        <AgentControl />
-      </Section>
-
-      <Section title="System health" subtitle="Infrastructure pulse across services and providers.">
-        <SystemHealth />
+      <Section title="Recent activity" subtitle="Latest changes across leads, clients, and workflows.">
+        <RecentActivityFeed />
       </Section>
     </div>
   );
